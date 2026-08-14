@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <EmbeddedResource
+            Include="Usage\Catalog\market-model-aliases.json"
+            LogicalName="AgenTally.ModelIdentityCatalog.json" />
+        <EmbeddedResource
+            Include="Usage\Catalog\local-reviewed-model-aliases.json"
+            LogicalName="AgenTally.ReviewedModelAliasCatalog.json" />
+    </ItemGroup>
+</Project>

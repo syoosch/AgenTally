@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <TargetFramework>net10.0-windows</TargetFramework>
+        <UseWPF>true</UseWPF>
+        <ApplicationIcon>..\..\assets\icon\AgenTally.ico</ApplicationIcon>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Resource Include="..\..\assets\icon\AgenTally.ico"
+                  Link="Resources\AgenTally.ico" />
+        <ProjectReference Include="..\AgenTally.Domain\AgenTally.Domain.csproj" />
+        <ProjectReference Include="..\AgenTally.Storage\AgenTally.Storage.csproj" />
+    </ItemGroup>
+</Project>

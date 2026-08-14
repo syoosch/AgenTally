@@ -1,0 +1,4957 @@
+{
+  "schemaVersion": 1,
+  "catalogVersion": "market-token-prices-2026-08-10-r3",
+  "currency": "USD",
+  "unit": "per_million_tokens",
+  "selectionPolicy": "official-provider-modelsdev-then-direct-litellm-v1",
+  "identityCatalogVersion": "market-models-2026-08-10-r2",
+  "dataSources": [
+    {
+      "id": "models.dev",
+      "uri": "https://models.dev/catalog.json",
+      "artifact": "catalog.json",
+      "sha256": "180af5415eb3e94724f6811249fd9c3f21cb49cb75decfebe39a12e3728c16b6",
+      "selectedRuleCount": 196
+    },
+    {
+      "id": "litellm",
+      "uri": "https://raw.githubusercontent.com/BerriAI/litellm/main/model_prices_and_context_window.json",
+      "artifact": "model_prices_and_context_window.json",
+      "sha256": "960279570fc4d2bdd56258a58ce30d124097cee61fdec6fdc483d4a057a4909b",
+      "selectedRuleCount": 208
+    }
+  ],
+  "shadowedByMaintainedCount": 21,
+  "sourceDisagreementCount": 19,
+  "rules": [
+    {
+      "ruleId": "litellm:chatgpt-4o-latest",
+      "source": "litellm",
+      "sourceKey": "chatgpt-4o-latest",
+      "models": [
+        "chatgpt-4o-latest"
+      ],
+      "inputUsdPerMillion": 5.000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 15.000000
+    },
+    {
+      "ruleId": "litellm:claude-3-7-sonnet-20250219",
+      "source": "litellm",
+      "sourceKey": "claude-3-7-sonnet-20250219",
+      "models": [
+        "claude-3-7-sonnet-20250219"
+      ],
+      "inputUsdPerMillion": 3.000000,
+      "cachedInputUsdPerMillion": 0.3000000,
+      "cacheWriteUsdPerMillion": 3.75000000,
+      "outputUsdPerMillion": 15.000000
+    },
+    {
+      "ruleId": "litellm:claude-3-haiku-20240307",
+      "source": "litellm",
+      "sourceKey": "claude-3-haiku-20240307",
+      "models": [
+        "claude-3-haiku-20240307"
+      ],
+      "inputUsdPerMillion": 0.25000000,
+      "cachedInputUsdPerMillion": 0.03000000,
+      "cacheWriteUsdPerMillion": 0.3000000,
+      "outputUsdPerMillion": 1.25000000
+    },
+    {
+      "ruleId": "litellm:claude-3-opus-20240229",
+      "source": "litellm",
+      "sourceKey": "claude-3-opus-20240229",
+      "models": [
+        "claude-3-opus-20240229"
+      ],
+      "inputUsdPerMillion": 15.000000,
+      "cachedInputUsdPerMillion": 1.5000000,
+      "cacheWriteUsdPerMillion": 18.75000000,
+      "outputUsdPerMillion": 75.000000
+    },
+    {
+      "ruleId": "litellm:claude-4-opus-20250514",
+      "source": "litellm",
+      "sourceKey": "claude-4-opus-20250514",
+      "models": [
+        "claude-4-opus-20250514"
+      ],
+      "inputUsdPerMillion": 15.000000,
+      "cachedInputUsdPerMillion": 1.5000000,
+      "cacheWriteUsdPerMillion": 18.75000000,
+      "outputUsdPerMillion": 75.000000
+    },
+    {
+      "ruleId": "models.dev:anthropic/claude-fable-5",
+      "source": "models.dev",
+      "sourceKey": "anthropic/claude-fable-5",
+      "models": [
+        "claude-fable-5"
+      ],
+      "inputUsdPerMillion": 10.0,
+      "cachedInputUsdPerMillion": 1.0,
+      "cacheWriteUsdPerMillion": 12.5,
+      "outputUsdPerMillion": 50.0
+    },
+    {
+      "ruleId": "models.dev:anthropic/claude-haiku-4-5",
+      "source": "models.dev",
+      "sourceKey": "anthropic/claude-haiku-4-5",
+      "models": [
+        "claude-haiku-4-5"
+      ],
+      "inputUsdPerMillion": 1.0,
+      "cachedInputUsdPerMillion": 0.1,
+      "cacheWriteUsdPerMillion": 1.25,
+      "outputUsdPerMillion": 5.0
+    },
+    {
+      "ruleId": "models.dev:anthropic/claude-haiku-4-5-20251001",
+      "source": "models.dev",
+      "sourceKey": "anthropic/claude-haiku-4-5-20251001",
+      "models": [
+        "claude-haiku-4-5-20251001"
+      ],
+      "inputUsdPerMillion": 1.0,
+      "cachedInputUsdPerMillion": 0.1,
+      "cacheWriteUsdPerMillion": 1.25,
+      "outputUsdPerMillion": 5.0
+    },
+    {
+      "ruleId": "litellm:claude-opus-4-1",
+      "source": "litellm",
+      "sourceKey": "claude-opus-4-1",
+      "models": [
+        "claude-opus-4-1"
+      ],
+      "inputUsdPerMillion": 15.000000,
+      "cachedInputUsdPerMillion": 1.5000000,
+      "cacheWriteUsdPerMillion": 18.75000000,
+      "outputUsdPerMillion": 75.000000
+    },
+    {
+      "ruleId": "litellm:claude-opus-4-1-20250805",
+      "source": "litellm",
+      "sourceKey": "claude-opus-4-1-20250805",
+      "models": [
+        "claude-opus-4-1-20250805"
+      ],
+      "inputUsdPerMillion": 15.000000,
+      "cachedInputUsdPerMillion": 1.5000000,
+      "cacheWriteUsdPerMillion": 18.75000000,
+      "outputUsdPerMillion": 75.000000
+    },
+    {
+      "ruleId": "litellm:claude-opus-4-20250514",
+      "source": "litellm",
+      "sourceKey": "claude-opus-4-20250514",
+      "models": [
+        "claude-opus-4-20250514"
+      ],
+      "inputUsdPerMillion": 15.000000,
+      "cachedInputUsdPerMillion": 1.5000000,
+      "cacheWriteUsdPerMillion": 18.75000000,
+      "outputUsdPerMillion": 75.000000
+    },
+    {
+      "ruleId": "models.dev:anthropic/claude-opus-4-5",
+      "source": "models.dev",
+      "sourceKey": "anthropic/claude-opus-4-5",
+      "models": [
+        "claude-opus-4-5"
+      ],
+      "inputUsdPerMillion": 5.0,
+      "cachedInputUsdPerMillion": 0.5,
+      "cacheWriteUsdPerMillion": 6.25,
+      "outputUsdPerMillion": 25.0
+    },
+    {
+      "ruleId": "models.dev:anthropic/claude-opus-4-5-20251101",
+      "source": "models.dev",
+      "sourceKey": "anthropic/claude-opus-4-5-20251101",
+      "models": [
+        "claude-opus-4-5-20251101"
+      ],
+      "inputUsdPerMillion": 5.0,
+      "cachedInputUsdPerMillion": 0.5,
+      "cacheWriteUsdPerMillion": 6.25,
+      "outputUsdPerMillion": 25.0
+    },
+    {
+      "ruleId": "models.dev:anthropic/claude-opus-4-6",
+      "source": "models.dev",
+      "sourceKey": "anthropic/claude-opus-4-6",
+      "models": [
+        "claude-opus-4-6"
+      ],
+      "inputUsdPerMillion": 5.0,
+      "cachedInputUsdPerMillion": 0.5,
+      "cacheWriteUsdPerMillion": 6.25,
+      "outputUsdPerMillion": 25.0
+    },
+    {
+      "ruleId": "litellm:claude-opus-4-6-20260205",
+      "source": "litellm",
+      "sourceKey": "claude-opus-4-6-20260205",
+      "models": [
+        "claude-opus-4-6-20260205"
+      ],
+      "inputUsdPerMillion": 5.000000,
+      "cachedInputUsdPerMillion": 0.5000000,
+      "cacheWriteUsdPerMillion": 6.25000000,
+      "outputUsdPerMillion": 25.000000
+    },
+    {
+      "ruleId": "models.dev:anthropic/claude-opus-4-7",
+      "source": "models.dev",
+      "sourceKey": "anthropic/claude-opus-4-7",
+      "models": [
+        "claude-opus-4-7"
+      ],
+      "inputUsdPerMillion": 5.0,
+      "cachedInputUsdPerMillion": 0.5,
+      "cacheWriteUsdPerMillion": 6.25,
+      "outputUsdPerMillion": 25.0
+    },
+    {
+      "ruleId": "litellm:claude-opus-4-7-20260416",
+      "source": "litellm",
+      "sourceKey": "claude-opus-4-7-20260416",
+      "models": [
+        "claude-opus-4-7-20260416"
+      ],
+      "inputUsdPerMillion": 5.000000,
+      "cachedInputUsdPerMillion": 0.5000000,
+      "cacheWriteUsdPerMillion": 6.25000000,
+      "outputUsdPerMillion": 25.000000
+    },
+    {
+      "ruleId": "models.dev:anthropic/claude-opus-4-8",
+      "source": "models.dev",
+      "sourceKey": "anthropic/claude-opus-4-8",
+      "models": [
+        "claude-opus-4-8"
+      ],
+      "inputUsdPerMillion": 5.0,
+      "cachedInputUsdPerMillion": 0.5,
+      "cacheWriteUsdPerMillion": 6.25,
+      "outputUsdPerMillion": 25.0
+    },
+    {
+      "ruleId": "models.dev:anthropic/claude-opus-5",
+      "source": "models.dev",
+      "sourceKey": "anthropic/claude-opus-5",
+      "models": [
+        "claude-opus-5"
+      ],
+      "inputUsdPerMillion": 5.0,
+      "cachedInputUsdPerMillion": 0.5,
+      "cacheWriteUsdPerMillion": 6.25,
+      "outputUsdPerMillion": 25.0
+    },
+    {
+      "ruleId": "models.dev:anthropic/claude-sonnet-4-5",
+      "source": "models.dev",
+      "sourceKey": "anthropic/claude-sonnet-4-5",
+      "models": [
+        "claude-sonnet-4-5"
+      ],
+      "inputUsdPerMillion": 3.0,
+      "cachedInputUsdPerMillion": 0.3,
+      "cacheWriteUsdPerMillion": 3.75,
+      "outputUsdPerMillion": 15.0
+    },
+    {
+      "ruleId": "models.dev:anthropic/claude-sonnet-4-5-20250929",
+      "source": "models.dev",
+      "sourceKey": "anthropic/claude-sonnet-4-5-20250929",
+      "models": [
+        "claude-sonnet-4-5-20250929"
+      ],
+      "inputUsdPerMillion": 3.0,
+      "cachedInputUsdPerMillion": 0.3,
+      "cacheWriteUsdPerMillion": 3.75,
+      "outputUsdPerMillion": 15.0
+    },
+    {
+      "ruleId": "models.dev:anthropic/claude-sonnet-4-6",
+      "source": "models.dev",
+      "sourceKey": "anthropic/claude-sonnet-4-6",
+      "models": [
+        "claude-sonnet-4-6"
+      ],
+      "inputUsdPerMillion": 3.0,
+      "cachedInputUsdPerMillion": 0.3,
+      "cacheWriteUsdPerMillion": 3.75,
+      "outputUsdPerMillion": 15.0
+    },
+    {
+      "ruleId": "models.dev:anthropic/claude-sonnet-5",
+      "source": "models.dev",
+      "sourceKey": "anthropic/claude-sonnet-5",
+      "models": [
+        "claude-sonnet-5"
+      ],
+      "inputUsdPerMillion": 2.0,
+      "cachedInputUsdPerMillion": 0.2,
+      "cacheWriteUsdPerMillion": 2.5,
+      "outputUsdPerMillion": 10.0
+    },
+    {
+      "ruleId": "litellm:mistral/codestral-2405",
+      "source": "litellm",
+      "sourceKey": "mistral/codestral-2405",
+      "models": [
+        "codestral-2405"
+      ],
+      "inputUsdPerMillion": 1.000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 3.000000
+    },
+    {
+      "ruleId": "litellm:mistral/codestral-2508",
+      "source": "litellm",
+      "sourceKey": "mistral/codestral-2508",
+      "models": [
+        "codestral-2508"
+      ],
+      "inputUsdPerMillion": 0.3000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.9000000
+    },
+    {
+      "ruleId": "models.dev:mistral/codestral-latest",
+      "source": "models.dev",
+      "sourceKey": "mistral/codestral-latest",
+      "models": [
+        "codestral-latest"
+      ],
+      "inputUsdPerMillion": 0.3,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.9
+    },
+    {
+      "ruleId": "litellm:mistral/codestral-mamba-latest",
+      "source": "litellm",
+      "sourceKey": "mistral/codestral-mamba-latest",
+      "models": [
+        "codestral-mamba-latest"
+      ],
+      "inputUsdPerMillion": 0.25000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.25000000
+    },
+    {
+      "ruleId": "litellm:command",
+      "source": "litellm",
+      "sourceKey": "command",
+      "models": [
+        "command"
+      ],
+      "inputUsdPerMillion": 1.000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 2.000000
+    },
+    {
+      "ruleId": "models.dev:cohere/command-a-03-2025",
+      "source": "models.dev",
+      "sourceKey": "cohere/command-a-03-2025",
+      "models": [
+        "command-a-03-2025"
+      ],
+      "inputUsdPerMillion": 2.5,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 10.0
+    },
+    {
+      "ruleId": "models.dev:cohere/command-a-plus-05-2026",
+      "source": "models.dev",
+      "sourceKey": "cohere/command-a-plus-05-2026",
+      "models": [
+        "command-a-plus-05-2026"
+      ],
+      "inputUsdPerMillion": 2.5,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 10.0
+    },
+    {
+      "ruleId": "models.dev:cohere/command-a-reasoning-08-2025",
+      "source": "models.dev",
+      "sourceKey": "cohere/command-a-reasoning-08-2025",
+      "models": [
+        "command-a-reasoning-08-2025"
+      ],
+      "inputUsdPerMillion": 2.5,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 10.0
+    },
+    {
+      "ruleId": "models.dev:cohere/command-a-translate-08-2025",
+      "source": "models.dev",
+      "sourceKey": "cohere/command-a-translate-08-2025",
+      "models": [
+        "command-a-translate-08-2025"
+      ],
+      "inputUsdPerMillion": 2.5,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 10.0
+    },
+    {
+      "ruleId": "models.dev:cohere/command-a-vision-07-2025",
+      "source": "models.dev",
+      "sourceKey": "cohere/command-a-vision-07-2025",
+      "models": [
+        "command-a-vision-07-2025"
+      ],
+      "inputUsdPerMillion": 2.5,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 10.0
+    },
+    {
+      "ruleId": "litellm:command-nightly",
+      "source": "litellm",
+      "sourceKey": "command-nightly",
+      "models": [
+        "command-nightly"
+      ],
+      "inputUsdPerMillion": 1.000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 2.000000
+    },
+    {
+      "ruleId": "models.dev:cohere/command-r-08-2024",
+      "source": "models.dev",
+      "sourceKey": "cohere/command-r-08-2024",
+      "models": [
+        "command-r-08-2024"
+      ],
+      "inputUsdPerMillion": 0.15,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.6
+    },
+    {
+      "ruleId": "models.dev:cohere/command-r-plus-08-2024",
+      "source": "models.dev",
+      "sourceKey": "cohere/command-r-plus-08-2024",
+      "models": [
+        "command-r-plus-08-2024"
+      ],
+      "inputUsdPerMillion": 2.5,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 10.0
+    },
+    {
+      "ruleId": "models.dev:cohere/command-r7b-12-2024",
+      "source": "models.dev",
+      "sourceKey": "cohere/command-r7b-12-2024",
+      "models": [
+        "command-r7b-12-2024"
+      ],
+      "inputUsdPerMillion": 0.0375,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.15
+    },
+    {
+      "ruleId": "models.dev:cohere/command-r7b-arabic-02-2025",
+      "source": "models.dev",
+      "sourceKey": "cohere/command-r7b-arabic-02-2025",
+      "models": [
+        "command-r7b-arabic-02-2025"
+      ],
+      "inputUsdPerMillion": 0.0375,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.15
+    },
+    {
+      "ruleId": "models.dev:google/deep-research-max-preview-04-2026",
+      "source": "models.dev",
+      "sourceKey": "google/deep-research-max-preview-04-2026",
+      "models": [
+        "deep-research-max-preview-04-2026"
+      ],
+      "inputUsdPerMillion": 2.0,
+      "cachedInputUsdPerMillion": 0.2,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 12.0,
+      "longContextThresholdTokens": 200000,
+      "longContextInputMultiplier": 2.0,
+      "longContextOutputMultiplier": 1.5
+    },
+    {
+      "ruleId": "models.dev:google/deep-research-preview-04-2026",
+      "source": "models.dev",
+      "sourceKey": "google/deep-research-preview-04-2026",
+      "models": [
+        "deep-research-preview-04-2026"
+      ],
+      "inputUsdPerMillion": 2.0,
+      "cachedInputUsdPerMillion": 0.2,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 12.0,
+      "longContextThresholdTokens": 200000,
+      "longContextInputMultiplier": 2.0,
+      "longContextOutputMultiplier": 1.5
+    },
+    {
+      "ruleId": "models.dev:deepseek/deepseek-chat",
+      "source": "models.dev",
+      "sourceKey": "deepseek/deepseek-chat",
+      "models": [
+        "deepseek-chat"
+      ],
+      "inputUsdPerMillion": 0.14,
+      "cachedInputUsdPerMillion": 0.0028,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.28
+    },
+    {
+      "ruleId": "litellm:deepseek/deepseek-coder",
+      "source": "litellm",
+      "sourceKey": "deepseek/deepseek-coder",
+      "models": [
+        "deepseek-coder"
+      ],
+      "inputUsdPerMillion": 0.14000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.28000000
+    },
+    {
+      "ruleId": "litellm:deepseek/deepseek-r1",
+      "source": "litellm",
+      "sourceKey": "deepseek/deepseek-r1",
+      "models": [
+        "deepseek-r1"
+      ],
+      "inputUsdPerMillion": 0.55000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 2.19000000
+    },
+    {
+      "ruleId": "models.dev:deepseek/deepseek-reasoner",
+      "source": "models.dev",
+      "sourceKey": "deepseek/deepseek-reasoner",
+      "models": [
+        "deepseek-reasoner"
+      ],
+      "inputUsdPerMillion": 0.14,
+      "cachedInputUsdPerMillion": 0.0028,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.28
+    },
+    {
+      "ruleId": "litellm:deepseek/deepseek-v3",
+      "source": "litellm",
+      "sourceKey": "deepseek/deepseek-v3",
+      "models": [
+        "deepseek-v3"
+      ],
+      "inputUsdPerMillion": 0.27000000,
+      "cachedInputUsdPerMillion": 0.07000000,
+      "cacheWriteUsdPerMillion": 0.0,
+      "outputUsdPerMillion": 1.1000000
+    },
+    {
+      "ruleId": "litellm:deepseek/deepseek-v3.2",
+      "source": "litellm",
+      "sourceKey": "deepseek/deepseek-v3.2",
+      "models": [
+        "deepseek-v3.2"
+      ],
+      "inputUsdPerMillion": 0.28000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.4000000
+    },
+    {
+      "ruleId": "models.dev:deepseek/deepseek-v4-flash",
+      "source": "models.dev",
+      "sourceKey": "deepseek/deepseek-v4-flash",
+      "models": [
+        "deepseek-v4-flash"
+      ],
+      "inputUsdPerMillion": 0.14,
+      "cachedInputUsdPerMillion": 0.0028,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.28
+    },
+    {
+      "ruleId": "models.dev:deepseek/deepseek-v4-pro",
+      "source": "models.dev",
+      "sourceKey": "deepseek/deepseek-v4-pro",
+      "models": [
+        "deepseek-v4-pro"
+      ],
+      "inputUsdPerMillion": 0.435,
+      "cachedInputUsdPerMillion": 0.003625,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.87
+    },
+    {
+      "ruleId": "models.dev:mistral/devstral-2512",
+      "source": "models.dev",
+      "sourceKey": "mistral/devstral-2512",
+      "models": [
+        "devstral-2512"
+      ],
+      "inputUsdPerMillion": 0.4,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 2.0
+    },
+    {
+      "ruleId": "litellm:mistral/devstral-latest",
+      "source": "litellm",
+      "sourceKey": "mistral/devstral-latest",
+      "models": [
+        "devstral-latest"
+      ],
+      "inputUsdPerMillion": 0.4000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 2.000000
+    },
+    {
+      "ruleId": "models.dev:mistral/devstral-medium-2507",
+      "source": "models.dev",
+      "sourceKey": "mistral/devstral-medium-2507",
+      "models": [
+        "devstral-medium-2507"
+      ],
+      "inputUsdPerMillion": 0.4,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 2.0
+    },
+    {
+      "ruleId": "models.dev:mistral/devstral-medium-latest",
+      "source": "models.dev",
+      "sourceKey": "mistral/devstral-medium-latest",
+      "models": [
+        "devstral-medium-latest"
+      ],
+      "inputUsdPerMillion": 0.4,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 2.0
+    },
+    {
+      "ruleId": "litellm:mistral/devstral-small-2505",
+      "source": "litellm",
+      "sourceKey": "mistral/devstral-small-2505",
+      "models": [
+        "devstral-small-2505"
+      ],
+      "inputUsdPerMillion": 0.1000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.3000000
+    },
+    {
+      "ruleId": "models.dev:mistral/devstral-small-2507",
+      "source": "models.dev",
+      "sourceKey": "mistral/devstral-small-2507",
+      "models": [
+        "devstral-small-2507"
+      ],
+      "inputUsdPerMillion": 0.1,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.3
+    },
+    {
+      "ruleId": "litellm:mistral/devstral-small-latest",
+      "source": "litellm",
+      "sourceKey": "mistral/devstral-small-latest",
+      "models": [
+        "devstral-small-latest"
+      ],
+      "inputUsdPerMillion": 0.1000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.3000000
+    },
+    {
+      "ruleId": "models.dev:sakana/fugu-ultra",
+      "source": "models.dev",
+      "sourceKey": "sakana/fugu-ultra",
+      "models": [
+        "fugu-ultra"
+      ],
+      "inputUsdPerMillion": 5.0,
+      "cachedInputUsdPerMillion": 0.5,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 30.0,
+      "longContextThresholdTokens": 272000,
+      "longContextInputMultiplier": 2.0,
+      "longContextOutputMultiplier": 1.5
+    },
+    {
+      "ruleId": "models.dev:google/gemini-2.0-flash",
+      "source": "models.dev",
+      "sourceKey": "google/gemini-2.0-flash",
+      "models": [
+        "gemini-2.0-flash"
+      ],
+      "inputUsdPerMillion": 0.1,
+      "cachedInputUsdPerMillion": 0.025,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.4
+    },
+    {
+      "ruleId": "litellm:gemini/gemini-2.0-flash-001",
+      "source": "litellm",
+      "sourceKey": "gemini/gemini-2.0-flash-001",
+      "models": [
+        "gemini-2.0-flash-001"
+      ],
+      "inputUsdPerMillion": 0.1000000,
+      "cachedInputUsdPerMillion": 0.025000000,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.4000000
+    },
+    {
+      "ruleId": "models.dev:google/gemini-2.0-flash-lite",
+      "source": "models.dev",
+      "sourceKey": "google/gemini-2.0-flash-lite",
+      "models": [
+        "gemini-2.0-flash-lite"
+      ],
+      "inputUsdPerMillion": 0.075,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.3
+    },
+    {
+      "ruleId": "litellm:gemini/gemini-2.0-flash-lite-001",
+      "source": "litellm",
+      "sourceKey": "gemini/gemini-2.0-flash-lite-001",
+      "models": [
+        "gemini-2.0-flash-lite-001"
+      ],
+      "inputUsdPerMillion": 0.075000000,
+      "cachedInputUsdPerMillion": 0.01875000000,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.3000000
+    },
+    {
+      "ruleId": "models.dev:google/gemini-2.5-computer-use-preview-10-2025",
+      "source": "models.dev",
+      "sourceKey": "google/gemini-2.5-computer-use-preview-10-2025",
+      "models": [
+        "gemini-2.5-computer-use-preview-10-2025"
+      ],
+      "inputUsdPerMillion": 1.25,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 10.0,
+      "longContextThresholdTokens": 200000,
+      "longContextInputMultiplier": 2.0,
+      "longContextOutputMultiplier": 1.5
+    },
+    {
+      "ruleId": "models.dev:google/gemini-2.5-flash",
+      "source": "models.dev",
+      "sourceKey": "google/gemini-2.5-flash",
+      "models": [
+        "gemini-2.5-flash"
+      ],
+      "inputUsdPerMillion": 0.3,
+      "cachedInputUsdPerMillion": 0.03,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 2.5
+    },
+    {
+      "ruleId": "models.dev:google/gemini-2.5-flash-image",
+      "source": "models.dev",
+      "sourceKey": "google/gemini-2.5-flash-image",
+      "models": [
+        "gemini-2.5-flash-image"
+      ],
+      "inputUsdPerMillion": 0.3,
+      "cachedInputUsdPerMillion": 0.075,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 30.0
+    },
+    {
+      "ruleId": "models.dev:google/gemini-2.5-flash-lite",
+      "source": "models.dev",
+      "sourceKey": "google/gemini-2.5-flash-lite",
+      "models": [
+        "gemini-2.5-flash-lite"
+      ],
+      "inputUsdPerMillion": 0.1,
+      "cachedInputUsdPerMillion": 0.01,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.4
+    },
+    {
+      "ruleId": "litellm:gemini/gemini-2.5-flash-lite-preview-06-17",
+      "source": "litellm",
+      "sourceKey": "gemini/gemini-2.5-flash-lite-preview-06-17",
+      "models": [
+        "gemini-2.5-flash-lite-preview-06-17"
+      ],
+      "inputUsdPerMillion": 0.1000000,
+      "cachedInputUsdPerMillion": 0.025000000,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.4000000
+    },
+    {
+      "ruleId": "litellm:gemini/gemini-2.5-flash-lite-preview-09-2025",
+      "source": "litellm",
+      "sourceKey": "gemini/gemini-2.5-flash-lite-preview-09-2025",
+      "models": [
+        "gemini-2.5-flash-lite-preview-09-2025"
+      ],
+      "inputUsdPerMillion": 0.1000000,
+      "cachedInputUsdPerMillion": 0.01000000,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.4000000
+    },
+    {
+      "ruleId": "litellm:gemini-2.5-flash-native-audio-latest",
+      "source": "litellm",
+      "sourceKey": "gemini-2.5-flash-native-audio-latest",
+      "models": [
+        "gemini-2.5-flash-native-audio-latest"
+      ],
+      "inputUsdPerMillion": 0.3000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 2.5000000
+    },
+    {
+      "ruleId": "litellm:gemini-2.5-flash-native-audio-preview-09-2025",
+      "source": "litellm",
+      "sourceKey": "gemini-2.5-flash-native-audio-preview-09-2025",
+      "models": [
+        "gemini-2.5-flash-native-audio-preview-09-2025"
+      ],
+      "inputUsdPerMillion": 0.3000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 2.5000000
+    },
+    {
+      "ruleId": "litellm:gemini-2.5-flash-native-audio-preview-12-2025",
+      "source": "litellm",
+      "sourceKey": "gemini-2.5-flash-native-audio-preview-12-2025",
+      "models": [
+        "gemini-2.5-flash-native-audio-preview-12-2025"
+      ],
+      "inputUsdPerMillion": 0.3000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 2.5000000
+    },
+    {
+      "ruleId": "litellm:gemini/gemini-2.5-flash-preview-09-2025",
+      "source": "litellm",
+      "sourceKey": "gemini/gemini-2.5-flash-preview-09-2025",
+      "models": [
+        "gemini-2.5-flash-preview-09-2025"
+      ],
+      "inputUsdPerMillion": 0.3000000,
+      "cachedInputUsdPerMillion": 0.075000000,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 2.5000000
+    },
+    {
+      "ruleId": "models.dev:google/gemini-2.5-pro",
+      "source": "models.dev",
+      "sourceKey": "google/gemini-2.5-pro",
+      "models": [
+        "gemini-2.5-pro"
+      ],
+      "inputUsdPerMillion": 1.25,
+      "cachedInputUsdPerMillion": 0.125,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 10.0,
+      "longContextThresholdTokens": 200000,
+      "longContextInputMultiplier": 2.0,
+      "longContextOutputMultiplier": 1.5
+    },
+    {
+      "ruleId": "models.dev:google/gemini-3-flash-preview",
+      "source": "models.dev",
+      "sourceKey": "google/gemini-3-flash-preview",
+      "models": [
+        "gemini-3-flash-preview"
+      ],
+      "inputUsdPerMillion": 0.5,
+      "cachedInputUsdPerMillion": 0.05,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 3.0
+    },
+    {
+      "ruleId": "models.dev:google/gemini-3-pro-image",
+      "source": "models.dev",
+      "sourceKey": "google/gemini-3-pro-image",
+      "models": [
+        "gemini-3-pro-image"
+      ],
+      "inputUsdPerMillion": 2.0,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 120.0
+    },
+    {
+      "ruleId": "models.dev:google/gemini-3-pro-image-preview",
+      "source": "models.dev",
+      "sourceKey": "google/gemini-3-pro-image-preview",
+      "models": [
+        "gemini-3-pro-image-preview"
+      ],
+      "inputUsdPerMillion": 2.0,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 120.0
+    },
+    {
+      "ruleId": "models.dev:google/gemini-3-pro-preview",
+      "source": "models.dev",
+      "sourceKey": "google/gemini-3-pro-preview",
+      "models": [
+        "gemini-3-pro-preview"
+      ],
+      "inputUsdPerMillion": 2.0,
+      "cachedInputUsdPerMillion": 0.2,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 12.0,
+      "longContextThresholdTokens": 200000,
+      "longContextInputMultiplier": 2.0,
+      "longContextOutputMultiplier": 1.5
+    },
+    {
+      "ruleId": "models.dev:google/gemini-3.1-flash-image",
+      "source": "models.dev",
+      "sourceKey": "google/gemini-3.1-flash-image",
+      "models": [
+        "gemini-3.1-flash-image"
+      ],
+      "inputUsdPerMillion": 0.5,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 60.0
+    },
+    {
+      "ruleId": "models.dev:google/gemini-3.1-flash-image-preview",
+      "source": "models.dev",
+      "sourceKey": "google/gemini-3.1-flash-image-preview",
+      "models": [
+        "gemini-3.1-flash-image-preview"
+      ],
+      "inputUsdPerMillion": 0.5,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 60.0
+    },
+    {
+      "ruleId": "models.dev:google/gemini-3.1-flash-lite",
+      "source": "models.dev",
+      "sourceKey": "google/gemini-3.1-flash-lite",
+      "models": [
+        "gemini-3.1-flash-lite"
+      ],
+      "inputUsdPerMillion": 0.25,
+      "cachedInputUsdPerMillion": 0.025,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 1.5
+    },
+    {
+      "ruleId": "models.dev:google/gemini-3.1-flash-lite-image",
+      "source": "models.dev",
+      "sourceKey": "google/gemini-3.1-flash-lite-image",
+      "models": [
+        "gemini-3.1-flash-lite-image"
+      ],
+      "inputUsdPerMillion": 0.25,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 30.0
+    },
+    {
+      "ruleId": "models.dev:google/gemini-3.1-flash-lite-preview",
+      "source": "models.dev",
+      "sourceKey": "google/gemini-3.1-flash-lite-preview",
+      "models": [
+        "gemini-3.1-flash-lite-preview"
+      ],
+      "inputUsdPerMillion": 0.25,
+      "cachedInputUsdPerMillion": 0.025,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 1.5
+    },
+    {
+      "ruleId": "models.dev:google/gemini-3.1-flash-live-preview",
+      "source": "models.dev",
+      "sourceKey": "google/gemini-3.1-flash-live-preview",
+      "models": [
+        "gemini-3.1-flash-live-preview"
+      ],
+      "inputUsdPerMillion": 0.75,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 4.5
+    },
+    {
+      "ruleId": "models.dev:google/gemini-3.1-flash-tts-preview",
+      "source": "models.dev",
+      "sourceKey": "google/gemini-3.1-flash-tts-preview",
+      "models": [
+        "gemini-3.1-flash-tts-preview"
+      ],
+      "inputUsdPerMillion": 1.0,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 20.0
+    },
+    {
+      "ruleId": "models.dev:google/gemini-3.1-pro-preview",
+      "source": "models.dev",
+      "sourceKey": "google/gemini-3.1-pro-preview",
+      "models": [
+        "gemini-3.1-pro-preview"
+      ],
+      "inputUsdPerMillion": 2.0,
+      "cachedInputUsdPerMillion": 0.2,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 12.0,
+      "longContextThresholdTokens": 200000,
+      "longContextInputMultiplier": 2.0,
+      "longContextOutputMultiplier": 1.5
+    },
+    {
+      "ruleId": "models.dev:google/gemini-3.1-pro-preview-customtools",
+      "source": "models.dev",
+      "sourceKey": "google/gemini-3.1-pro-preview-customtools",
+      "models": [
+        "gemini-3.1-pro-preview-customtools"
+      ],
+      "inputUsdPerMillion": 2.0,
+      "cachedInputUsdPerMillion": 0.2,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 12.0,
+      "longContextThresholdTokens": 200000,
+      "longContextInputMultiplier": 2.0,
+      "longContextOutputMultiplier": 1.5
+    },
+    {
+      "ruleId": "models.dev:google/gemini-3.5-flash",
+      "source": "models.dev",
+      "sourceKey": "google/gemini-3.5-flash",
+      "models": [
+        "gemini-3.5-flash"
+      ],
+      "inputUsdPerMillion": 1.5,
+      "cachedInputUsdPerMillion": 0.15,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 9.0
+    },
+    {
+      "ruleId": "models.dev:google/gemini-3.5-flash-lite",
+      "source": "models.dev",
+      "sourceKey": "google/gemini-3.5-flash-lite",
+      "models": [
+        "gemini-3.5-flash-lite"
+      ],
+      "inputUsdPerMillion": 0.3,
+      "cachedInputUsdPerMillion": 0.03,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 2.5
+    },
+    {
+      "ruleId": "models.dev:google/gemini-3.5-live-translate-preview",
+      "source": "models.dev",
+      "sourceKey": "google/gemini-3.5-live-translate-preview",
+      "models": [
+        "gemini-3.5-live-translate-preview"
+      ],
+      "inputUsdPerMillion": 3.5,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 21.0
+    },
+    {
+      "ruleId": "models.dev:google/gemini-3.6-flash",
+      "source": "models.dev",
+      "sourceKey": "google/gemini-3.6-flash",
+      "models": [
+        "gemini-3.6-flash"
+      ],
+      "inputUsdPerMillion": 1.5,
+      "cachedInputUsdPerMillion": 0.15,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 7.5
+    },
+    {
+      "ruleId": "models.dev:google/gemini-embedding-001",
+      "source": "models.dev",
+      "sourceKey": "google/gemini-embedding-001",
+      "models": [
+        "gemini-embedding-001"
+      ],
+      "inputUsdPerMillion": 0.15,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.0
+    },
+    {
+      "ruleId": "models.dev:google/gemini-embedding-2",
+      "source": "models.dev",
+      "sourceKey": "google/gemini-embedding-2",
+      "models": [
+        "gemini-embedding-2"
+      ],
+      "inputUsdPerMillion": 0.2,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.0
+    },
+    {
+      "ruleId": "litellm:gemini/gemini-exp-1114",
+      "source": "litellm",
+      "sourceKey": "gemini/gemini-exp-1114",
+      "models": [
+        "gemini-exp-1114"
+      ],
+      "inputUsdPerMillion": 0.0,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.0,
+      "longContextThresholdTokens": 128000,
+      "longContextInputMultiplier": 1.0,
+      "longContextOutputMultiplier": 1.0
+    },
+    {
+      "ruleId": "litellm:gemini-exp-1206",
+      "source": "litellm",
+      "sourceKey": "gemini-exp-1206",
+      "models": [
+        "gemini-exp-1206"
+      ],
+      "inputUsdPerMillion": 0.3000000,
+      "cachedInputUsdPerMillion": 0.03000000,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 2.5000000
+    },
+    {
+      "ruleId": "models.dev:google/gemini-flash-latest",
+      "source": "models.dev",
+      "sourceKey": "google/gemini-flash-latest",
+      "models": [
+        "gemini-flash-latest"
+      ],
+      "inputUsdPerMillion": 1.5,
+      "cachedInputUsdPerMillion": 0.15,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 9.0
+    },
+    {
+      "ruleId": "models.dev:google/gemini-flash-lite-latest",
+      "source": "models.dev",
+      "sourceKey": "google/gemini-flash-lite-latest",
+      "models": [
+        "gemini-flash-lite-latest"
+      ],
+      "inputUsdPerMillion": 0.25,
+      "cachedInputUsdPerMillion": 0.025,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 1.5
+    },
+    {
+      "ruleId": "litellm:gemini/gemini-gemma-2-27b-it",
+      "source": "litellm",
+      "sourceKey": "gemini/gemini-gemma-2-27b-it",
+      "models": [
+        "gemini-gemma-2-27b-it"
+      ],
+      "inputUsdPerMillion": 0.35000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 1.05000000
+    },
+    {
+      "ruleId": "litellm:gemini/gemini-gemma-2-9b-it",
+      "source": "litellm",
+      "sourceKey": "gemini/gemini-gemma-2-9b-it",
+      "models": [
+        "gemini-gemma-2-9b-it"
+      ],
+      "inputUsdPerMillion": 0.35000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 1.05000000
+    },
+    {
+      "ruleId": "models.dev:google/gemini-omni-flash-preview",
+      "source": "models.dev",
+      "sourceKey": "google/gemini-omni-flash-preview",
+      "models": [
+        "gemini-omni-flash-preview"
+      ],
+      "inputUsdPerMillion": 1.5,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 17.5
+    },
+    {
+      "ruleId": "litellm:gemini/gemini-robotics-er-1.5-preview",
+      "source": "litellm",
+      "sourceKey": "gemini/gemini-robotics-er-1.5-preview",
+      "models": [
+        "gemini-robotics-er-1.5-preview"
+      ],
+      "inputUsdPerMillion": 0.3000000,
+      "cachedInputUsdPerMillion": 0.0,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 2.5000000
+    },
+    {
+      "ruleId": "models.dev:google/gemini-robotics-er-1.6-preview",
+      "source": "models.dev",
+      "sourceKey": "google/gemini-robotics-er-1.6-preview",
+      "models": [
+        "gemini-robotics-er-1.6-preview"
+      ],
+      "inputUsdPerMillion": 1.0,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 5.0
+    },
+    {
+      "ruleId": "litellm:gemini/gemini-robotics-er-2-preview",
+      "source": "litellm",
+      "sourceKey": "gemini/gemini-robotics-er-2-preview",
+      "models": [
+        "gemini-robotics-er-2-preview"
+      ],
+      "inputUsdPerMillion": 2.000000,
+      "cachedInputUsdPerMillion": 0.2000000,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 10.00000
+    },
+    {
+      "ruleId": "litellm:zai/glm-4-32b-0414-128k",
+      "source": "litellm",
+      "sourceKey": "zai/glm-4-32b-0414-128k",
+      "models": [
+        "glm-4-32b-0414-128k"
+      ],
+      "inputUsdPerMillion": 0.1000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.1000000
+    },
+    {
+      "ruleId": "models.dev:zhipuai/glm-4.5",
+      "source": "models.dev",
+      "sourceKey": "zhipuai/glm-4.5",
+      "models": [
+        "glm-4.5"
+      ],
+      "inputUsdPerMillion": 0.6,
+      "cachedInputUsdPerMillion": 0.11,
+      "cacheWriteUsdPerMillion": 0.0,
+      "outputUsdPerMillion": 2.2
+    },
+    {
+      "ruleId": "models.dev:zhipuai/glm-4.5-air",
+      "source": "models.dev",
+      "sourceKey": "zhipuai/glm-4.5-air",
+      "models": [
+        "glm-4.5-air"
+      ],
+      "inputUsdPerMillion": 0.2,
+      "cachedInputUsdPerMillion": 0.03,
+      "cacheWriteUsdPerMillion": 0.0,
+      "outputUsdPerMillion": 1.1
+    },
+    {
+      "ruleId": "litellm:zai/glm-4.5-airx",
+      "source": "litellm",
+      "sourceKey": "zai/glm-4.5-airx",
+      "models": [
+        "glm-4.5-airx"
+      ],
+      "inputUsdPerMillion": 1.1000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 4.5000000
+    },
+    {
+      "ruleId": "models.dev:zhipuai/glm-4.5-flash",
+      "source": "models.dev",
+      "sourceKey": "zhipuai/glm-4.5-flash",
+      "models": [
+        "glm-4.5-flash"
+      ],
+      "inputUsdPerMillion": 0.0,
+      "cachedInputUsdPerMillion": 0.0,
+      "cacheWriteUsdPerMillion": 0.0,
+      "outputUsdPerMillion": 0.0
+    },
+    {
+      "ruleId": "litellm:zai/glm-4.5-x",
+      "source": "litellm",
+      "sourceKey": "zai/glm-4.5-x",
+      "models": [
+        "glm-4.5-x"
+      ],
+      "inputUsdPerMillion": 2.2000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 8.9000000
+    },
+    {
+      "ruleId": "models.dev:zhipuai/glm-4.5v",
+      "source": "models.dev",
+      "sourceKey": "zhipuai/glm-4.5v",
+      "models": [
+        "glm-4.5v"
+      ],
+      "inputUsdPerMillion": 0.6,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 1.8
+    },
+    {
+      "ruleId": "models.dev:zhipuai/glm-4.6",
+      "source": "models.dev",
+      "sourceKey": "zhipuai/glm-4.6",
+      "models": [
+        "glm-4.6"
+      ],
+      "inputUsdPerMillion": 0.6,
+      "cachedInputUsdPerMillion": 0.11,
+      "cacheWriteUsdPerMillion": 0.0,
+      "outputUsdPerMillion": 2.2
+    },
+    {
+      "ruleId": "models.dev:zhipuai/glm-4.6v",
+      "source": "models.dev",
+      "sourceKey": "zhipuai/glm-4.6v",
+      "models": [
+        "glm-4.6v"
+      ],
+      "inputUsdPerMillion": 0.3,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.9
+    },
+    {
+      "ruleId": "models.dev:zhipuai/glm-4.7",
+      "source": "models.dev",
+      "sourceKey": "zhipuai/glm-4.7",
+      "models": [
+        "glm-4.7"
+      ],
+      "inputUsdPerMillion": 0.6,
+      "cachedInputUsdPerMillion": 0.11,
+      "cacheWriteUsdPerMillion": 0.0,
+      "outputUsdPerMillion": 2.2
+    },
+    {
+      "ruleId": "models.dev:zhipuai/glm-4.7-flash",
+      "source": "models.dev",
+      "sourceKey": "zhipuai/glm-4.7-flash",
+      "models": [
+        "glm-4.7-flash"
+      ],
+      "inputUsdPerMillion": 0.0,
+      "cachedInputUsdPerMillion": 0.0,
+      "cacheWriteUsdPerMillion": 0.0,
+      "outputUsdPerMillion": 0.0
+    },
+    {
+      "ruleId": "models.dev:zhipuai/glm-4.7-flashx",
+      "source": "models.dev",
+      "sourceKey": "zhipuai/glm-4.7-flashx",
+      "models": [
+        "glm-4.7-flashx"
+      ],
+      "inputUsdPerMillion": 0.07,
+      "cachedInputUsdPerMillion": 0.01,
+      "cacheWriteUsdPerMillion": 0.0,
+      "outputUsdPerMillion": 0.4
+    },
+    {
+      "ruleId": "models.dev:zhipuai/glm-5",
+      "source": "models.dev",
+      "sourceKey": "zhipuai/glm-5",
+      "models": [
+        "glm-5"
+      ],
+      "inputUsdPerMillion": 1.0,
+      "cachedInputUsdPerMillion": 0.2,
+      "cacheWriteUsdPerMillion": 0.0,
+      "outputUsdPerMillion": 3.2
+    },
+    {
+      "ruleId": "litellm:zai/glm-5-code",
+      "source": "litellm",
+      "sourceKey": "zai/glm-5-code",
+      "models": [
+        "glm-5-code"
+      ],
+      "inputUsdPerMillion": 1.2000000,
+      "cachedInputUsdPerMillion": 0.3000000,
+      "cacheWriteUsdPerMillion": 0.0,
+      "outputUsdPerMillion": 5.000000
+    },
+    {
+      "ruleId": "models.dev:zhipuai/glm-5.1",
+      "source": "models.dev",
+      "sourceKey": "zhipuai/glm-5.1",
+      "models": [
+        "glm-5.1"
+      ],
+      "inputUsdPerMillion": 1.4,
+      "cachedInputUsdPerMillion": 0.26,
+      "cacheWriteUsdPerMillion": 0.0,
+      "outputUsdPerMillion": 4.4
+    },
+    {
+      "ruleId": "models.dev:zhipuai/glm-5.2",
+      "source": "models.dev",
+      "sourceKey": "zhipuai/glm-5.2",
+      "models": [
+        "glm-5.2"
+      ],
+      "inputUsdPerMillion": 1.4,
+      "cachedInputUsdPerMillion": 0.26,
+      "cacheWriteUsdPerMillion": 0.0,
+      "outputUsdPerMillion": 4.4
+    },
+    {
+      "ruleId": "models.dev:zhipuai/glm-5v-turbo",
+      "source": "models.dev",
+      "sourceKey": "zhipuai/glm-5v-turbo",
+      "models": [
+        "glm-5v-turbo"
+      ],
+      "inputUsdPerMillion": 5.0,
+      "cachedInputUsdPerMillion": 1.2,
+      "cacheWriteUsdPerMillion": 0.0,
+      "outputUsdPerMillion": 22.0
+    },
+    {
+      "ruleId": "models.dev:openai/gpt-3.5-turbo",
+      "source": "models.dev",
+      "sourceKey": "openai/gpt-3.5-turbo",
+      "models": [
+        "gpt-3.5-turbo"
+      ],
+      "inputUsdPerMillion": 0.5,
+      "cachedInputUsdPerMillion": 0.0,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 1.5
+    },
+    {
+      "ruleId": "litellm:gpt-3.5-turbo-0125",
+      "source": "litellm",
+      "sourceKey": "gpt-3.5-turbo-0125",
+      "models": [
+        "gpt-3.5-turbo-0125"
+      ],
+      "inputUsdPerMillion": 0.5000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 1.5000000
+    },
+    {
+      "ruleId": "litellm:gpt-3.5-turbo-1106",
+      "source": "litellm",
+      "sourceKey": "gpt-3.5-turbo-1106",
+      "models": [
+        "gpt-3.5-turbo-1106"
+      ],
+      "inputUsdPerMillion": 1.000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 2.000000
+    },
+    {
+      "ruleId": "litellm:gpt-3.5-turbo-16k",
+      "source": "litellm",
+      "sourceKey": "gpt-3.5-turbo-16k",
+      "models": [
+        "gpt-3.5-turbo-16k"
+      ],
+      "inputUsdPerMillion": 3.000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 4.000000
+    },
+    {
+      "ruleId": "models.dev:openai/gpt-4",
+      "source": "models.dev",
+      "sourceKey": "openai/gpt-4",
+      "models": [
+        "gpt-4"
+      ],
+      "inputUsdPerMillion": 30.0,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 60.0
+    },
+    {
+      "ruleId": "litellm:gpt-4-0125-preview",
+      "source": "litellm",
+      "sourceKey": "gpt-4-0125-preview",
+      "models": [
+        "gpt-4-0125-preview"
+      ],
+      "inputUsdPerMillion": 10.00000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 30.00000
+    },
+    {
+      "ruleId": "litellm:gpt-4-0314",
+      "source": "litellm",
+      "sourceKey": "gpt-4-0314",
+      "models": [
+        "gpt-4-0314"
+      ],
+      "inputUsdPerMillion": 30.00000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 60.00000
+    },
+    {
+      "ruleId": "litellm:gpt-4-0613",
+      "source": "litellm",
+      "sourceKey": "gpt-4-0613",
+      "models": [
+        "gpt-4-0613"
+      ],
+      "inputUsdPerMillion": 30.00000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 60.00000
+    },
+    {
+      "ruleId": "litellm:gpt-4-1106-preview",
+      "source": "litellm",
+      "sourceKey": "gpt-4-1106-preview",
+      "models": [
+        "gpt-4-1106-preview"
+      ],
+      "inputUsdPerMillion": 10.00000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 30.00000
+    },
+    {
+      "ruleId": "models.dev:openai/gpt-4-turbo",
+      "source": "models.dev",
+      "sourceKey": "openai/gpt-4-turbo",
+      "models": [
+        "gpt-4-turbo"
+      ],
+      "inputUsdPerMillion": 10.0,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 30.0
+    },
+    {
+      "ruleId": "litellm:gpt-4-turbo-2024-04-09",
+      "source": "litellm",
+      "sourceKey": "gpt-4-turbo-2024-04-09",
+      "models": [
+        "gpt-4-turbo-2024-04-09"
+      ],
+      "inputUsdPerMillion": 10.00000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 30.00000
+    },
+    {
+      "ruleId": "litellm:gpt-4-turbo-preview",
+      "source": "litellm",
+      "sourceKey": "gpt-4-turbo-preview",
+      "models": [
+        "gpt-4-turbo-preview"
+      ],
+      "inputUsdPerMillion": 10.00000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 30.00000
+    },
+    {
+      "ruleId": "models.dev:openai/gpt-4.1",
+      "source": "models.dev",
+      "sourceKey": "openai/gpt-4.1",
+      "models": [
+        "gpt-4.1"
+      ],
+      "inputUsdPerMillion": 2.0,
+      "cachedInputUsdPerMillion": 0.5,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 8.0
+    },
+    {
+      "ruleId": "litellm:gpt-4.1-2025-04-14",
+      "source": "litellm",
+      "sourceKey": "gpt-4.1-2025-04-14",
+      "models": [
+        "gpt-4.1-2025-04-14"
+      ],
+      "inputUsdPerMillion": 2.000000,
+      "cachedInputUsdPerMillion": 0.5000000,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 8.000000
+    },
+    {
+      "ruleId": "models.dev:openai/gpt-4.1-mini",
+      "source": "models.dev",
+      "sourceKey": "openai/gpt-4.1-mini",
+      "models": [
+        "gpt-4.1-mini"
+      ],
+      "inputUsdPerMillion": 0.4,
+      "cachedInputUsdPerMillion": 0.1,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 1.6
+    },
+    {
+      "ruleId": "litellm:gpt-4.1-mini-2025-04-14",
+      "source": "litellm",
+      "sourceKey": "gpt-4.1-mini-2025-04-14",
+      "models": [
+        "gpt-4.1-mini-2025-04-14"
+      ],
+      "inputUsdPerMillion": 0.4000000,
+      "cachedInputUsdPerMillion": 0.1000000,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 1.6000000
+    },
+    {
+      "ruleId": "models.dev:openai/gpt-4.1-nano",
+      "source": "models.dev",
+      "sourceKey": "openai/gpt-4.1-nano",
+      "models": [
+        "gpt-4.1-nano"
+      ],
+      "inputUsdPerMillion": 0.1,
+      "cachedInputUsdPerMillion": 0.025,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.4
+    },
+    {
+      "ruleId": "litellm:gpt-4.1-nano-2025-04-14",
+      "source": "litellm",
+      "sourceKey": "gpt-4.1-nano-2025-04-14",
+      "models": [
+        "gpt-4.1-nano-2025-04-14"
+      ],
+      "inputUsdPerMillion": 0.1000000,
+      "cachedInputUsdPerMillion": 0.025000000,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.4000000
+    },
+    {
+      "ruleId": "models.dev:openai/gpt-4o",
+      "source": "models.dev",
+      "sourceKey": "openai/gpt-4o",
+      "models": [
+        "gpt-4o"
+      ],
+      "inputUsdPerMillion": 2.5,
+      "cachedInputUsdPerMillion": 1.25,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 10.0
+    },
+    {
+      "ruleId": "models.dev:openai/gpt-4o-2024-05-13",
+      "source": "models.dev",
+      "sourceKey": "openai/gpt-4o-2024-05-13",
+      "models": [
+        "gpt-4o-2024-05-13"
+      ],
+      "inputUsdPerMillion": 5.0,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 15.0
+    },
+    {
+      "ruleId": "models.dev:openai/gpt-4o-2024-08-06",
+      "source": "models.dev",
+      "sourceKey": "openai/gpt-4o-2024-08-06",
+      "models": [
+        "gpt-4o-2024-08-06"
+      ],
+      "inputUsdPerMillion": 2.5,
+      "cachedInputUsdPerMillion": 1.25,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 10.0
+    },
+    {
+      "ruleId": "models.dev:openai/gpt-4o-2024-11-20",
+      "source": "models.dev",
+      "sourceKey": "openai/gpt-4o-2024-11-20",
+      "models": [
+        "gpt-4o-2024-11-20"
+      ],
+      "inputUsdPerMillion": 2.5,
+      "cachedInputUsdPerMillion": 1.25,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 10.0
+    },
+    {
+      "ruleId": "litellm:gpt-4o-audio-preview",
+      "source": "litellm",
+      "sourceKey": "gpt-4o-audio-preview",
+      "models": [
+        "gpt-4o-audio-preview"
+      ],
+      "inputUsdPerMillion": 2.5000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 10.00000
+    },
+    {
+      "ruleId": "litellm:gpt-4o-audio-preview-2024-12-17",
+      "source": "litellm",
+      "sourceKey": "gpt-4o-audio-preview-2024-12-17",
+      "models": [
+        "gpt-4o-audio-preview-2024-12-17"
+      ],
+      "inputUsdPerMillion": 2.5000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 10.00000
+    },
+    {
+      "ruleId": "litellm:gpt-4o-audio-preview-2025-06-03",
+      "source": "litellm",
+      "sourceKey": "gpt-4o-audio-preview-2025-06-03",
+      "models": [
+        "gpt-4o-audio-preview-2025-06-03"
+      ],
+      "inputUsdPerMillion": 2.5000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 10.00000
+    },
+    {
+      "ruleId": "models.dev:openai/gpt-4o-mini",
+      "source": "models.dev",
+      "sourceKey": "openai/gpt-4o-mini",
+      "models": [
+        "gpt-4o-mini"
+      ],
+      "inputUsdPerMillion": 0.15,
+      "cachedInputUsdPerMillion": 0.075,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.6
+    },
+    {
+      "ruleId": "litellm:gpt-4o-mini-2024-07-18",
+      "source": "litellm",
+      "sourceKey": "gpt-4o-mini-2024-07-18",
+      "models": [
+        "gpt-4o-mini-2024-07-18"
+      ],
+      "inputUsdPerMillion": 0.15000000,
+      "cachedInputUsdPerMillion": 0.075000000,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.6000000
+    },
+    {
+      "ruleId": "litellm:gpt-4o-mini-audio-preview",
+      "source": "litellm",
+      "sourceKey": "gpt-4o-mini-audio-preview",
+      "models": [
+        "gpt-4o-mini-audio-preview"
+      ],
+      "inputUsdPerMillion": 0.15000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.6000000
+    },
+    {
+      "ruleId": "litellm:gpt-4o-mini-audio-preview-2024-12-17",
+      "source": "litellm",
+      "sourceKey": "gpt-4o-mini-audio-preview-2024-12-17",
+      "models": [
+        "gpt-4o-mini-audio-preview-2024-12-17"
+      ],
+      "inputUsdPerMillion": 0.15000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.6000000
+    },
+    {
+      "ruleId": "litellm:gpt-4o-mini-search-preview",
+      "source": "litellm",
+      "sourceKey": "gpt-4o-mini-search-preview",
+      "models": [
+        "gpt-4o-mini-search-preview"
+      ],
+      "inputUsdPerMillion": 0.15000000,
+      "cachedInputUsdPerMillion": 0.075000000,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.6000000
+    },
+    {
+      "ruleId": "litellm:gpt-4o-mini-search-preview-2025-03-11",
+      "source": "litellm",
+      "sourceKey": "gpt-4o-mini-search-preview-2025-03-11",
+      "models": [
+        "gpt-4o-mini-search-preview-2025-03-11"
+      ],
+      "inputUsdPerMillion": 0.15000000,
+      "cachedInputUsdPerMillion": 0.075000000,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.6000000
+    },
+    {
+      "ruleId": "litellm:gpt-4o-search-preview",
+      "source": "litellm",
+      "sourceKey": "gpt-4o-search-preview",
+      "models": [
+        "gpt-4o-search-preview"
+      ],
+      "inputUsdPerMillion": 2.5000000,
+      "cachedInputUsdPerMillion": 1.25000000,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 10.00000
+    },
+    {
+      "ruleId": "litellm:gpt-4o-search-preview-2025-03-11",
+      "source": "litellm",
+      "sourceKey": "gpt-4o-search-preview-2025-03-11",
+      "models": [
+        "gpt-4o-search-preview-2025-03-11"
+      ],
+      "inputUsdPerMillion": 2.5000000,
+      "cachedInputUsdPerMillion": 1.25000000,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 10.00000
+    },
+    {
+      "ruleId": "models.dev:openai/gpt-5",
+      "source": "models.dev",
+      "sourceKey": "openai/gpt-5",
+      "models": [
+        "gpt-5"
+      ],
+      "inputUsdPerMillion": 1.25,
+      "cachedInputUsdPerMillion": 0.125,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 10.0
+    },
+    {
+      "ruleId": "litellm:gpt-5-2025-08-07",
+      "source": "litellm",
+      "sourceKey": "gpt-5-2025-08-07",
+      "models": [
+        "gpt-5-2025-08-07"
+      ],
+      "inputUsdPerMillion": 1.25000000,
+      "cachedInputUsdPerMillion": 0.125000000,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 10.00000
+    },
+    {
+      "ruleId": "litellm:gpt-5-chat",
+      "source": "litellm",
+      "sourceKey": "gpt-5-chat",
+      "models": [
+        "gpt-5-chat"
+      ],
+      "inputUsdPerMillion": 1.25000000,
+      "cachedInputUsdPerMillion": 0.125000000,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 10.00000
+    },
+    {
+      "ruleId": "litellm:gpt-5-chat-latest",
+      "source": "litellm",
+      "sourceKey": "gpt-5-chat-latest",
+      "models": [
+        "gpt-5-chat-latest"
+      ],
+      "inputUsdPerMillion": 1.25000000,
+      "cachedInputUsdPerMillion": 0.125000000,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 10.00000
+    },
+    {
+      "ruleId": "litellm:gpt-5-codex",
+      "source": "litellm",
+      "sourceKey": "gpt-5-codex",
+      "models": [
+        "gpt-5-codex"
+      ],
+      "inputUsdPerMillion": 1.25000000,
+      "cachedInputUsdPerMillion": 0.125000000,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 10.00000
+    },
+    {
+      "ruleId": "models.dev:openai/gpt-5-mini",
+      "source": "models.dev",
+      "sourceKey": "openai/gpt-5-mini",
+      "models": [
+        "gpt-5-mini"
+      ],
+      "inputUsdPerMillion": 0.25,
+      "cachedInputUsdPerMillion": 0.025,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 2.0
+    },
+    {
+      "ruleId": "litellm:gpt-5-mini-2025-08-07",
+      "source": "litellm",
+      "sourceKey": "gpt-5-mini-2025-08-07",
+      "models": [
+        "gpt-5-mini-2025-08-07"
+      ],
+      "inputUsdPerMillion": 0.25000000,
+      "cachedInputUsdPerMillion": 0.025000000,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 2.000000
+    },
+    {
+      "ruleId": "models.dev:openai/gpt-5-nano",
+      "source": "models.dev",
+      "sourceKey": "openai/gpt-5-nano",
+      "models": [
+        "gpt-5-nano"
+      ],
+      "inputUsdPerMillion": 0.05,
+      "cachedInputUsdPerMillion": 0.005,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.4
+    },
+    {
+      "ruleId": "litellm:gpt-5-nano-2025-08-07",
+      "source": "litellm",
+      "sourceKey": "gpt-5-nano-2025-08-07",
+      "models": [
+        "gpt-5-nano-2025-08-07"
+      ],
+      "inputUsdPerMillion": 0.05000000,
+      "cachedInputUsdPerMillion": 0.005000000,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.4000000
+    },
+    {
+      "ruleId": "models.dev:openai/gpt-5-pro",
+      "source": "models.dev",
+      "sourceKey": "openai/gpt-5-pro",
+      "models": [
+        "gpt-5-pro"
+      ],
+      "inputUsdPerMillion": 15.0,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 120.0
+    },
+    {
+      "ruleId": "litellm:gpt-5-pro-2025-10-06",
+      "source": "litellm",
+      "sourceKey": "gpt-5-pro-2025-10-06",
+      "models": [
+        "gpt-5-pro-2025-10-06"
+      ],
+      "inputUsdPerMillion": 15.000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 120.00000
+    },
+    {
+      "ruleId": "litellm:gpt-5-search-api",
+      "source": "litellm",
+      "sourceKey": "gpt-5-search-api",
+      "models": [
+        "gpt-5-search-api"
+      ],
+      "inputUsdPerMillion": 1.25000000,
+      "cachedInputUsdPerMillion": 0.125000000,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 10.00000
+    },
+    {
+      "ruleId": "litellm:gpt-5-search-api-2025-10-14",
+      "source": "litellm",
+      "sourceKey": "gpt-5-search-api-2025-10-14",
+      "models": [
+        "gpt-5-search-api-2025-10-14"
+      ],
+      "inputUsdPerMillion": 1.25000000,
+      "cachedInputUsdPerMillion": 0.125000000,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 10.00000
+    },
+    {
+      "ruleId": "models.dev:openai/gpt-5.1",
+      "source": "models.dev",
+      "sourceKey": "openai/gpt-5.1",
+      "models": [
+        "gpt-5.1"
+      ],
+      "inputUsdPerMillion": 1.25,
+      "cachedInputUsdPerMillion": 0.125,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 10.0
+    },
+    {
+      "ruleId": "litellm:gpt-5.1-2025-11-13",
+      "source": "litellm",
+      "sourceKey": "gpt-5.1-2025-11-13",
+      "models": [
+        "gpt-5.1-2025-11-13"
+      ],
+      "inputUsdPerMillion": 1.25000000,
+      "cachedInputUsdPerMillion": 0.125000000,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 10.00000
+    },
+    {
+      "ruleId": "litellm:gpt-5.1-chat-latest",
+      "source": "litellm",
+      "sourceKey": "gpt-5.1-chat-latest",
+      "models": [
+        "gpt-5.1-chat-latest"
+      ],
+      "inputUsdPerMillion": 1.25000000,
+      "cachedInputUsdPerMillion": 0.125000000,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 10.00000
+    },
+    {
+      "ruleId": "litellm:gpt-5.1-codex",
+      "source": "litellm",
+      "sourceKey": "gpt-5.1-codex",
+      "models": [
+        "gpt-5.1-codex"
+      ],
+      "inputUsdPerMillion": 1.25000000,
+      "cachedInputUsdPerMillion": 0.125000000,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 10.00000
+    },
+    {
+      "ruleId": "litellm:gpt-5.1-codex-max",
+      "source": "litellm",
+      "sourceKey": "gpt-5.1-codex-max",
+      "models": [
+        "gpt-5.1-codex-max"
+      ],
+      "inputUsdPerMillion": 1.25000000,
+      "cachedInputUsdPerMillion": 0.125000000,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 10.00000
+    },
+    {
+      "ruleId": "litellm:gpt-5.1-codex-mini",
+      "source": "litellm",
+      "sourceKey": "gpt-5.1-codex-mini",
+      "models": [
+        "gpt-5.1-codex-mini"
+      ],
+      "inputUsdPerMillion": 0.25000000,
+      "cachedInputUsdPerMillion": 0.025000000,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 2.000000
+    },
+    {
+      "ruleId": "models.dev:openai/gpt-5.2",
+      "source": "models.dev",
+      "sourceKey": "openai/gpt-5.2",
+      "models": [
+        "gpt-5.2"
+      ],
+      "inputUsdPerMillion": 1.75,
+      "cachedInputUsdPerMillion": 0.175,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 14.0
+    },
+    {
+      "ruleId": "litellm:gpt-5.2-2025-12-11",
+      "source": "litellm",
+      "sourceKey": "gpt-5.2-2025-12-11",
+      "models": [
+        "gpt-5.2-2025-12-11"
+      ],
+      "inputUsdPerMillion": 1.75000000,
+      "cachedInputUsdPerMillion": 0.175000000,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 14.000000
+    },
+    {
+      "ruleId": "models.dev:openai/gpt-5.2-chat-latest",
+      "source": "models.dev",
+      "sourceKey": "openai/gpt-5.2-chat-latest",
+      "models": [
+        "gpt-5.2-chat-latest"
+      ],
+      "inputUsdPerMillion": 1.75,
+      "cachedInputUsdPerMillion": 0.175,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 14.0
+    },
+    {
+      "ruleId": "litellm:gpt-5.2-codex",
+      "source": "litellm",
+      "sourceKey": "gpt-5.2-codex",
+      "models": [
+        "gpt-5.2-codex"
+      ],
+      "inputUsdPerMillion": 1.75000000,
+      "cachedInputUsdPerMillion": 0.175000000,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 14.000000
+    },
+    {
+      "ruleId": "models.dev:openai/gpt-5.2-pro",
+      "source": "models.dev",
+      "sourceKey": "openai/gpt-5.2-pro",
+      "models": [
+        "gpt-5.2-pro"
+      ],
+      "inputUsdPerMillion": 21.0,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 168.0
+    },
+    {
+      "ruleId": "litellm:gpt-5.2-pro-2025-12-11",
+      "source": "litellm",
+      "sourceKey": "gpt-5.2-pro-2025-12-11",
+      "models": [
+        "gpt-5.2-pro-2025-12-11"
+      ],
+      "inputUsdPerMillion": 21.000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 168.000000
+    },
+    {
+      "ruleId": "models.dev:openai/gpt-5.3-chat-latest",
+      "source": "models.dev",
+      "sourceKey": "openai/gpt-5.3-chat-latest",
+      "models": [
+        "gpt-5.3-chat-latest"
+      ],
+      "inputUsdPerMillion": 1.75,
+      "cachedInputUsdPerMillion": 0.175,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 14.0
+    },
+    {
+      "ruleId": "models.dev:openai/gpt-5.3-codex",
+      "source": "models.dev",
+      "sourceKey": "openai/gpt-5.3-codex",
+      "models": [
+        "gpt-5.3-codex"
+      ],
+      "inputUsdPerMillion": 1.75,
+      "cachedInputUsdPerMillion": 0.175,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 14.0
+    },
+    {
+      "ruleId": "models.dev:openai/gpt-5.4",
+      "source": "models.dev",
+      "sourceKey": "openai/gpt-5.4",
+      "models": [
+        "gpt-5.4"
+      ],
+      "inputUsdPerMillion": 2.5,
+      "cachedInputUsdPerMillion": 0.25,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 15.0,
+      "longContextThresholdTokens": 272000,
+      "longContextInputMultiplier": 2.0,
+      "longContextOutputMultiplier": 1.5
+    },
+    {
+      "ruleId": "models.dev:openai/gpt-5.4-mini",
+      "source": "models.dev",
+      "sourceKey": "openai/gpt-5.4-mini",
+      "models": [
+        "gpt-5.4-mini"
+      ],
+      "inputUsdPerMillion": 0.75,
+      "cachedInputUsdPerMillion": 0.075,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 4.5
+    },
+    {
+      "ruleId": "litellm:gpt-5.4-mini-2026-03-17",
+      "source": "litellm",
+      "sourceKey": "gpt-5.4-mini-2026-03-17",
+      "models": [
+        "gpt-5.4-mini-2026-03-17"
+      ],
+      "inputUsdPerMillion": 0.75000000,
+      "cachedInputUsdPerMillion": 0.075000000,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 4.5000000
+    },
+    {
+      "ruleId": "models.dev:openai/gpt-5.4-nano",
+      "source": "models.dev",
+      "sourceKey": "openai/gpt-5.4-nano",
+      "models": [
+        "gpt-5.4-nano"
+      ],
+      "inputUsdPerMillion": 0.2,
+      "cachedInputUsdPerMillion": 0.02,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 1.25
+    },
+    {
+      "ruleId": "litellm:gpt-5.4-nano-2026-03-17",
+      "source": "litellm",
+      "sourceKey": "gpt-5.4-nano-2026-03-17",
+      "models": [
+        "gpt-5.4-nano-2026-03-17"
+      ],
+      "inputUsdPerMillion": 0.2000000,
+      "cachedInputUsdPerMillion": 0.02000000,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 1.25000000
+    },
+    {
+      "ruleId": "models.dev:openai/gpt-5.4-pro",
+      "source": "models.dev",
+      "sourceKey": "openai/gpt-5.4-pro",
+      "models": [
+        "gpt-5.4-pro"
+      ],
+      "inputUsdPerMillion": 30.0,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 180.0,
+      "longContextThresholdTokens": 272000,
+      "longContextInputMultiplier": 2.0,
+      "longContextOutputMultiplier": 1.5
+    },
+    {
+      "ruleId": "models.dev:openai/gpt-5.5",
+      "source": "models.dev",
+      "sourceKey": "openai/gpt-5.5",
+      "models": [
+        "gpt-5.5"
+      ],
+      "inputUsdPerMillion": 5.0,
+      "cachedInputUsdPerMillion": 0.5,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 30.0,
+      "longContextThresholdTokens": 272000,
+      "longContextInputMultiplier": 2.0,
+      "longContextOutputMultiplier": 1.5
+    },
+    {
+      "ruleId": "models.dev:openai/gpt-5.5-pro",
+      "source": "models.dev",
+      "sourceKey": "openai/gpt-5.5-pro",
+      "models": [
+        "gpt-5.5-pro"
+      ],
+      "inputUsdPerMillion": 30.0,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 180.0,
+      "longContextThresholdTokens": 272000,
+      "longContextInputMultiplier": 2.0,
+      "longContextOutputMultiplier": 1.5
+    },
+    {
+      "ruleId": "models.dev:openai/gpt-5.6-luna",
+      "source": "models.dev",
+      "sourceKey": "openai/gpt-5.6-luna",
+      "models": [
+        "gpt-5.6-luna"
+      ],
+      "inputUsdPerMillion": 0.2,
+      "cachedInputUsdPerMillion": 0.02,
+      "cacheWriteUsdPerMillion": 0.25,
+      "outputUsdPerMillion": 1.2,
+      "longContextThresholdTokens": 272000,
+      "longContextInputMultiplier": 2.0,
+      "longContextOutputMultiplier": 1.5
+    },
+    {
+      "ruleId": "models.dev:openai/gpt-5.6-sol",
+      "source": "models.dev",
+      "sourceKey": "openai/gpt-5.6-sol",
+      "models": [
+        "gpt-5.6-sol"
+      ],
+      "inputUsdPerMillion": 5.0,
+      "cachedInputUsdPerMillion": 0.5,
+      "cacheWriteUsdPerMillion": 6.25,
+      "outputUsdPerMillion": 30.0,
+      "longContextThresholdTokens": 272000,
+      "longContextInputMultiplier": 2.0,
+      "longContextOutputMultiplier": 1.5
+    },
+    {
+      "ruleId": "models.dev:openai/gpt-5.6-terra",
+      "source": "models.dev",
+      "sourceKey": "openai/gpt-5.6-terra",
+      "models": [
+        "gpt-5.6-terra"
+      ],
+      "inputUsdPerMillion": 2.0,
+      "cachedInputUsdPerMillion": 0.2,
+      "cacheWriteUsdPerMillion": 2.5,
+      "outputUsdPerMillion": 12.0,
+      "longContextThresholdTokens": 272000,
+      "longContextInputMultiplier": 2.0,
+      "longContextOutputMultiplier": 1.5
+    },
+    {
+      "ruleId": "litellm:gpt-audio",
+      "source": "litellm",
+      "sourceKey": "gpt-audio",
+      "models": [
+        "gpt-audio"
+      ],
+      "inputUsdPerMillion": 2.5000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 10.00000
+    },
+    {
+      "ruleId": "litellm:gpt-audio-1.5",
+      "source": "litellm",
+      "sourceKey": "gpt-audio-1.5",
+      "models": [
+        "gpt-audio-1.5"
+      ],
+      "inputUsdPerMillion": 2.5000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 10.00000
+    },
+    {
+      "ruleId": "litellm:gpt-audio-2025-08-28",
+      "source": "litellm",
+      "sourceKey": "gpt-audio-2025-08-28",
+      "models": [
+        "gpt-audio-2025-08-28"
+      ],
+      "inputUsdPerMillion": 2.5000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 10.00000
+    },
+    {
+      "ruleId": "litellm:gpt-audio-mini",
+      "source": "litellm",
+      "sourceKey": "gpt-audio-mini",
+      "models": [
+        "gpt-audio-mini"
+      ],
+      "inputUsdPerMillion": 0.6000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 2.4000000
+    },
+    {
+      "ruleId": "litellm:gpt-audio-mini-2025-10-06",
+      "source": "litellm",
+      "sourceKey": "gpt-audio-mini-2025-10-06",
+      "models": [
+        "gpt-audio-mini-2025-10-06"
+      ],
+      "inputUsdPerMillion": 0.6000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 2.4000000
+    },
+    {
+      "ruleId": "litellm:gpt-audio-mini-2025-12-15",
+      "source": "litellm",
+      "sourceKey": "gpt-audio-mini-2025-12-15",
+      "models": [
+        "gpt-audio-mini-2025-12-15"
+      ],
+      "inputUsdPerMillion": 0.6000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 2.4000000
+    },
+    {
+      "ruleId": "models.dev:openai/gpt-image-2",
+      "source": "models.dev",
+      "sourceKey": "openai/gpt-image-2",
+      "models": [
+        "gpt-image-2"
+      ],
+      "inputUsdPerMillion": 5.0,
+      "cachedInputUsdPerMillion": 1.25,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 30.0
+    },
+    {
+      "ruleId": "models.dev:openai/gpt-realtime-2.1",
+      "source": "models.dev",
+      "sourceKey": "openai/gpt-realtime-2.1",
+      "models": [
+        "gpt-realtime-2.1"
+      ],
+      "inputUsdPerMillion": 4.0,
+      "cachedInputUsdPerMillion": 0.4,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 24.0
+    },
+    {
+      "ruleId": "litellm:xai/grok-2",
+      "source": "litellm",
+      "sourceKey": "xai/grok-2",
+      "models": [
+        "grok-2"
+      ],
+      "inputUsdPerMillion": 2.000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 10.00000
+    },
+    {
+      "ruleId": "litellm:xai/grok-2-1212",
+      "source": "litellm",
+      "sourceKey": "xai/grok-2-1212",
+      "models": [
+        "grok-2-1212"
+      ],
+      "inputUsdPerMillion": 2.000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 10.00000
+    },
+    {
+      "ruleId": "litellm:xai/grok-2-latest",
+      "source": "litellm",
+      "sourceKey": "xai/grok-2-latest",
+      "models": [
+        "grok-2-latest"
+      ],
+      "inputUsdPerMillion": 2.000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 10.00000
+    },
+    {
+      "ruleId": "litellm:xai/grok-2-vision",
+      "source": "litellm",
+      "sourceKey": "xai/grok-2-vision",
+      "models": [
+        "grok-2-vision"
+      ],
+      "inputUsdPerMillion": 2.000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 10.00000
+    },
+    {
+      "ruleId": "litellm:xai/grok-2-vision-1212",
+      "source": "litellm",
+      "sourceKey": "xai/grok-2-vision-1212",
+      "models": [
+        "grok-2-vision-1212"
+      ],
+      "inputUsdPerMillion": 2.000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 10.00000
+    },
+    {
+      "ruleId": "litellm:xai/grok-2-vision-latest",
+      "source": "litellm",
+      "sourceKey": "xai/grok-2-vision-latest",
+      "models": [
+        "grok-2-vision-latest"
+      ],
+      "inputUsdPerMillion": 2.000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 10.00000
+    },
+    {
+      "ruleId": "litellm:xai/grok-3",
+      "source": "litellm",
+      "sourceKey": "xai/grok-3",
+      "models": [
+        "grok-3"
+      ],
+      "inputUsdPerMillion": 3.000000,
+      "cachedInputUsdPerMillion": 0.75000000,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 15.000000
+    },
+    {
+      "ruleId": "litellm:xai/grok-3-beta",
+      "source": "litellm",
+      "sourceKey": "xai/grok-3-beta",
+      "models": [
+        "grok-3-beta"
+      ],
+      "inputUsdPerMillion": 3.000000,
+      "cachedInputUsdPerMillion": 0.75000000,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 15.000000
+    },
+    {
+      "ruleId": "litellm:xai/grok-3-fast-beta",
+      "source": "litellm",
+      "sourceKey": "xai/grok-3-fast-beta",
+      "models": [
+        "grok-3-fast-beta"
+      ],
+      "inputUsdPerMillion": 5.000000,
+      "cachedInputUsdPerMillion": 1.25000000,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 25.000000
+    },
+    {
+      "ruleId": "litellm:xai/grok-3-fast-latest",
+      "source": "litellm",
+      "sourceKey": "xai/grok-3-fast-latest",
+      "models": [
+        "grok-3-fast-latest"
+      ],
+      "inputUsdPerMillion": 5.000000,
+      "cachedInputUsdPerMillion": 1.25000000,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 25.000000
+    },
+    {
+      "ruleId": "litellm:xai/grok-3-latest",
+      "source": "litellm",
+      "sourceKey": "xai/grok-3-latest",
+      "models": [
+        "grok-3-latest"
+      ],
+      "inputUsdPerMillion": 3.000000,
+      "cachedInputUsdPerMillion": 0.75000000,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 15.000000
+    },
+    {
+      "ruleId": "litellm:xai/grok-3-mini",
+      "source": "litellm",
+      "sourceKey": "xai/grok-3-mini",
+      "models": [
+        "grok-3-mini"
+      ],
+      "inputUsdPerMillion": 0.3000000,
+      "cachedInputUsdPerMillion": 0.075000000,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.5000000
+    },
+    {
+      "ruleId": "litellm:xai/grok-3-mini-beta",
+      "source": "litellm",
+      "sourceKey": "xai/grok-3-mini-beta",
+      "models": [
+        "grok-3-mini-beta"
+      ],
+      "inputUsdPerMillion": 0.3000000,
+      "cachedInputUsdPerMillion": 0.075000000,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.5000000
+    },
+    {
+      "ruleId": "litellm:xai/grok-3-mini-fast",
+      "source": "litellm",
+      "sourceKey": "xai/grok-3-mini-fast",
+      "models": [
+        "grok-3-mini-fast"
+      ],
+      "inputUsdPerMillion": 0.6000000,
+      "cachedInputUsdPerMillion": 0.15000000,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 4.000000
+    },
+    {
+      "ruleId": "litellm:xai/grok-3-mini-fast-beta",
+      "source": "litellm",
+      "sourceKey": "xai/grok-3-mini-fast-beta",
+      "models": [
+        "grok-3-mini-fast-beta"
+      ],
+      "inputUsdPerMillion": 0.6000000,
+      "cachedInputUsdPerMillion": 0.15000000,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 4.000000
+    },
+    {
+      "ruleId": "litellm:xai/grok-3-mini-fast-latest",
+      "source": "litellm",
+      "sourceKey": "xai/grok-3-mini-fast-latest",
+      "models": [
+        "grok-3-mini-fast-latest"
+      ],
+      "inputUsdPerMillion": 0.6000000,
+      "cachedInputUsdPerMillion": 0.15000000,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 4.000000
+    },
+    {
+      "ruleId": "litellm:xai/grok-3-mini-latest",
+      "source": "litellm",
+      "sourceKey": "xai/grok-3-mini-latest",
+      "models": [
+        "grok-3-mini-latest"
+      ],
+      "inputUsdPerMillion": 0.3000000,
+      "cachedInputUsdPerMillion": 0.075000000,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.5000000
+    },
+    {
+      "ruleId": "litellm:xai/grok-4",
+      "source": "litellm",
+      "sourceKey": "xai/grok-4",
+      "models": [
+        "grok-4"
+      ],
+      "inputUsdPerMillion": 3.000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 15.000000
+    },
+    {
+      "ruleId": "litellm:xai/grok-4-0709",
+      "source": "litellm",
+      "sourceKey": "xai/grok-4-0709",
+      "models": [
+        "grok-4-0709"
+      ],
+      "inputUsdPerMillion": 3.000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 15.000000,
+      "longContextThresholdTokens": 128000,
+      "longContextInputMultiplier": 2.0,
+      "longContextOutputMultiplier": 2.0
+    },
+    {
+      "ruleId": "litellm:xai/grok-4-latest",
+      "source": "litellm",
+      "sourceKey": "xai/grok-4-latest",
+      "models": [
+        "grok-4-latest"
+      ],
+      "inputUsdPerMillion": 3.000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 15.000000,
+      "longContextThresholdTokens": 128000,
+      "longContextInputMultiplier": 2.0,
+      "longContextOutputMultiplier": 2.0
+    },
+    {
+      "ruleId": "models.dev:xai/grok-4.20-0309-non-reasoning",
+      "source": "models.dev",
+      "sourceKey": "xai/grok-4.20-0309-non-reasoning",
+      "models": [
+        "grok-4.20-0309-non-reasoning"
+      ],
+      "inputUsdPerMillion": 1.25,
+      "cachedInputUsdPerMillion": 0.2,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 2.5,
+      "longContextThresholdTokens": 200000,
+      "longContextInputMultiplier": 2.0,
+      "longContextOutputMultiplier": 2.0
+    },
+    {
+      "ruleId": "models.dev:xai/grok-4.20-0309-reasoning",
+      "source": "models.dev",
+      "sourceKey": "xai/grok-4.20-0309-reasoning",
+      "models": [
+        "grok-4.20-0309-reasoning"
+      ],
+      "inputUsdPerMillion": 1.25,
+      "cachedInputUsdPerMillion": 0.2,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 2.5,
+      "longContextThresholdTokens": 200000,
+      "longContextInputMultiplier": 2.0,
+      "longContextOutputMultiplier": 2.0
+    },
+    {
+      "ruleId": "litellm:xai/grok-4.20-beta-0309-non-reasoning",
+      "source": "litellm",
+      "sourceKey": "xai/grok-4.20-beta-0309-non-reasoning",
+      "models": [
+        "grok-4.20-beta-0309-non-reasoning"
+      ],
+      "inputUsdPerMillion": 2.000000,
+      "cachedInputUsdPerMillion": 0.2000000,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 6.000000
+    },
+    {
+      "ruleId": "litellm:xai/grok-4.20-beta-0309-reasoning",
+      "source": "litellm",
+      "sourceKey": "xai/grok-4.20-beta-0309-reasoning",
+      "models": [
+        "grok-4.20-beta-0309-reasoning"
+      ],
+      "inputUsdPerMillion": 2.000000,
+      "cachedInputUsdPerMillion": 0.2000000,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 6.000000
+    },
+    {
+      "ruleId": "litellm:xai/grok-4.20-multi-agent-beta-0309",
+      "source": "litellm",
+      "sourceKey": "xai/grok-4.20-multi-agent-beta-0309",
+      "models": [
+        "grok-4.20-multi-agent-beta-0309"
+      ],
+      "inputUsdPerMillion": 2.000000,
+      "cachedInputUsdPerMillion": 0.2000000,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 6.000000
+    },
+    {
+      "ruleId": "models.dev:xai/grok-4.3",
+      "source": "models.dev",
+      "sourceKey": "xai/grok-4.3",
+      "models": [
+        "grok-4.3"
+      ],
+      "inputUsdPerMillion": 1.25,
+      "cachedInputUsdPerMillion": 0.2,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 2.5,
+      "longContextThresholdTokens": 200000,
+      "longContextInputMultiplier": 2.0,
+      "longContextOutputMultiplier": 2.0
+    },
+    {
+      "ruleId": "models.dev:xai/grok-4.5",
+      "source": "models.dev",
+      "sourceKey": "xai/grok-4.5",
+      "models": [
+        "grok-4.5"
+      ],
+      "inputUsdPerMillion": 2.0,
+      "cachedInputUsdPerMillion": 0.3,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 6.0,
+      "longContextThresholdTokens": 200000,
+      "longContextInputMultiplier": 2.0,
+      "longContextOutputMultiplier": 2.0
+    },
+    {
+      "ruleId": "litellm:xai/grok-beta",
+      "source": "litellm",
+      "sourceKey": "xai/grok-beta",
+      "models": [
+        "grok-beta"
+      ],
+      "inputUsdPerMillion": 5.000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 15.000000
+    },
+    {
+      "ruleId": "models.dev:xai/grok-build-0.1",
+      "source": "models.dev",
+      "sourceKey": "xai/grok-build-0.1",
+      "models": [
+        "grok-build-0.1"
+      ],
+      "inputUsdPerMillion": 1.0,
+      "cachedInputUsdPerMillion": 0.2,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 2.0,
+      "longContextThresholdTokens": 200000,
+      "longContextInputMultiplier": 2.0,
+      "longContextOutputMultiplier": 2.0
+    },
+    {
+      "ruleId": "litellm:xai/grok-code-fast",
+      "source": "litellm",
+      "sourceKey": "xai/grok-code-fast",
+      "models": [
+        "grok-code-fast"
+      ],
+      "inputUsdPerMillion": 0.2000000,
+      "cachedInputUsdPerMillion": 0.02000000,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 1.5000000
+    },
+    {
+      "ruleId": "litellm:xai/grok-code-fast-1",
+      "source": "litellm",
+      "sourceKey": "xai/grok-code-fast-1",
+      "models": [
+        "grok-code-fast-1"
+      ],
+      "inputUsdPerMillion": 0.2000000,
+      "cachedInputUsdPerMillion": 0.02000000,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 1.5000000
+    },
+    {
+      "ruleId": "litellm:xai/grok-code-fast-1-0825",
+      "source": "litellm",
+      "sourceKey": "xai/grok-code-fast-1-0825",
+      "models": [
+        "grok-code-fast-1-0825"
+      ],
+      "inputUsdPerMillion": 0.2000000,
+      "cachedInputUsdPerMillion": 0.02000000,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 1.5000000
+    },
+    {
+      "ruleId": "litellm:xai/grok-vision-beta",
+      "source": "litellm",
+      "sourceKey": "xai/grok-vision-beta",
+      "models": [
+        "grok-vision-beta"
+      ],
+      "inputUsdPerMillion": 5.000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 15.000000
+    },
+    {
+      "ruleId": "litellm:j2-light",
+      "source": "litellm",
+      "sourceKey": "j2-light",
+      "models": [
+        "j2-light"
+      ],
+      "inputUsdPerMillion": 3.000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 3.000000
+    },
+    {
+      "ruleId": "litellm:j2-mid",
+      "source": "litellm",
+      "sourceKey": "j2-mid",
+      "models": [
+        "j2-mid"
+      ],
+      "inputUsdPerMillion": 10.00000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 10.00000
+    },
+    {
+      "ruleId": "litellm:j2-ultra",
+      "source": "litellm",
+      "sourceKey": "j2-ultra",
+      "models": [
+        "j2-ultra"
+      ],
+      "inputUsdPerMillion": 15.000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 15.000000
+    },
+    {
+      "ruleId": "litellm:jamba-1.5",
+      "source": "litellm",
+      "sourceKey": "jamba-1.5",
+      "models": [
+        "jamba-1.5"
+      ],
+      "inputUsdPerMillion": 0.2000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.4000000
+    },
+    {
+      "ruleId": "litellm:jamba-1.5-large",
+      "source": "litellm",
+      "sourceKey": "jamba-1.5-large",
+      "models": [
+        "jamba-1.5-large"
+      ],
+      "inputUsdPerMillion": 2.000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 8.000000
+    },
+    {
+      "ruleId": "litellm:jamba-1.5-large@001",
+      "source": "litellm",
+      "sourceKey": "jamba-1.5-large@001",
+      "models": [
+        "jamba-1.5-large@001"
+      ],
+      "inputUsdPerMillion": 2.000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 8.000000
+    },
+    {
+      "ruleId": "litellm:jamba-1.5-mini",
+      "source": "litellm",
+      "sourceKey": "jamba-1.5-mini",
+      "models": [
+        "jamba-1.5-mini"
+      ],
+      "inputUsdPerMillion": 0.2000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.4000000
+    },
+    {
+      "ruleId": "litellm:jamba-1.5-mini@001",
+      "source": "litellm",
+      "sourceKey": "jamba-1.5-mini@001",
+      "models": [
+        "jamba-1.5-mini@001"
+      ],
+      "inputUsdPerMillion": 0.2000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.4000000
+    },
+    {
+      "ruleId": "litellm:jamba-large-1.6",
+      "source": "litellm",
+      "sourceKey": "jamba-large-1.6",
+      "models": [
+        "jamba-large-1.6"
+      ],
+      "inputUsdPerMillion": 2.000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 8.000000
+    },
+    {
+      "ruleId": "litellm:jamba-large-1.7",
+      "source": "litellm",
+      "sourceKey": "jamba-large-1.7",
+      "models": [
+        "jamba-large-1.7"
+      ],
+      "inputUsdPerMillion": 2.000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 8.000000
+    },
+    {
+      "ruleId": "litellm:jamba-mini-1.6",
+      "source": "litellm",
+      "sourceKey": "jamba-mini-1.6",
+      "models": [
+        "jamba-mini-1.6"
+      ],
+      "inputUsdPerMillion": 0.2000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.4000000
+    },
+    {
+      "ruleId": "litellm:jamba-mini-1.7",
+      "source": "litellm",
+      "sourceKey": "jamba-mini-1.7",
+      "models": [
+        "jamba-mini-1.7"
+      ],
+      "inputUsdPerMillion": 0.2000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.4000000
+    },
+    {
+      "ruleId": "litellm:moonshot/kimi-k2-0711-preview",
+      "source": "litellm",
+      "sourceKey": "moonshot/kimi-k2-0711-preview",
+      "models": [
+        "kimi-k2-0711-preview"
+      ],
+      "inputUsdPerMillion": 0.6000000,
+      "cachedInputUsdPerMillion": 0.15000000,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 2.5000000
+    },
+    {
+      "ruleId": "litellm:moonshot/kimi-k2-0905-preview",
+      "source": "litellm",
+      "sourceKey": "moonshot/kimi-k2-0905-preview",
+      "models": [
+        "kimi-k2-0905-preview"
+      ],
+      "inputUsdPerMillion": 0.6000000,
+      "cachedInputUsdPerMillion": 0.15000000,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 2.5000000
+    },
+    {
+      "ruleId": "models.dev:moonshotai/kimi-k2-thinking",
+      "source": "models.dev",
+      "sourceKey": "moonshotai/kimi-k2-thinking",
+      "models": [
+        "kimi-k2-thinking"
+      ],
+      "inputUsdPerMillion": 0.6,
+      "cachedInputUsdPerMillion": 0.15,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 2.5
+    },
+    {
+      "ruleId": "models.dev:moonshotai/kimi-k2-thinking-turbo",
+      "source": "models.dev",
+      "sourceKey": "moonshotai/kimi-k2-thinking-turbo",
+      "models": [
+        "kimi-k2-thinking-turbo"
+      ],
+      "inputUsdPerMillion": 1.15,
+      "cachedInputUsdPerMillion": 0.15,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 8.0
+    },
+    {
+      "ruleId": "litellm:moonshot/kimi-k2-turbo-preview",
+      "source": "litellm",
+      "sourceKey": "moonshot/kimi-k2-turbo-preview",
+      "models": [
+        "kimi-k2-turbo-preview"
+      ],
+      "inputUsdPerMillion": 1.15000000,
+      "cachedInputUsdPerMillion": 0.15000000,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 8.000000
+    },
+    {
+      "ruleId": "models.dev:moonshotai/kimi-k2.5",
+      "source": "models.dev",
+      "sourceKey": "moonshotai/kimi-k2.5",
+      "models": [
+        "kimi-k2.5"
+      ],
+      "inputUsdPerMillion": 0.6,
+      "cachedInputUsdPerMillion": 0.1,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 3.0
+    },
+    {
+      "ruleId": "models.dev:moonshotai/kimi-k2.6",
+      "source": "models.dev",
+      "sourceKey": "moonshotai/kimi-k2.6",
+      "models": [
+        "kimi-k2.6"
+      ],
+      "inputUsdPerMillion": 0.95,
+      "cachedInputUsdPerMillion": 0.16,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 4.0
+    },
+    {
+      "ruleId": "models.dev:moonshotai/kimi-k2.7-code",
+      "source": "models.dev",
+      "sourceKey": "moonshotai/kimi-k2.7-code",
+      "models": [
+        "kimi-k2.7-code"
+      ],
+      "inputUsdPerMillion": 0.95,
+      "cachedInputUsdPerMillion": 0.19,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 4.0
+    },
+    {
+      "ruleId": "models.dev:moonshotai/kimi-k2.7-code-highspeed",
+      "source": "models.dev",
+      "sourceKey": "moonshotai/kimi-k2.7-code-highspeed",
+      "models": [
+        "kimi-k2.7-code-highspeed"
+      ],
+      "inputUsdPerMillion": 1.9,
+      "cachedInputUsdPerMillion": 0.38,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 8.0
+    },
+    {
+      "ruleId": "models.dev:moonshotai/kimi-k3",
+      "source": "models.dev",
+      "sourceKey": "moonshotai/kimi-k3",
+      "models": [
+        "kimi-k3"
+      ],
+      "inputUsdPerMillion": 3.0,
+      "cachedInputUsdPerMillion": 0.3,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 15.0
+    },
+    {
+      "ruleId": "litellm:moonshot/kimi-latest",
+      "source": "litellm",
+      "sourceKey": "moonshot/kimi-latest",
+      "models": [
+        "kimi-latest"
+      ],
+      "inputUsdPerMillion": 2.000000,
+      "cachedInputUsdPerMillion": 0.15000000,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 5.000000
+    },
+    {
+      "ruleId": "litellm:moonshot/kimi-latest-128k",
+      "source": "litellm",
+      "sourceKey": "moonshot/kimi-latest-128k",
+      "models": [
+        "kimi-latest-128k"
+      ],
+      "inputUsdPerMillion": 2.000000,
+      "cachedInputUsdPerMillion": 0.15000000,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 5.000000
+    },
+    {
+      "ruleId": "litellm:moonshot/kimi-latest-32k",
+      "source": "litellm",
+      "sourceKey": "moonshot/kimi-latest-32k",
+      "models": [
+        "kimi-latest-32k"
+      ],
+      "inputUsdPerMillion": 1.000000,
+      "cachedInputUsdPerMillion": 0.15000000,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 3.000000
+    },
+    {
+      "ruleId": "litellm:moonshot/kimi-latest-8k",
+      "source": "litellm",
+      "sourceKey": "moonshot/kimi-latest-8k",
+      "models": [
+        "kimi-latest-8k"
+      ],
+      "inputUsdPerMillion": 0.2000000,
+      "cachedInputUsdPerMillion": 0.15000000,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 2.000000
+    },
+    {
+      "ruleId": "litellm:moonshot/kimi-thinking-preview",
+      "source": "litellm",
+      "sourceKey": "moonshot/kimi-thinking-preview",
+      "models": [
+        "kimi-thinking-preview"
+      ],
+      "inputUsdPerMillion": 0.6000000,
+      "cachedInputUsdPerMillion": 0.15000000,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 2.5000000
+    },
+    {
+      "ruleId": "litellm:gemini/learnlm-1.5-pro-experimental",
+      "source": "litellm",
+      "sourceKey": "gemini/learnlm-1.5-pro-experimental",
+      "models": [
+        "learnlm-1.5-pro-experimental"
+      ],
+      "inputUsdPerMillion": 0.0,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.0,
+      "longContextThresholdTokens": 128000,
+      "longContextInputMultiplier": 1.0,
+      "longContextOutputMultiplier": 1.0
+    },
+    {
+      "ruleId": "models.dev:google/lyria-3-clip-preview",
+      "source": "models.dev",
+      "sourceKey": "google/lyria-3-clip-preview",
+      "models": [
+        "lyria-3-clip-preview"
+      ],
+      "inputUsdPerMillion": 0.0,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.0
+    },
+    {
+      "ruleId": "models.dev:google/lyria-3-pro-preview",
+      "source": "models.dev",
+      "sourceKey": "google/lyria-3-pro-preview",
+      "models": [
+        "lyria-3-pro-preview"
+      ],
+      "inputUsdPerMillion": 0.0,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.0
+    },
+    {
+      "ruleId": "litellm:mistral/magistral-medium-1-2-2509",
+      "source": "litellm",
+      "sourceKey": "mistral/magistral-medium-1-2-2509",
+      "models": [
+        "magistral-medium-1-2-2509"
+      ],
+      "inputUsdPerMillion": 2.000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 5.000000
+    },
+    {
+      "ruleId": "litellm:mistral/magistral-medium-2506",
+      "source": "litellm",
+      "sourceKey": "mistral/magistral-medium-2506",
+      "models": [
+        "magistral-medium-2506"
+      ],
+      "inputUsdPerMillion": 2.000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 5.000000
+    },
+    {
+      "ruleId": "litellm:mistral/magistral-medium-2509",
+      "source": "litellm",
+      "sourceKey": "mistral/magistral-medium-2509",
+      "models": [
+        "magistral-medium-2509"
+      ],
+      "inputUsdPerMillion": 2.000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 5.000000
+    },
+    {
+      "ruleId": "models.dev:mistral/magistral-medium-latest",
+      "source": "models.dev",
+      "sourceKey": "mistral/magistral-medium-latest",
+      "models": [
+        "magistral-medium-latest"
+      ],
+      "inputUsdPerMillion": 2.0,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 5.0
+    },
+    {
+      "ruleId": "litellm:mistral/magistral-small-1-2-2509",
+      "source": "litellm",
+      "sourceKey": "mistral/magistral-small-1-2-2509",
+      "models": [
+        "magistral-small-1-2-2509"
+      ],
+      "inputUsdPerMillion": 0.5000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 1.5000000
+    },
+    {
+      "ruleId": "litellm:mistral/magistral-small-2506",
+      "source": "litellm",
+      "sourceKey": "mistral/magistral-small-2506",
+      "models": [
+        "magistral-small-2506"
+      ],
+      "inputUsdPerMillion": 0.5000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 1.5000000
+    },
+    {
+      "ruleId": "litellm:mistral/magistral-small-latest",
+      "source": "litellm",
+      "sourceKey": "mistral/magistral-small-latest",
+      "models": [
+        "magistral-small-latest"
+      ],
+      "inputUsdPerMillion": 0.5000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 1.5000000
+    },
+    {
+      "ruleId": "models.dev:xiaomi/mimo-v2-flash",
+      "source": "models.dev",
+      "sourceKey": "xiaomi/mimo-v2-flash",
+      "models": [
+        "mimo-v2-flash"
+      ],
+      "inputUsdPerMillion": 0.14,
+      "cachedInputUsdPerMillion": 0.0028,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.28
+    },
+    {
+      "ruleId": "models.dev:xiaomi/mimo-v2-omni",
+      "source": "models.dev",
+      "sourceKey": "xiaomi/mimo-v2-omni",
+      "models": [
+        "mimo-v2-omni"
+      ],
+      "inputUsdPerMillion": 0.14,
+      "cachedInputUsdPerMillion": 0.0028,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.28
+    },
+    {
+      "ruleId": "models.dev:xiaomi/mimo-v2-pro",
+      "source": "models.dev",
+      "sourceKey": "xiaomi/mimo-v2-pro",
+      "models": [
+        "mimo-v2-pro"
+      ],
+      "inputUsdPerMillion": 0.435,
+      "cachedInputUsdPerMillion": 0.0036,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.87
+    },
+    {
+      "ruleId": "models.dev:xiaomi/mimo-v2.5",
+      "source": "models.dev",
+      "sourceKey": "xiaomi/mimo-v2.5",
+      "models": [
+        "mimo-v2.5"
+      ],
+      "inputUsdPerMillion": 0.14,
+      "cachedInputUsdPerMillion": 0.0028,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.28
+    },
+    {
+      "ruleId": "models.dev:xiaomi/mimo-v2.5-pro",
+      "source": "models.dev",
+      "sourceKey": "xiaomi/mimo-v2.5-pro",
+      "models": [
+        "mimo-v2.5-pro"
+      ],
+      "inputUsdPerMillion": 0.435,
+      "cachedInputUsdPerMillion": 0.0036,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.87
+    },
+    {
+      "ruleId": "models.dev:xiaomi/mimo-v2.5-pro-ultraspeed",
+      "source": "models.dev",
+      "sourceKey": "xiaomi/mimo-v2.5-pro-ultraspeed",
+      "models": [
+        "mimo-v2.5-pro-ultraspeed"
+      ],
+      "inputUsdPerMillion": 1.305,
+      "cachedInputUsdPerMillion": 0.0108,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 2.61
+    },
+    {
+      "ruleId": "models.dev:minimax/minimax-m2",
+      "source": "models.dev",
+      "sourceKey": "minimax/minimax-m2",
+      "models": [
+        "minimax-m2"
+      ],
+      "inputUsdPerMillion": 0.3,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 1.2
+    },
+    {
+      "ruleId": "models.dev:minimax/minimax-m2.1",
+      "source": "models.dev",
+      "sourceKey": "minimax/minimax-m2.1",
+      "models": [
+        "minimax-m2.1"
+      ],
+      "inputUsdPerMillion": 0.3,
+      "cachedInputUsdPerMillion": 0.03,
+      "cacheWriteUsdPerMillion": 0.375,
+      "outputUsdPerMillion": 1.2
+    },
+    {
+      "ruleId": "litellm:minimax/minimax-m2.1-lightning",
+      "source": "litellm",
+      "sourceKey": "minimax/minimax-m2.1-lightning",
+      "models": [
+        "minimax-m2.1-lightning"
+      ],
+      "inputUsdPerMillion": 0.3000000,
+      "cachedInputUsdPerMillion": 0.03000000,
+      "cacheWriteUsdPerMillion": 0.375000000,
+      "outputUsdPerMillion": 2.4000000
+    },
+    {
+      "ruleId": "models.dev:minimax/minimax-m2.5",
+      "source": "models.dev",
+      "sourceKey": "minimax/minimax-m2.5",
+      "models": [
+        "minimax-m2.5"
+      ],
+      "inputUsdPerMillion": 0.3,
+      "cachedInputUsdPerMillion": 0.03,
+      "cacheWriteUsdPerMillion": 0.375,
+      "outputUsdPerMillion": 1.2
+    },
+    {
+      "ruleId": "models.dev:minimax/minimax-m2.5-highspeed",
+      "source": "models.dev",
+      "sourceKey": "minimax/minimax-m2.5-highspeed",
+      "models": [
+        "minimax-m2.5-highspeed"
+      ],
+      "inputUsdPerMillion": 0.6,
+      "cachedInputUsdPerMillion": 0.06,
+      "cacheWriteUsdPerMillion": 0.375,
+      "outputUsdPerMillion": 2.4
+    },
+    {
+      "ruleId": "litellm:minimax/minimax-m2.5-lightning",
+      "source": "litellm",
+      "sourceKey": "minimax/minimax-m2.5-lightning",
+      "models": [
+        "minimax-m2.5-lightning"
+      ],
+      "inputUsdPerMillion": 0.3000000,
+      "cachedInputUsdPerMillion": 0.03000000,
+      "cacheWriteUsdPerMillion": 0.375000000,
+      "outputUsdPerMillion": 2.4000000
+    },
+    {
+      "ruleId": "models.dev:minimax/minimax-m2.7",
+      "source": "models.dev",
+      "sourceKey": "minimax/minimax-m2.7",
+      "models": [
+        "minimax-m2.7"
+      ],
+      "inputUsdPerMillion": 0.3,
+      "cachedInputUsdPerMillion": 0.06,
+      "cacheWriteUsdPerMillion": 0.375,
+      "outputUsdPerMillion": 1.2
+    },
+    {
+      "ruleId": "models.dev:minimax/minimax-m2.7-highspeed",
+      "source": "models.dev",
+      "sourceKey": "minimax/minimax-m2.7-highspeed",
+      "models": [
+        "minimax-m2.7-highspeed"
+      ],
+      "inputUsdPerMillion": 0.6,
+      "cachedInputUsdPerMillion": 0.06,
+      "cacheWriteUsdPerMillion": 0.375,
+      "outputUsdPerMillion": 2.4
+    },
+    {
+      "ruleId": "models.dev:minimax/minimax-m3",
+      "source": "models.dev",
+      "sourceKey": "minimax/minimax-m3",
+      "models": [
+        "minimax-m3"
+      ],
+      "inputUsdPerMillion": 0.3,
+      "cachedInputUsdPerMillion": 0.06,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 1.2,
+      "longContextThresholdTokens": 512000,
+      "longContextInputMultiplier": 2.0,
+      "longContextOutputMultiplier": 2.0
+    },
+    {
+      "ruleId": "litellm:mistral/ministral-3-14b-2512",
+      "source": "litellm",
+      "sourceKey": "mistral/ministral-3-14b-2512",
+      "models": [
+        "ministral-3-14b-2512"
+      ],
+      "inputUsdPerMillion": 0.2000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.2000000
+    },
+    {
+      "ruleId": "litellm:mistral/ministral-3-3b-2512",
+      "source": "litellm",
+      "sourceKey": "mistral/ministral-3-3b-2512",
+      "models": [
+        "ministral-3-3b-2512"
+      ],
+      "inputUsdPerMillion": 0.1000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.1000000
+    },
+    {
+      "ruleId": "litellm:mistral/ministral-3-8b-2512",
+      "source": "litellm",
+      "sourceKey": "mistral/ministral-3-8b-2512",
+      "models": [
+        "ministral-3-8b-2512"
+      ],
+      "inputUsdPerMillion": 0.15000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.15000000
+    },
+    {
+      "ruleId": "litellm:mistral/ministral-8b-2512",
+      "source": "litellm",
+      "sourceKey": "mistral/ministral-8b-2512",
+      "models": [
+        "ministral-8b-2512"
+      ],
+      "inputUsdPerMillion": 0.15000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.15000000
+    },
+    {
+      "ruleId": "litellm:mistral/ministral-8b-latest",
+      "source": "litellm",
+      "sourceKey": "mistral/ministral-8b-latest",
+      "models": [
+        "ministral-8b-latest"
+      ],
+      "inputUsdPerMillion": 0.15000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.15000000
+    },
+    {
+      "ruleId": "litellm:mistral/mistral-large-2402",
+      "source": "litellm",
+      "sourceKey": "mistral/mistral-large-2402",
+      "models": [
+        "mistral-large-2402"
+      ],
+      "inputUsdPerMillion": 4.000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 12.000000
+    },
+    {
+      "ruleId": "litellm:mistral/mistral-large-2407",
+      "source": "litellm",
+      "sourceKey": "mistral/mistral-large-2407",
+      "models": [
+        "mistral-large-2407"
+      ],
+      "inputUsdPerMillion": 3.000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 9.000000
+    },
+    {
+      "ruleId": "models.dev:mistral/mistral-large-2411",
+      "source": "models.dev",
+      "sourceKey": "mistral/mistral-large-2411",
+      "models": [
+        "mistral-large-2411"
+      ],
+      "inputUsdPerMillion": 2.0,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 6.0
+    },
+    {
+      "ruleId": "models.dev:mistral/mistral-large-2512",
+      "source": "models.dev",
+      "sourceKey": "mistral/mistral-large-2512",
+      "models": [
+        "mistral-large-2512"
+      ],
+      "inputUsdPerMillion": 0.5,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 1.5
+    },
+    {
+      "ruleId": "litellm:mistral/mistral-large-3",
+      "source": "litellm",
+      "sourceKey": "mistral/mistral-large-3",
+      "models": [
+        "mistral-large-3"
+      ],
+      "inputUsdPerMillion": 0.5000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 1.5000000
+    },
+    {
+      "ruleId": "models.dev:mistral/mistral-large-latest",
+      "source": "models.dev",
+      "sourceKey": "mistral/mistral-large-latest",
+      "models": [
+        "mistral-large-latest"
+      ],
+      "inputUsdPerMillion": 0.5,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 1.5
+    },
+    {
+      "ruleId": "litellm:mistral/mistral-medium",
+      "source": "litellm",
+      "sourceKey": "mistral/mistral-medium",
+      "models": [
+        "mistral-medium"
+      ],
+      "inputUsdPerMillion": 2.7000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 8.1000000
+    },
+    {
+      "ruleId": "litellm:mistral/mistral-medium-2312",
+      "source": "litellm",
+      "sourceKey": "mistral/mistral-medium-2312",
+      "models": [
+        "mistral-medium-2312"
+      ],
+      "inputUsdPerMillion": 2.7000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 8.1000000
+    },
+    {
+      "ruleId": "models.dev:mistral/mistral-medium-2505",
+      "source": "models.dev",
+      "sourceKey": "mistral/mistral-medium-2505",
+      "models": [
+        "mistral-medium-2505"
+      ],
+      "inputUsdPerMillion": 0.4,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 2.0
+    },
+    {
+      "ruleId": "litellm:mistral/mistral-medium-2508",
+      "source": "litellm",
+      "sourceKey": "mistral/mistral-medium-2508",
+      "models": [
+        "mistral-medium-2508"
+      ],
+      "inputUsdPerMillion": 0.4000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 2.000000
+    },
+    {
+      "ruleId": "models.dev:mistral/mistral-medium-2604",
+      "source": "models.dev",
+      "sourceKey": "mistral/mistral-medium-2604",
+      "models": [
+        "mistral-medium-2604"
+      ],
+      "inputUsdPerMillion": 1.5,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 7.5
+    },
+    {
+      "ruleId": "litellm:mistral/mistral-medium-3-1-2508",
+      "source": "litellm",
+      "sourceKey": "mistral/mistral-medium-3-1-2508",
+      "models": [
+        "mistral-medium-3-1-2508"
+      ],
+      "inputUsdPerMillion": 0.4000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 2.000000
+    },
+    {
+      "ruleId": "litellm:mistral/mistral-medium-3-5",
+      "source": "litellm",
+      "sourceKey": "mistral/mistral-medium-3-5",
+      "models": [
+        "mistral-medium-3-5"
+      ],
+      "inputUsdPerMillion": 1.5000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 7.5000000
+    },
+    {
+      "ruleId": "models.dev:mistral/mistral-medium-latest",
+      "source": "models.dev",
+      "sourceKey": "mistral/mistral-medium-latest",
+      "models": [
+        "mistral-medium-latest"
+      ],
+      "inputUsdPerMillion": 1.5,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 7.5
+    },
+    {
+      "ruleId": "models.dev:mistral/mistral-nemo",
+      "source": "models.dev",
+      "sourceKey": "mistral/mistral-nemo",
+      "models": [
+        "mistral-nemo"
+      ],
+      "inputUsdPerMillion": 0.15,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.15
+    },
+    {
+      "ruleId": "litellm:mistral/mistral-small",
+      "source": "litellm",
+      "sourceKey": "mistral/mistral-small",
+      "models": [
+        "mistral-small"
+      ],
+      "inputUsdPerMillion": 0.1000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.3000000
+    },
+    {
+      "ruleId": "models.dev:mistral/mistral-small-2506",
+      "source": "models.dev",
+      "sourceKey": "mistral/mistral-small-2506",
+      "models": [
+        "mistral-small-2506"
+      ],
+      "inputUsdPerMillion": 0.1,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.3
+    },
+    {
+      "ruleId": "models.dev:mistral/mistral-small-2603",
+      "source": "models.dev",
+      "sourceKey": "mistral/mistral-small-2603",
+      "models": [
+        "mistral-small-2603"
+      ],
+      "inputUsdPerMillion": 0.15,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.6
+    },
+    {
+      "ruleId": "litellm:mistral/mistral-small-3-2-2506",
+      "source": "litellm",
+      "sourceKey": "mistral/mistral-small-3-2-2506",
+      "models": [
+        "mistral-small-3-2-2506"
+      ],
+      "inputUsdPerMillion": 0.06000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.18000000
+    },
+    {
+      "ruleId": "models.dev:mistral/mistral-small-latest",
+      "source": "models.dev",
+      "sourceKey": "mistral/mistral-small-latest",
+      "models": [
+        "mistral-small-latest"
+      ],
+      "inputUsdPerMillion": 0.15,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.6
+    },
+    {
+      "ruleId": "litellm:mistral/mistral-tiny",
+      "source": "litellm",
+      "sourceKey": "mistral/mistral-tiny",
+      "models": [
+        "mistral-tiny"
+      ],
+      "inputUsdPerMillion": 0.25000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.25000000
+    },
+    {
+      "ruleId": "litellm:moonshot/moonshot-v1-128k",
+      "source": "litellm",
+      "sourceKey": "moonshot/moonshot-v1-128k",
+      "models": [
+        "moonshot-v1-128k"
+      ],
+      "inputUsdPerMillion": 2.000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 5.000000
+    },
+    {
+      "ruleId": "litellm:moonshot/moonshot-v1-128k-0430",
+      "source": "litellm",
+      "sourceKey": "moonshot/moonshot-v1-128k-0430",
+      "models": [
+        "moonshot-v1-128k-0430"
+      ],
+      "inputUsdPerMillion": 2.000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 5.000000
+    },
+    {
+      "ruleId": "litellm:moonshot/moonshot-v1-128k-vision-preview",
+      "source": "litellm",
+      "sourceKey": "moonshot/moonshot-v1-128k-vision-preview",
+      "models": [
+        "moonshot-v1-128k-vision-preview"
+      ],
+      "inputUsdPerMillion": 2.000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 5.000000
+    },
+    {
+      "ruleId": "litellm:moonshot/moonshot-v1-32k",
+      "source": "litellm",
+      "sourceKey": "moonshot/moonshot-v1-32k",
+      "models": [
+        "moonshot-v1-32k"
+      ],
+      "inputUsdPerMillion": 1.000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 3.000000
+    },
+    {
+      "ruleId": "litellm:moonshot/moonshot-v1-32k-0430",
+      "source": "litellm",
+      "sourceKey": "moonshot/moonshot-v1-32k-0430",
+      "models": [
+        "moonshot-v1-32k-0430"
+      ],
+      "inputUsdPerMillion": 1.000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 3.000000
+    },
+    {
+      "ruleId": "litellm:moonshot/moonshot-v1-32k-vision-preview",
+      "source": "litellm",
+      "sourceKey": "moonshot/moonshot-v1-32k-vision-preview",
+      "models": [
+        "moonshot-v1-32k-vision-preview"
+      ],
+      "inputUsdPerMillion": 1.000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 3.000000
+    },
+    {
+      "ruleId": "litellm:moonshot/moonshot-v1-8k",
+      "source": "litellm",
+      "sourceKey": "moonshot/moonshot-v1-8k",
+      "models": [
+        "moonshot-v1-8k"
+      ],
+      "inputUsdPerMillion": 0.2000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 2.000000
+    },
+    {
+      "ruleId": "litellm:moonshot/moonshot-v1-8k-0430",
+      "source": "litellm",
+      "sourceKey": "moonshot/moonshot-v1-8k-0430",
+      "models": [
+        "moonshot-v1-8k-0430"
+      ],
+      "inputUsdPerMillion": 0.2000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 2.000000
+    },
+    {
+      "ruleId": "litellm:moonshot/moonshot-v1-8k-vision-preview",
+      "source": "litellm",
+      "sourceKey": "moonshot/moonshot-v1-8k-vision-preview",
+      "models": [
+        "moonshot-v1-8k-vision-preview"
+      ],
+      "inputUsdPerMillion": 0.2000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 2.000000
+    },
+    {
+      "ruleId": "litellm:moonshot/moonshot-v1-auto",
+      "source": "litellm",
+      "sourceKey": "moonshot/moonshot-v1-auto",
+      "models": [
+        "moonshot-v1-auto"
+      ],
+      "inputUsdPerMillion": 2.000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 5.000000
+    },
+    {
+      "ruleId": "models.dev:meta/muse-spark-1.1",
+      "source": "models.dev",
+      "sourceKey": "meta/muse-spark-1.1",
+      "models": [
+        "muse-spark-1.1"
+      ],
+      "inputUsdPerMillion": 1.25,
+      "cachedInputUsdPerMillion": 0.15,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 4.25
+    },
+    {
+      "ruleId": "models.dev:meta/muse-spark-1.2",
+      "source": "models.dev",
+      "sourceKey": "meta/muse-spark-1.2",
+      "models": [
+        "muse-spark-1.2"
+      ],
+      "inputUsdPerMillion": 1.25,
+      "cachedInputUsdPerMillion": 0.15,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 4.25
+    },
+    {
+      "ruleId": "models.dev:cohere/north-mini-code-1-0",
+      "source": "models.dev",
+      "sourceKey": "cohere/north-mini-code-1-0",
+      "models": [
+        "north-mini-code-1-0"
+      ],
+      "inputUsdPerMillion": 0.0,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.0
+    },
+    {
+      "ruleId": "models.dev:openai/o1",
+      "source": "models.dev",
+      "sourceKey": "openai/o1",
+      "models": [
+        "o1"
+      ],
+      "inputUsdPerMillion": 15.0,
+      "cachedInputUsdPerMillion": 7.5,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 60.0
+    },
+    {
+      "ruleId": "litellm:o1-2024-12-17",
+      "source": "litellm",
+      "sourceKey": "o1-2024-12-17",
+      "models": [
+        "o1-2024-12-17"
+      ],
+      "inputUsdPerMillion": 15.000000,
+      "cachedInputUsdPerMillion": 7.5000000,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 60.00000
+    },
+    {
+      "ruleId": "models.dev:openai/o1-pro",
+      "source": "models.dev",
+      "sourceKey": "openai/o1-pro",
+      "models": [
+        "o1-pro"
+      ],
+      "inputUsdPerMillion": 150.0,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 600.0
+    },
+    {
+      "ruleId": "litellm:o1-pro-2025-03-19",
+      "source": "litellm",
+      "sourceKey": "o1-pro-2025-03-19",
+      "models": [
+        "o1-pro-2025-03-19"
+      ],
+      "inputUsdPerMillion": 150.00000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 600.0000
+    },
+    {
+      "ruleId": "models.dev:openai/o3",
+      "source": "models.dev",
+      "sourceKey": "openai/o3",
+      "models": [
+        "o3"
+      ],
+      "inputUsdPerMillion": 2.0,
+      "cachedInputUsdPerMillion": 0.5,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 8.0
+    },
+    {
+      "ruleId": "litellm:o3-2025-04-16",
+      "source": "litellm",
+      "sourceKey": "o3-2025-04-16",
+      "models": [
+        "o3-2025-04-16"
+      ],
+      "inputUsdPerMillion": 2.000000,
+      "cachedInputUsdPerMillion": 0.5000000,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 8.000000
+    },
+    {
+      "ruleId": "litellm:o3-deep-research",
+      "source": "litellm",
+      "sourceKey": "o3-deep-research",
+      "models": [
+        "o3-deep-research"
+      ],
+      "inputUsdPerMillion": 10.00000,
+      "cachedInputUsdPerMillion": 2.5000000,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 40.00000
+    },
+    {
+      "ruleId": "litellm:o3-deep-research-2025-06-26",
+      "source": "litellm",
+      "sourceKey": "o3-deep-research-2025-06-26",
+      "models": [
+        "o3-deep-research-2025-06-26"
+      ],
+      "inputUsdPerMillion": 10.00000,
+      "cachedInputUsdPerMillion": 2.5000000,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 40.00000
+    },
+    {
+      "ruleId": "models.dev:openai/o3-mini",
+      "source": "models.dev",
+      "sourceKey": "openai/o3-mini",
+      "models": [
+        "o3-mini"
+      ],
+      "inputUsdPerMillion": 1.1,
+      "cachedInputUsdPerMillion": 0.55,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 4.4
+    },
+    {
+      "ruleId": "litellm:o3-mini-2025-01-31",
+      "source": "litellm",
+      "sourceKey": "o3-mini-2025-01-31",
+      "models": [
+        "o3-mini-2025-01-31"
+      ],
+      "inputUsdPerMillion": 1.1000000,
+      "cachedInputUsdPerMillion": 0.55000000,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 4.4000000
+    },
+    {
+      "ruleId": "models.dev:openai/o3-pro",
+      "source": "models.dev",
+      "sourceKey": "openai/o3-pro",
+      "models": [
+        "o3-pro"
+      ],
+      "inputUsdPerMillion": 20.0,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 80.0
+    },
+    {
+      "ruleId": "litellm:o3-pro-2025-06-10",
+      "source": "litellm",
+      "sourceKey": "o3-pro-2025-06-10",
+      "models": [
+        "o3-pro-2025-06-10"
+      ],
+      "inputUsdPerMillion": 20.00000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 80.00000
+    },
+    {
+      "ruleId": "models.dev:openai/o4-mini",
+      "source": "models.dev",
+      "sourceKey": "openai/o4-mini",
+      "models": [
+        "o4-mini"
+      ],
+      "inputUsdPerMillion": 1.1,
+      "cachedInputUsdPerMillion": 0.275,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 4.4
+    },
+    {
+      "ruleId": "litellm:o4-mini-2025-04-16",
+      "source": "litellm",
+      "sourceKey": "o4-mini-2025-04-16",
+      "models": [
+        "o4-mini-2025-04-16"
+      ],
+      "inputUsdPerMillion": 1.1000000,
+      "cachedInputUsdPerMillion": 0.275000000,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 4.4000000
+    },
+    {
+      "ruleId": "litellm:o4-mini-deep-research",
+      "source": "litellm",
+      "sourceKey": "o4-mini-deep-research",
+      "models": [
+        "o4-mini-deep-research"
+      ],
+      "inputUsdPerMillion": 2.000000,
+      "cachedInputUsdPerMillion": 0.5000000,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 8.000000
+    },
+    {
+      "ruleId": "litellm:o4-mini-deep-research-2025-06-26",
+      "source": "litellm",
+      "sourceKey": "o4-mini-deep-research-2025-06-26",
+      "models": [
+        "o4-mini-deep-research-2025-06-26"
+      ],
+      "inputUsdPerMillion": 2.000000,
+      "cachedInputUsdPerMillion": 0.5000000,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 8.000000
+    },
+    {
+      "ruleId": "litellm:mistral/open-mistral-7b",
+      "source": "litellm",
+      "sourceKey": "mistral/open-mistral-7b",
+      "models": [
+        "open-mistral-7b"
+      ],
+      "inputUsdPerMillion": 0.25000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.25000000
+    },
+    {
+      "ruleId": "litellm:mistral/open-mistral-nemo",
+      "source": "litellm",
+      "sourceKey": "mistral/open-mistral-nemo",
+      "models": [
+        "open-mistral-nemo"
+      ],
+      "inputUsdPerMillion": 0.3000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.3000000
+    },
+    {
+      "ruleId": "litellm:mistral/open-mistral-nemo-2407",
+      "source": "litellm",
+      "sourceKey": "mistral/open-mistral-nemo-2407",
+      "models": [
+        "open-mistral-nemo-2407"
+      ],
+      "inputUsdPerMillion": 0.3000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.3000000
+    },
+    {
+      "ruleId": "litellm:mistral/open-mixtral-8x22b",
+      "source": "litellm",
+      "sourceKey": "mistral/open-mixtral-8x22b",
+      "models": [
+        "open-mixtral-8x22b"
+      ],
+      "inputUsdPerMillion": 2.000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 6.000000
+    },
+    {
+      "ruleId": "litellm:mistral/open-mixtral-8x7b",
+      "source": "litellm",
+      "sourceKey": "mistral/open-mixtral-8x7b",
+      "models": [
+        "open-mixtral-8x7b"
+      ],
+      "inputUsdPerMillion": 0.7000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.7000000
+    },
+    {
+      "ruleId": "models.dev:mistral/pixtral-12b",
+      "source": "models.dev",
+      "sourceKey": "mistral/pixtral-12b",
+      "models": [
+        "pixtral-12b"
+      ],
+      "inputUsdPerMillion": 0.15,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.15
+    },
+    {
+      "ruleId": "litellm:mistral/pixtral-12b-2409",
+      "source": "litellm",
+      "sourceKey": "mistral/pixtral-12b-2409",
+      "models": [
+        "pixtral-12b-2409"
+      ],
+      "inputUsdPerMillion": 0.15000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.15000000
+    },
+    {
+      "ruleId": "litellm:mistral/pixtral-large-2411",
+      "source": "litellm",
+      "sourceKey": "mistral/pixtral-large-2411",
+      "models": [
+        "pixtral-large-2411"
+      ],
+      "inputUsdPerMillion": 2.000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 6.000000
+    },
+    {
+      "ruleId": "models.dev:mistral/pixtral-large-latest",
+      "source": "models.dev",
+      "sourceKey": "mistral/pixtral-large-latest",
+      "models": [
+        "pixtral-large-latest"
+      ],
+      "inputUsdPerMillion": 2.0,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 6.0
+    },
+    {
+      "ruleId": "litellm:perplexity/pplx-70b-chat",
+      "source": "litellm",
+      "sourceKey": "perplexity/pplx-70b-chat",
+      "models": [
+        "pplx-70b-chat"
+      ],
+      "inputUsdPerMillion": 0.7000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 2.8000000
+    },
+    {
+      "ruleId": "litellm:perplexity/pplx-70b-online",
+      "source": "litellm",
+      "sourceKey": "perplexity/pplx-70b-online",
+      "models": [
+        "pplx-70b-online"
+      ],
+      "inputUsdPerMillion": 0.0,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 2.8000000
+    },
+    {
+      "ruleId": "litellm:perplexity/pplx-7b-chat",
+      "source": "litellm",
+      "sourceKey": "perplexity/pplx-7b-chat",
+      "models": [
+        "pplx-7b-chat"
+      ],
+      "inputUsdPerMillion": 0.07000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.28000000
+    },
+    {
+      "ruleId": "litellm:perplexity/pplx-7b-online",
+      "source": "litellm",
+      "sourceKey": "perplexity/pplx-7b-online",
+      "models": [
+        "pplx-7b-online"
+      ],
+      "inputUsdPerMillion": 0.0,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.28000000
+    },
+    {
+      "ruleId": "litellm:dashscope/qwen-coder",
+      "source": "litellm",
+      "sourceKey": "dashscope/qwen-coder",
+      "models": [
+        "qwen-coder"
+      ],
+      "inputUsdPerMillion": 0.3000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 1.5000000
+    },
+    {
+      "ruleId": "models.dev:alibaba/qwen-flash",
+      "source": "models.dev",
+      "sourceKey": "alibaba/qwen-flash",
+      "models": [
+        "qwen-flash"
+      ],
+      "inputUsdPerMillion": 0.05,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.4
+    },
+    {
+      "ruleId": "models.dev:alibaba/qwen-max",
+      "source": "models.dev",
+      "sourceKey": "alibaba/qwen-max",
+      "models": [
+        "qwen-max"
+      ],
+      "inputUsdPerMillion": 1.6,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 6.4
+    },
+    {
+      "ruleId": "models.dev:alibaba/qwen-omni-turbo",
+      "source": "models.dev",
+      "sourceKey": "alibaba/qwen-omni-turbo",
+      "models": [
+        "qwen-omni-turbo"
+      ],
+      "inputUsdPerMillion": 0.07,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.27
+    },
+    {
+      "ruleId": "models.dev:alibaba/qwen-plus",
+      "source": "models.dev",
+      "sourceKey": "alibaba/qwen-plus",
+      "models": [
+        "qwen-plus"
+      ],
+      "inputUsdPerMillion": 0.4,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 1.2
+    },
+    {
+      "ruleId": "litellm:dashscope/qwen-plus-2025-01-25",
+      "source": "litellm",
+      "sourceKey": "dashscope/qwen-plus-2025-01-25",
+      "models": [
+        "qwen-plus-2025-01-25"
+      ],
+      "inputUsdPerMillion": 0.4000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 1.2000000
+    },
+    {
+      "ruleId": "litellm:dashscope/qwen-plus-2025-04-28",
+      "source": "litellm",
+      "sourceKey": "dashscope/qwen-plus-2025-04-28",
+      "models": [
+        "qwen-plus-2025-04-28"
+      ],
+      "inputUsdPerMillion": 0.4000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 1.2000000
+    },
+    {
+      "ruleId": "litellm:dashscope/qwen-plus-2025-07-14",
+      "source": "litellm",
+      "sourceKey": "dashscope/qwen-plus-2025-07-14",
+      "models": [
+        "qwen-plus-2025-07-14"
+      ],
+      "inputUsdPerMillion": 0.4000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 1.2000000
+    },
+    {
+      "ruleId": "models.dev:alibaba/qwen-turbo",
+      "source": "models.dev",
+      "sourceKey": "alibaba/qwen-turbo",
+      "models": [
+        "qwen-turbo"
+      ],
+      "inputUsdPerMillion": 0.05,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.2
+    },
+    {
+      "ruleId": "litellm:dashscope/qwen-turbo-2024-11-01",
+      "source": "litellm",
+      "sourceKey": "dashscope/qwen-turbo-2024-11-01",
+      "models": [
+        "qwen-turbo-2024-11-01"
+      ],
+      "inputUsdPerMillion": 0.05000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.2000000
+    },
+    {
+      "ruleId": "litellm:dashscope/qwen-turbo-2025-04-28",
+      "source": "litellm",
+      "sourceKey": "dashscope/qwen-turbo-2025-04-28",
+      "models": [
+        "qwen-turbo-2025-04-28"
+      ],
+      "inputUsdPerMillion": 0.05000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.2000000
+    },
+    {
+      "ruleId": "litellm:dashscope/qwen-turbo-latest",
+      "source": "litellm",
+      "sourceKey": "dashscope/qwen-turbo-latest",
+      "models": [
+        "qwen-turbo-latest"
+      ],
+      "inputUsdPerMillion": 0.05000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.2000000
+    },
+    {
+      "ruleId": "models.dev:alibaba/qwen-vl-max",
+      "source": "models.dev",
+      "sourceKey": "alibaba/qwen-vl-max",
+      "models": [
+        "qwen-vl-max"
+      ],
+      "inputUsdPerMillion": 0.8,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 3.2
+    },
+    {
+      "ruleId": "models.dev:alibaba/qwen-vl-plus",
+      "source": "models.dev",
+      "sourceKey": "alibaba/qwen-vl-plus",
+      "models": [
+        "qwen-vl-plus"
+      ],
+      "inputUsdPerMillion": 0.21,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.63
+    },
+    {
+      "ruleId": "models.dev:alibaba/qwen2-5-vl-72b-instruct",
+      "source": "models.dev",
+      "sourceKey": "alibaba/qwen2-5-vl-72b-instruct",
+      "models": [
+        "qwen2-5-vl-72b-instruct"
+      ],
+      "inputUsdPerMillion": 2.8,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 8.4
+    },
+    {
+      "ruleId": "models.dev:alibaba/qwen3-235b-a22b",
+      "source": "models.dev",
+      "sourceKey": "alibaba/qwen3-235b-a22b",
+      "models": [
+        "qwen3-235b-a22b"
+      ],
+      "inputUsdPerMillion": 0.7,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 2.8
+    },
+    {
+      "ruleId": "models.dev:alibaba/qwen3-32b",
+      "source": "models.dev",
+      "sourceKey": "alibaba/qwen3-32b",
+      "models": [
+        "qwen3-32b"
+      ],
+      "inputUsdPerMillion": 0.7,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 2.8
+    },
+    {
+      "ruleId": "models.dev:alibaba/qwen3-coder-30b-a3b-instruct",
+      "source": "models.dev",
+      "sourceKey": "alibaba/qwen3-coder-30b-a3b-instruct",
+      "models": [
+        "qwen3-coder-30b-a3b-instruct"
+      ],
+      "inputUsdPerMillion": 0.45,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 2.25
+    },
+    {
+      "ruleId": "models.dev:alibaba/qwen3-coder-480b-a35b-instruct",
+      "source": "models.dev",
+      "sourceKey": "alibaba/qwen3-coder-480b-a35b-instruct",
+      "models": [
+        "qwen3-coder-480b-a35b-instruct"
+      ],
+      "inputUsdPerMillion": 1.5,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 7.5
+    },
+    {
+      "ruleId": "models.dev:alibaba/qwen3-coder-flash",
+      "source": "models.dev",
+      "sourceKey": "alibaba/qwen3-coder-flash",
+      "models": [
+        "qwen3-coder-flash"
+      ],
+      "inputUsdPerMillion": 0.3,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 1.5
+    },
+    {
+      "ruleId": "models.dev:alibaba/qwen3-coder-plus",
+      "source": "models.dev",
+      "sourceKey": "alibaba/qwen3-coder-plus",
+      "models": [
+        "qwen3-coder-plus"
+      ],
+      "inputUsdPerMillion": 1.0,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 5.0
+    },
+    {
+      "ruleId": "models.dev:alibaba/qwen3-max",
+      "source": "models.dev",
+      "sourceKey": "alibaba/qwen3-max",
+      "models": [
+        "qwen3-max"
+      ],
+      "inputUsdPerMillion": 1.2,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 6.0
+    },
+    {
+      "ruleId": "models.dev:alibaba/qwen3-next-80b-a3b-instruct",
+      "source": "models.dev",
+      "sourceKey": "alibaba/qwen3-next-80b-a3b-instruct",
+      "models": [
+        "qwen3-next-80b-a3b-instruct"
+      ],
+      "inputUsdPerMillion": 0.5,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 2.0
+    },
+    {
+      "ruleId": "models.dev:alibaba/qwen3-next-80b-a3b-thinking",
+      "source": "models.dev",
+      "sourceKey": "alibaba/qwen3-next-80b-a3b-thinking",
+      "models": [
+        "qwen3-next-80b-a3b-thinking"
+      ],
+      "inputUsdPerMillion": 0.5,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 6.0
+    },
+    {
+      "ruleId": "litellm:dashscope/qwen3-vl-235b-a22b-instruct",
+      "source": "litellm",
+      "sourceKey": "dashscope/qwen3-vl-235b-a22b-instruct",
+      "models": [
+        "qwen3-vl-235b-a22b-instruct"
+      ],
+      "inputUsdPerMillion": 0.4000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 1.6000000
+    },
+    {
+      "ruleId": "litellm:dashscope/qwen3-vl-235b-a22b-thinking",
+      "source": "litellm",
+      "sourceKey": "dashscope/qwen3-vl-235b-a22b-thinking",
+      "models": [
+        "qwen3-vl-235b-a22b-thinking"
+      ],
+      "inputUsdPerMillion": 0.4000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 4.000000
+    },
+    {
+      "ruleId": "litellm:dashscope/qwen3-vl-32b-instruct",
+      "source": "litellm",
+      "sourceKey": "dashscope/qwen3-vl-32b-instruct",
+      "models": [
+        "qwen3-vl-32b-instruct"
+      ],
+      "inputUsdPerMillion": 0.16000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.64000000
+    },
+    {
+      "ruleId": "litellm:dashscope/qwen3-vl-32b-thinking",
+      "source": "litellm",
+      "sourceKey": "dashscope/qwen3-vl-32b-thinking",
+      "models": [
+        "qwen3-vl-32b-thinking"
+      ],
+      "inputUsdPerMillion": 0.16000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 2.87000000
+    },
+    {
+      "ruleId": "models.dev:alibaba/qwen3-vl-plus",
+      "source": "models.dev",
+      "sourceKey": "alibaba/qwen3-vl-plus",
+      "models": [
+        "qwen3-vl-plus"
+      ],
+      "inputUsdPerMillion": 0.2,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 1.6
+    },
+    {
+      "ruleId": "models.dev:alibaba/qwen3.5-122b-a10b",
+      "source": "models.dev",
+      "sourceKey": "alibaba/qwen3.5-122b-a10b",
+      "models": [
+        "qwen3.5-122b-a10b"
+      ],
+      "inputUsdPerMillion": 0.4,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 3.2
+    },
+    {
+      "ruleId": "models.dev:alibaba/qwen3.5-27b",
+      "source": "models.dev",
+      "sourceKey": "alibaba/qwen3.5-27b",
+      "models": [
+        "qwen3.5-27b"
+      ],
+      "inputUsdPerMillion": 0.3,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 2.4
+    },
+    {
+      "ruleId": "models.dev:alibaba/qwen3.5-35b-a3b",
+      "source": "models.dev",
+      "sourceKey": "alibaba/qwen3.5-35b-a3b",
+      "models": [
+        "qwen3.5-35b-a3b"
+      ],
+      "inputUsdPerMillion": 0.25,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 2.0
+    },
+    {
+      "ruleId": "models.dev:alibaba/qwen3.5-397b-a17b",
+      "source": "models.dev",
+      "sourceKey": "alibaba/qwen3.5-397b-a17b",
+      "models": [
+        "qwen3.5-397b-a17b"
+      ],
+      "inputUsdPerMillion": 0.6,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 3.6
+    },
+    {
+      "ruleId": "models.dev:alibaba/qwen3.5-plus",
+      "source": "models.dev",
+      "sourceKey": "alibaba/qwen3.5-plus",
+      "models": [
+        "qwen3.5-plus"
+      ],
+      "inputUsdPerMillion": 0.4,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 2.4
+    },
+    {
+      "ruleId": "models.dev:alibaba/qwen3.6-27b",
+      "source": "models.dev",
+      "sourceKey": "alibaba/qwen3.6-27b",
+      "models": [
+        "qwen3.6-27b"
+      ],
+      "inputUsdPerMillion": 0.6,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 3.6
+    },
+    {
+      "ruleId": "models.dev:alibaba/qwen3.6-35b-a3b",
+      "source": "models.dev",
+      "sourceKey": "alibaba/qwen3.6-35b-a3b",
+      "models": [
+        "qwen3.6-35b-a3b"
+      ],
+      "inputUsdPerMillion": 0.248,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 1.485
+    },
+    {
+      "ruleId": "models.dev:alibaba/qwen3.6-flash",
+      "source": "models.dev",
+      "sourceKey": "alibaba/qwen3.6-flash",
+      "models": [
+        "qwen3.6-flash"
+      ],
+      "inputUsdPerMillion": 0.1875,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": 0.234375,
+      "outputUsdPerMillion": 1.125
+    },
+    {
+      "ruleId": "models.dev:alibaba/qwen3.6-max-preview",
+      "source": "models.dev",
+      "sourceKey": "alibaba/qwen3.6-max-preview",
+      "models": [
+        "qwen3.6-max-preview"
+      ],
+      "inputUsdPerMillion": 1.3,
+      "cachedInputUsdPerMillion": 0.13,
+      "cacheWriteUsdPerMillion": 1.625,
+      "outputUsdPerMillion": 7.8
+    },
+    {
+      "ruleId": "models.dev:alibaba/qwen3.6-plus",
+      "source": "models.dev",
+      "sourceKey": "alibaba/qwen3.6-plus",
+      "models": [
+        "qwen3.6-plus"
+      ],
+      "inputUsdPerMillion": 0.5,
+      "cachedInputUsdPerMillion": 0.05,
+      "cacheWriteUsdPerMillion": 0.625,
+      "outputUsdPerMillion": 3.0,
+      "longContextThresholdTokens": 256000,
+      "longContextInputMultiplier": 4.0,
+      "longContextOutputMultiplier": 2.0
+    },
+    {
+      "ruleId": "models.dev:alibaba/qwen3.7-max",
+      "source": "models.dev",
+      "sourceKey": "alibaba/qwen3.7-max",
+      "models": [
+        "qwen3.7-max"
+      ],
+      "inputUsdPerMillion": 2.5,
+      "cachedInputUsdPerMillion": 0.5,
+      "cacheWriteUsdPerMillion": 3.125,
+      "outputUsdPerMillion": 7.5
+    },
+    {
+      "ruleId": "models.dev:alibaba/qwen3.7-plus",
+      "source": "models.dev",
+      "sourceKey": "alibaba/qwen3.7-plus",
+      "models": [
+        "qwen3.7-plus"
+      ],
+      "inputUsdPerMillion": 0.5,
+      "cachedInputUsdPerMillion": 0.05,
+      "cacheWriteUsdPerMillion": 0.625,
+      "outputUsdPerMillion": 3.0,
+      "longContextThresholdTokens": 256000,
+      "longContextInputMultiplier": 4.0,
+      "longContextOutputMultiplier": 2.0
+    },
+    {
+      "ruleId": "models.dev:alibaba/qwen3.8-max",
+      "source": "models.dev",
+      "sourceKey": "alibaba/qwen3.8-max",
+      "models": [
+        "qwen3.8-max"
+      ],
+      "inputUsdPerMillion": 2.0,
+      "cachedInputUsdPerMillion": 0.25,
+      "cacheWriteUsdPerMillion": 2.5,
+      "outputUsdPerMillion": 6.0
+    },
+    {
+      "ruleId": "models.dev:alibaba/qwq-plus",
+      "source": "models.dev",
+      "sourceKey": "alibaba/qwq-plus",
+      "models": [
+        "qwq-plus"
+      ],
+      "inputUsdPerMillion": 0.8,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 2.4
+    },
+    {
+      "ruleId": "models.dev:perplexity/sonar",
+      "source": "models.dev",
+      "sourceKey": "perplexity/sonar",
+      "models": [
+        "sonar"
+      ],
+      "inputUsdPerMillion": 1.0,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 1.0
+    },
+    {
+      "ruleId": "litellm:perplexity/sonar-deep-research",
+      "source": "litellm",
+      "sourceKey": "perplexity/sonar-deep-research",
+      "models": [
+        "sonar-deep-research"
+      ],
+      "inputUsdPerMillion": 2.000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 8.000000
+    },
+    {
+      "ruleId": "litellm:perplexity/sonar-medium-chat",
+      "source": "litellm",
+      "sourceKey": "perplexity/sonar-medium-chat",
+      "models": [
+        "sonar-medium-chat"
+      ],
+      "inputUsdPerMillion": 0.6000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 1.8000000
+    },
+    {
+      "ruleId": "litellm:perplexity/sonar-medium-online",
+      "source": "litellm",
+      "sourceKey": "perplexity/sonar-medium-online",
+      "models": [
+        "sonar-medium-online"
+      ],
+      "inputUsdPerMillion": 0.0,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 1.8000000
+    },
+    {
+      "ruleId": "models.dev:perplexity/sonar-pro",
+      "source": "models.dev",
+      "sourceKey": "perplexity/sonar-pro",
+      "models": [
+        "sonar-pro"
+      ],
+      "inputUsdPerMillion": 3.0,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 15.0
+    },
+    {
+      "ruleId": "litellm:perplexity/sonar-reasoning",
+      "source": "litellm",
+      "sourceKey": "perplexity/sonar-reasoning",
+      "models": [
+        "sonar-reasoning"
+      ],
+      "inputUsdPerMillion": 1.000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 5.000000
+    },
+    {
+      "ruleId": "models.dev:perplexity/sonar-reasoning-pro",
+      "source": "models.dev",
+      "sourceKey": "perplexity/sonar-reasoning-pro",
+      "models": [
+        "sonar-reasoning-pro"
+      ],
+      "inputUsdPerMillion": 2.0,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 8.0
+    },
+    {
+      "ruleId": "litellm:perplexity/sonar-small-chat",
+      "source": "litellm",
+      "sourceKey": "perplexity/sonar-small-chat",
+      "models": [
+        "sonar-small-chat"
+      ],
+      "inputUsdPerMillion": 0.07000000,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.28000000
+    },
+    {
+      "ruleId": "litellm:perplexity/sonar-small-online",
+      "source": "litellm",
+      "sourceKey": "perplexity/sonar-small-online",
+      "models": [
+        "sonar-small-online"
+      ],
+      "inputUsdPerMillion": 0.0,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.28000000
+    },
+    {
+      "ruleId": "models.dev:stepfun/step-3.5-flash",
+      "source": "models.dev",
+      "sourceKey": "stepfun/step-3.5-flash",
+      "models": [
+        "step-3.5-flash"
+      ],
+      "inputUsdPerMillion": 0.1,
+      "cachedInputUsdPerMillion": 0.02,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.3
+    },
+    {
+      "ruleId": "models.dev:stepfun/step-3.5-flash-2603",
+      "source": "models.dev",
+      "sourceKey": "stepfun/step-3.5-flash-2603",
+      "models": [
+        "step-3.5-flash-2603"
+      ],
+      "inputUsdPerMillion": 0.1,
+      "cachedInputUsdPerMillion": 0.02,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.3
+    },
+    {
+      "ruleId": "models.dev:stepfun/step-3.7-flash",
+      "source": "models.dev",
+      "sourceKey": "stepfun/step-3.7-flash",
+      "models": [
+        "step-3.7-flash"
+      ],
+      "inputUsdPerMillion": 0.185,
+      "cachedInputUsdPerMillion": 0.037,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 1.11
+    }
+  ]
+}

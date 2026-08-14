@@ -1,0 +1,36 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <SolidColorBrush x:Key="AppBackgroundBrush" Color="{DynamicResource AppBackgroundColor}" />
+    <SolidColorBrush x:Key="TopBarBrush" Color="{DynamicResource TopBarColor}" />
+    <SolidColorBrush x:Key="CardBackgroundBrush" Color="{DynamicResource SurfaceColor}" />
+    <SolidColorBrush x:Key="SurfaceBrush" Color="{DynamicResource SurfaceColor}" />
+    <SolidColorBrush x:Key="SurfaceSubtleBrush" Color="{DynamicResource SurfaceSubtleColor}" />
+    <SolidColorBrush x:Key="SurfaceRaisedBrush" Color="{DynamicResource SurfaceRaisedColor}" />
+    <SolidColorBrush x:Key="BorderBrush" Color="{DynamicResource BorderColor}" />
+    <SolidColorBrush x:Key="TextPrimaryBrush" Color="{DynamicResource TextPrimaryColor}" />
+    <SolidColorBrush x:Key="TextSecondaryBrush" Color="{DynamicResource TextSecondaryColor}" />
+    <SolidColorBrush x:Key="TextTertiaryBrush" Color="{DynamicResource TextTertiaryColor}" />
+    <SolidColorBrush x:Key="PrimaryBrush" Color="{DynamicResource AccentColor}" />
+    <SolidColorBrush x:Key="PrimarySoftBrush" Color="{DynamicResource AccentSoftColor}" />
+    <SolidColorBrush x:Key="AccentBrush" Color="{DynamicResource AccentColor}" />
+    <SolidColorBrush x:Key="AccentHoverBrush" Color="{DynamicResource AccentHoverColor}" />
+    <SolidColorBrush x:Key="AccentPressedBrush" Color="{DynamicResource AccentPressedColor}" />
+    <SolidColorBrush x:Key="AccentSoftBrush" Color="{DynamicResource AccentSoftColor}" />
+    <SolidColorBrush x:Key="AccentSecondaryBrush" Color="{DynamicResource AccentSecondaryColor}" />
+    <SolidColorBrush x:Key="PositiveBrush" Color="{DynamicResource PositiveColor}" />
+    <SolidColorBrush x:Key="PositiveSoftBrush" Color="{DynamicResource PositiveSoftColor}" />
+    <SolidColorBrush x:Key="WarningBrush" Color="{DynamicResource WarningColor}" />
+    <SolidColorBrush x:Key="WarningSoftBrush" Color="{DynamicResource WarningSoftColor}" />
+    <SolidColorBrush x:Key="ErrorBrush" Color="{DynamicResource ErrorColor}" />
+    <SolidColorBrush x:Key="ErrorSoftBrush" Color="{DynamicResource ErrorSoftColor}" />
+    <SolidColorBrush x:Key="NavActiveBrush" Color="{DynamicResource NavActiveColor}" />
+    <SolidColorBrush x:Key="NavActiveForegroundBrush" Color="{DynamicResource NavActiveForegroundColor}" />
+    <SolidColorBrush x:Key="ScrollThumbBrush" Color="{DynamicResource ScrollThumbColor}" />
+    <SolidColorBrush x:Key="ScrollThumbHoverBrush" Color="{DynamicResource ScrollThumbHoverColor}" />
+    <SolidColorBrush x:Key="ChartGridBrush" Color="{DynamicResource ChartGridColor}" />
+    <SolidColorBrush x:Key="HeatEmptyBrush" Color="{DynamicResource HeatEmptyColor}" />
+    <SolidColorBrush x:Key="Heat1Brush" Color="{DynamicResource Heat1Color}" />
+    <SolidColorBrush x:Key="Heat2Brush" Color="{DynamicResource Heat2Color}" />
+    <SolidColorBrush x:Key="Heat3Brush" Color="{DynamicResource Heat3Color}" />
+    <SolidColorBrush x:Key="Heat4Brush" Color="{DynamicResource Heat4Color}" />
+</ResourceDictionary>

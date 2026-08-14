@@ -1,0 +1,476 @@
+<UserControl x:Class="AgenTally.UI.Views.DashboardView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:AgenTally.UI.Controls">
+    <ScrollViewer x:Name="DashboardScrollViewer"
+                  HorizontalScrollBarVisibility="Disabled"
+                  VerticalScrollBarVisibility="Auto">
+        <Grid Margin="{DynamicResource PageMargin}"
+              MaxWidth="1500"
+              HorizontalAlignment="Stretch">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <Grid x:Name="DashboardHeader">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Margin="0,0,16,0"
+                            VerticalAlignment="Center">
+                    <TextBlock Text="用量概览"
+                               Style="{DynamicResource PageTitleStyle}" />
+                    <TextBlock Text="{Binding PeriodSummaryText}"
+                               ToolTip="{Binding PeriodSummaryText}"
+                               Style="{DynamicResource PagePeriodTextStyle}" />
+                </StackPanel>
+                <StackPanel Grid.Column="1"
+                            HorizontalAlignment="Right">
+                    <Grid x:Name="DashboardFilterBar">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="112" />
+                            <ColumnDefinition Width="8" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <ComboBox x:Name="DashboardProjectFilter"
+                                  AutomationProperties.AutomationId="Dashboard.ProjectFilter"
+                                  ItemsSource="{Binding ProjectOptions}"
+                                  SelectedValue="{Binding SelectedProject, Mode=TwoWay}"
+                                  SelectedValuePath="SelectionValue"
+                                  Style="{StaticResource ProjectTopFilterComboBoxStyle}">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock MaxWidth="360"
+                                               Text="{Binding DisplayText}"
+                                               TextTrimming="CharacterEllipsis"
+                                               ToolTip="{Binding ToolTipText}" />
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                        <Grid x:Name="DashboardCommonFilterGroup"
+                              Grid.Column="2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="112" />
+                                <ColumnDefinition Width="8" />
+                                <ColumnDefinition Width="112" />
+                                <ColumnDefinition Width="8" />
+                                <ColumnDefinition Width="112" />
+                                <ColumnDefinition Width="8" />
+                                <ColumnDefinition Width="72" />
+                            </Grid.ColumnDefinitions>
+                            <ComboBox x:Name="DashboardAgentFilter"
+                                      ItemsSource="{Binding AgentOptions}"
+                                      SelectedItem="{Binding SelectedAgent, Mode=TwoWay}"
+                                      Style="{StaticResource TopFilterComboBoxStyle}" />
+                            <ComboBox x:Name="DashboardModelFilter"
+                                      Grid.Column="2"
+                                      ItemsSource="{Binding ModelOptions}"
+                                      SelectedItem="{Binding SelectedModel, Mode=TwoWay}"
+                                      Style="{StaticResource TopFilterComboBoxStyle}" />
+                            <ComboBox x:Name="DashboardPeriodFilter"
+                                      Grid.Column="4"
+                                      ItemsSource="{Binding PeriodOptions}"
+                                      SelectedItem="{Binding SelectedPeriod, Mode=TwoWay}"
+                                      Style="{StaticResource TopFilterComboBoxStyle}" />
+                            <Button x:Name="DashboardRefreshButton"
+                                    Grid.Column="6"
+                                    Content="刷新"
+                                    Command="{Binding RefreshCommand}"
+                                    Style="{DynamicResource TopFilterRefreshButtonStyle}" />
+                        </Grid>
+                    </Grid>
+                    <controls:DateTimeRangePicker x:Name="DashboardDateTimeRangePicker"
+                                                  Margin="0,6,0,0"
+                                                  HorizontalAlignment="Right"
+                                                  StartLocal="{Binding CustomStartDate, Mode=OneWay}"
+                                                  EndExclusiveLocal="{Binding CustomEndDate, Mode=OneWay}"
+                                                  IsSelectionPending="{Binding IsCustomRangeSelectionPending, Mode=OneWay}"
+                                                  CommitCommand="{Binding CommitCustomRangeCommand}"
+                                                  CancelCommand="{Binding CancelCustomRangeCommand}"
+                                                  TimeZone="{Binding LocalTimeZone}"
+                                                  Visibility="{Binding IsCustomPeriod, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                </StackPanel>
+            </Grid>
+
+            <Border x:Name="DashboardMetricsCard"
+                    Grid.Row="1"
+                    MinHeight="128"
+                    Margin="{DynamicResource StatisticsFirstContentGap}"
+                    Padding="20,16"
+                    Style="{DynamicResource CardStyle}">
+                <Grid x:Name="DashboardMetricsGrid">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="48" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1.7*" />
+                        <ColumnDefinition Width="1" />
+                        <ColumnDefinition Width="1.05*" />
+                        <ColumnDefinition Width="1" />
+                        <ColumnDefinition Width="0.8*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock x:Name="DashboardTotalLabel"
+                               Text="总处理 Token"
+                               Style="{DynamicResource MetricLabelStyle}" />
+                    <TextBlock x:Name="TotalTokensValue"
+                               Grid.Row="1"
+                               VerticalAlignment="Center"
+                               AutomationProperties.AutomationId="Dashboard.TotalTokens"
+                               FontSize="36"
+                               Text="{Binding TotalTokensText}"
+                               Style="{DynamicResource MetricValueStyle}" />
+                    <TextBlock x:Name="DashboardTotalDetail"
+                               Grid.Row="2"
+                               TextWrapping="Wrap"
+                               Style="{DynamicResource MetricDetailStyle}">
+                        <Run Text="缓存输入 " />
+                        <Run Text="{Binding CacheReadText, Mode=OneWay}" />
+                        <Run Text=" (" />
+                        <Run Text="{Binding CacheHitRateText, Mode=OneWay}" />
+                        <Run Text=")" />
+                        <Run Text="  ·  未缓存输入 " />
+                        <Run Text="{Binding UncachedInputText, Mode=OneWay}" />
+                        <Run Text="  ·  输出 " />
+                        <Run Text="{Binding OutputText, Mode=OneWay}" />
+                    </TextBlock>
+                    <Border Grid.Column="1"
+                            Grid.RowSpan="3"
+                            Width="1"
+                            Margin="14,0"
+                            Background="{DynamicResource BorderBrush}" />
+                    <TextBlock x:Name="DashboardEquivalentLabel"
+                               Grid.Column="2"
+                               Margin="22,0"
+                               Text="等效 API 价格（估算）"
+                               Style="{DynamicResource MetricLabelStyle}" />
+                    <TextBlock x:Name="DashboardEquivalentValue"
+                               Grid.Row="1"
+                               Grid.Column="2"
+                               Margin="22,0"
+                               VerticalAlignment="Center"
+                               FontSize="26"
+                               Text="{Binding EquivalentValueText}"
+                               Style="{DynamicResource MetricValueStyle}" />
+                    <TextBlock x:Name="DashboardEquivalentCaption"
+                               Grid.Row="2"
+                               Grid.Column="2"
+                               Margin="22,0"
+                               Text="{Binding EquivalentValueCaption}"
+                               TextWrapping="Wrap"
+                               Style="{DynamicResource CaptionTextStyle}"
+                               Typography.NumeralAlignment="Tabular"
+                               Typography.NumeralStyle="Lining" />
+                    <Border Grid.Column="3"
+                            Grid.RowSpan="3"
+                            Width="1"
+                            Margin="14,0"
+                            Background="{DynamicResource BorderBrush}" />
+                    <TextBlock x:Name="DashboardRequestLabel"
+                               Grid.Column="4"
+                               Margin="22,0,0,0"
+                               Text="调用次数"
+                               Style="{DynamicResource MetricLabelStyle}" />
+                    <TextBlock x:Name="DashboardRequestValue"
+                               Grid.Row="1"
+                               Grid.Column="4"
+                               Margin="22,0,0,0"
+                               VerticalAlignment="Center"
+                               AutomationProperties.AutomationId="Dashboard.RequestCount"
+                               FontSize="27"
+                               Text="{Binding RequestCountText}"
+                               Style="{DynamicResource MetricValueStyle}" />
+                    <TextBlock x:Name="DashboardRequestDetail"
+                               Grid.Row="2"
+                               Grid.Column="4"
+                               Margin="22,0,0,0"
+                               TextWrapping="Wrap"
+                               Style="{DynamicResource MetricDetailStyle}">
+                        <Run Text="平均每次 " />
+                        <Run Text="{Binding AverageTokensText, Mode=OneWay}" />
+                        <Run Text=" Token" />
+                    </TextBlock>
+                </Grid>
+            </Border>
+
+            <Border Grid.Row="2"
+                    MinHeight="300"
+                    Margin="{DynamicResource CardStackGap}"
+                    Padding="{DynamicResource CardPadding}"
+                    Style="{DynamicResource CardStyle}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <Grid>
+                        <StackPanel>
+                            <TextBlock Text="这段时间的使用趋势"
+                                       Style="{DynamicResource SectionTitleStyle}" />
+                            <TextBlock Margin="0,3,0,0"
+                                       Text="{Binding TrendSubtitle}"
+                                       Style="{DynamicResource CaptionTextStyle}" />
+                        </StackPanel>
+                        <StackPanel HorizontalAlignment="Right"
+                                    VerticalAlignment="Center"
+                                    Orientation="Horizontal">
+                            <Ellipse Width="7"
+                                     Height="7"
+                                     Fill="{DynamicResource AccentBrush}" />
+                            <TextBlock Margin="5,0,0,0"
+                                       Text="总量 · 左轴"
+                                       Style="{DynamicResource CaptionTextStyle}" />
+                            <Ellipse Margin="16,0,0,0"
+                                     Width="7"
+                                     Height="7"
+                                     Fill="{DynamicResource AccentSecondaryBrush}" />
+                            <TextBlock Margin="5,0,0,0"
+                                       Text="输出 · 右轴"
+                                       Style="{DynamicResource CaptionTextStyle}" />
+                        </StackPanel>
+                    </Grid>
+                    <controls:UsageTrendChart x:Name="UsageTrendChart"
+                                              Grid.Row="1"
+                                              Margin="0,12,0,0"
+                                              Granularity="{Binding TrendGranularity}"
+                                              Points="{Binding TrendPoints}"
+                                              RangeStartInclusiveUtc="{Binding TrendRangeStartInclusiveUtc}"
+                                              RangeEndExclusiveUtc="{Binding TrendRangeEndExclusiveUtc}"
+                                              TimeZone="{Binding LocalTimeZone}"
+                                              TotalBrush="{DynamicResource AccentBrush}"
+                                              OutputBrush="{DynamicResource AccentSecondaryBrush}"
+                                              UncachedInputBrush="{DynamicResource WarningBrush}"
+                                              GridBrush="{DynamicResource ChartGridBrush}"
+                                              BorderBrush="{DynamicResource BorderBrush}"
+                                              TextBrush="{DynamicResource TextTertiaryBrush}"
+                                              HoverCardTextBrush="{DynamicResource TextPrimaryBrush}"
+                                              HoverCardSecondaryTextBrush="{DynamicResource TextSecondaryBrush}"
+                                              PlotBackground="{DynamicResource SurfaceBrush}" />
+                </Grid>
+            </Border>
+
+            <Border Grid.Row="3"
+                    MinHeight="204"
+                    Margin="{DynamicResource CardStackGap}"
+                    Padding="{DynamicResource CardPadding}"
+                    Style="{DynamicResource CardStyle}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <Grid>
+                        <StackPanel>
+                            <TextBlock Text="每日足迹"
+                                       Style="{DynamicResource SectionTitleStyle}" />
+                            <TextBlock Margin="0,3,0,0"
+                                       Text="最近 12 个月 · 颜色越深，用量越高"
+                                       Style="{DynamicResource CaptionTextStyle}" />
+                        </StackPanel>
+                        <Border Padding="10,6"
+                                HorizontalAlignment="Right"
+                                VerticalAlignment="Center"
+                                Style="{DynamicResource InsetPanelStyle}">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Margin="0,0,10,0"
+                                           VerticalAlignment="Center"
+                                           Text="最活跃的一天"
+                                           Style="{DynamicResource CaptionTextStyle}" />
+                                <TextBlock VerticalAlignment="Center"
+                                           Text="{Binding MostActiveDayText}"
+                                           Style="{DynamicResource CompactDataNumberStyle}" />
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                    <controls:UsageHeatmap x:Name="UsageHeatmap"
+                                           Grid.Row="1"
+                                           MinHeight="126"
+                                           Margin="0,14,0,0"
+                                           Days="{Binding HeatmapDays}"
+                                           DayClickCommand="{Binding OpenDayCommand}"
+                                           EmptyBrush="{DynamicResource HeatEmptyBrush}"
+                                           Level1Brush="{DynamicResource Heat1Brush}"
+                                           Level2Brush="{DynamicResource Heat2Brush}"
+                                           Level3Brush="{DynamicResource Heat3Brush}"
+                                           Level4Brush="{DynamicResource Heat4Brush}"
+                                           LabelBrush="{DynamicResource TextTertiaryBrush}"
+                                           HoverCardBackground="{DynamicResource SurfaceBrush}"
+                                           HoverCardBorderBrush="{DynamicResource BorderBrush}"
+                                           HoverCardTextBrush="{DynamicResource TextPrimaryBrush}" />
+                </Grid>
+            </Border>
+
+            <Grid Grid.Row="4"
+                  Margin="{DynamicResource CardStackGap}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*" />
+                    <ColumnDefinition Width="{DynamicResource CardGapLength}" />
+                    <ColumnDefinition Width="1*" />
+                </Grid.ColumnDefinitions>
+
+                <Border MinHeight="180"
+                        Padding="{DynamicResource CardPadding}"
+                        Style="{DynamicResource CardStyle}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="用在哪些平台"
+                                   Style="{DynamicResource SectionTitleStyle}" />
+                        <ItemsControl x:Name="DashboardAgentRanking"
+                                      Grid.Row="1"
+                                      Margin="0,12,0,0"
+                                      ItemsSource="{Binding AgentRows}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Height="48"
+                                          Margin="0,0,0,5">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                        </Grid.RowDefinitions>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Margin="0,0,12,0"
+                                                       VerticalAlignment="Center"
+                                                       FontWeight="SemiBold"
+                                                       Text="{Binding NameText}"
+                                                       TextTrimming="CharacterEllipsis"
+                                                       ToolTip="{Binding NameText}" />
+                                            <TextBlock Grid.Column="1"
+                                                       VerticalAlignment="Center"
+                                                       Text="{Binding TokensText}"
+                                                       Style="{DynamicResource CompactDataNumberStyle}" />
+                                        </Grid>
+                                        <Grid Grid.Row="1"
+                                              Margin="0,8,0,0">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="52" />
+                                            </Grid.ColumnDefinitions>
+                                            <ProgressBar VerticalAlignment="Center"
+                                                         Value="{Binding ShareValue, Mode=OneWay}"
+                                                         Style="{DynamicResource UsageShareProgressBarStyle}" />
+                                            <TextBlock Grid.Column="1"
+                                                       VerticalAlignment="Center"
+                                                       Text="{Binding ShareText}"
+                                                       TextAlignment="Right"
+                                                       Style="{DynamicResource CaptionTextStyle}" />
+                                        </Grid>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <TextBlock Grid.Row="1"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   Text="当前范围暂无数据"
+                                   IsHitTestVisible="False">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock"
+                                       BasedOn="{StaticResource MutedTextStyle}">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding HasItems, ElementName=DashboardAgentRanking}"
+                                                     Value="False">
+                                            <Setter Property="Visibility" Value="Visible" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </Grid>
+                </Border>
+
+                <Border Grid.Column="2"
+                        MinHeight="180"
+                        Padding="{DynamicResource CardPadding}"
+                        Style="{DynamicResource CardStyle}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="最常用的模型"
+                                   Style="{DynamicResource SectionTitleStyle}" />
+                        <ItemsControl x:Name="DashboardModelRanking"
+                                      Grid.Row="1"
+                                      Margin="0,12,0,0"
+                                      ItemsSource="{Binding ModelRows}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Height="48"
+                                          Margin="0,0,0,5">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                        </Grid.RowDefinitions>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Margin="0,0,12,0"
+                                                       VerticalAlignment="Center"
+                                                       FontWeight="SemiBold"
+                                                       Text="{Binding NameText}"
+                                                       TextTrimming="CharacterEllipsis"
+                                                       ToolTip="{Binding NameText}" />
+                                            <TextBlock Grid.Column="1"
+                                                       VerticalAlignment="Center"
+                                                       Text="{Binding TokensText}"
+                                                       Style="{DynamicResource CompactDataNumberStyle}" />
+                                        </Grid>
+                                        <Grid Grid.Row="1"
+                                              Margin="0,8,0,0">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="52" />
+                                            </Grid.ColumnDefinitions>
+                                            <ProgressBar VerticalAlignment="Center"
+                                                         Value="{Binding ShareValue, Mode=OneWay}"
+                                                         Style="{DynamicResource UsageShareProgressBarStyle}" />
+                                            <TextBlock Grid.Column="1"
+                                                       VerticalAlignment="Center"
+                                                       Text="{Binding ShareText}"
+                                                       TextAlignment="Right"
+                                                       Style="{DynamicResource CaptionTextStyle}" />
+                                        </Grid>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <TextBlock Grid.Row="1"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   Text="当前范围暂无数据"
+                                   IsHitTestVisible="False">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock"
+                                       BasedOn="{StaticResource MutedTextStyle}">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding HasItems, ElementName=DashboardModelRanking}"
+                                                     Value="False">
+                                            <Setter Property="Visibility" Value="Visible" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </Grid>
+                </Border>
+            </Grid>
+        </Grid>
+    </ScrollViewer>
+</UserControl>

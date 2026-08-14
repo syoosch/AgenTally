@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net10.0-windows</TargetFramework>
+        <UseWindowsForms>true</UseWindowsForms>
+        <ApplicationIcon>..\..\assets\icon\AgenTally.ico</ApplicationIcon>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <EmbeddedResource Include="..\..\assets\icon\AgenTally.ico"
+                          Link="Resources\AgenTally.ico"
+                          LogicalName="AgenTally.Core.Resources.AgenTally.ico" />
+        <ProjectReference Include="..\AgenTally.Domain\AgenTally.Domain.csproj" />
+        <ProjectReference Include="..\AgenTally.Storage\AgenTally.Storage.csproj" />
+    </ItemGroup>
+</Project>

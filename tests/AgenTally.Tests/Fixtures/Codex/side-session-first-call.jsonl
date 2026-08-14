@@ -1,0 +1,2 @@
+{"timestamp":"2026-07-16T09:00:00Z","type":"session_meta","payload":{"id":"side-fixture-a","parent_thread_id":"primary-fixture-a","thread_source":"subagent","source":{"subagent":"synthetic"}}}
+{"timestamp":"2026-07-16T09:00:01Z","type":"event_msg","payload":{"type":"token_count","info":{"last_token_usage":{"input_tokens":13,"cached_input_tokens":5,"output_tokens":3,"reasoning_output_tokens":1,"total_tokens":16},"total_token_usage":{"input_tokens":113,"cached_input_tokens":45,"output_tokens":23,"reasoning_output_tokens":5,"total_tokens":136}}}}

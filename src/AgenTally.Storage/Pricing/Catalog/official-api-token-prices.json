@@ -1,0 +1,165 @@
+{
+  "schemaVersion": 1,
+  "catalogVersion": "official-api-usd-2026-08-10-r1",
+  "currency": "USD",
+  "unit": "per_million_tokens",
+  "rules": [
+    {
+      "ruleId": "openai/gpt-5.6-sol",
+      "provider": "openai",
+      "officialSource": "https://developers.openai.com/api/docs/models/compare",
+      "verifiedOn": "2026-08-02",
+      "models": ["gpt-5.6-sol", "gpt-5.6"],
+      "inputUsdPerMillion": 5,
+      "cachedInputUsdPerMillion": 0.5,
+      "cacheWriteUsdPerMillion": 6.25,
+      "outputUsdPerMillion": 30,
+      "longContextThresholdTokens": 272000,
+      "longContextInputMultiplier": 2,
+      "longContextOutputMultiplier": 1.5
+    },
+    {
+      "ruleId": "openai/gpt-5.6-terra",
+      "provider": "openai",
+      "officialSource": "https://developers.openai.com/api/docs/models/compare",
+      "verifiedOn": "2026-08-02",
+      "models": ["gpt-5.6-terra"],
+      "inputUsdPerMillion": 2.5,
+      "cachedInputUsdPerMillion": 0.25,
+      "cacheWriteUsdPerMillion": 3.125,
+      "outputUsdPerMillion": 15,
+      "longContextThresholdTokens": 272000,
+      "longContextInputMultiplier": 2,
+      "longContextOutputMultiplier": 1.5
+    },
+    {
+      "ruleId": "openai/gpt-5.6-luna",
+      "provider": "openai",
+      "officialSource": "https://developers.openai.com/api/docs/models/compare",
+      "verifiedOn": "2026-08-02",
+      "models": ["gpt-5.6-luna"],
+      "inputUsdPerMillion": 1,
+      "cachedInputUsdPerMillion": 0.1,
+      "cacheWriteUsdPerMillion": 1.25,
+      "outputUsdPerMillion": 6,
+      "longContextThresholdTokens": 272000,
+      "longContextInputMultiplier": 2,
+      "longContextOutputMultiplier": 1.5
+    },
+    {
+      "ruleId": "openai/gpt-5.3-codex",
+      "provider": "openai",
+      "officialSource": "https://developers.openai.com/api/docs/models/gpt-5.3-codex",
+      "verifiedOn": "2026-08-02",
+      "models": ["gpt-5.3-codex"],
+      "inputUsdPerMillion": 1.75,
+      "cachedInputUsdPerMillion": 0.175,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 14
+    },
+    {
+      "ruleId": "deepseek/deepseek-v4-flash",
+      "provider": "deepseek",
+      "officialSource": "https://api-docs.deepseek.com/quick_start/pricing/",
+      "verifiedOn": "2026-08-02",
+      "models": ["deepseek-v4-flash"],
+      "inputUsdPerMillion": 0.14,
+      "cachedInputUsdPerMillion": 0.0028,
+      "cacheWriteUsdPerMillion": 0.14,
+      "outputUsdPerMillion": 0.28
+    },
+    {
+      "ruleId": "deepseek/deepseek-v4-pro",
+      "provider": "deepseek",
+      "officialSource": "https://api-docs.deepseek.com/quick_start/pricing/",
+      "verifiedOn": "2026-08-02",
+      "models": ["deepseek-v4-pro"],
+      "inputUsdPerMillion": 0.435,
+      "cachedInputUsdPerMillion": 0.003625,
+      "cacheWriteUsdPerMillion": 0.435,
+      "outputUsdPerMillion": 0.87
+    },
+    {
+      "ruleId": "anthropic/claude-fable-mythos-5",
+      "provider": "anthropic",
+      "officialSource": "https://platform.claude.com/docs/en/about-claude/pricing",
+      "verifiedOn": "2026-08-02",
+      "models": ["claude-fable-5", "claude-mythos-5"],
+      "inputUsdPerMillion": 10,
+      "cachedInputUsdPerMillion": 1,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 50
+    },
+    {
+      "ruleId": "anthropic/claude-opus-5-and-4.5-plus",
+      "provider": "anthropic",
+      "officialSource": "https://platform.claude.com/docs/en/about-claude/pricing",
+      "verifiedOn": "2026-08-02",
+      "models": [
+        "claude-opus-5",
+        "claude-opus-4-8",
+        "claude-opus-4-7",
+        "claude-opus-4-6",
+        "claude-opus-4-5",
+        "claude-opus-4-5-20251101"
+      ],
+      "inputUsdPerMillion": 5,
+      "cachedInputUsdPerMillion": 0.5,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 25
+    },
+    {
+      "ruleId": "anthropic/claude-opus-4-and-4.1",
+      "provider": "anthropic",
+      "officialSource": "https://platform.claude.com/docs/en/about-claude/pricing",
+      "verifiedOn": "2026-08-02",
+      "models": [
+        "claude-opus-4-1",
+        "claude-opus-4-1-20250805",
+        "claude-opus-4-20250514"
+      ],
+      "inputUsdPerMillion": 15,
+      "cachedInputUsdPerMillion": 1.5,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 75
+    },
+    {
+      "ruleId": "anthropic/claude-sonnet-4",
+      "provider": "anthropic",
+      "officialSource": "https://platform.claude.com/docs/en/about-claude/pricing",
+      "verifiedOn": "2026-08-02",
+      "models": [
+        "claude-sonnet-4-6",
+        "claude-sonnet-4-5",
+        "claude-sonnet-4-5-20250929",
+        "claude-sonnet-4-20250514"
+      ],
+      "inputUsdPerMillion": 3,
+      "cachedInputUsdPerMillion": 0.3,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 15
+    },
+    {
+      "ruleId": "anthropic/claude-haiku-4.5",
+      "provider": "anthropic",
+      "officialSource": "https://platform.claude.com/docs/en/about-claude/pricing",
+      "verifiedOn": "2026-08-02",
+      "models": ["claude-haiku-4-5", "claude-haiku-4-5-20251001"],
+      "inputUsdPerMillion": 1,
+      "cachedInputUsdPerMillion": 0.1,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 5
+    },
+    {
+      "ruleId": "anthropic/claude-3.5-haiku",
+      "provider": "anthropic",
+      "officialSource": "https://platform.claude.com/docs/en/about-claude/pricing",
+      "verifiedOn": "2026-08-02",
+      "models": ["claude-3-5-haiku-20241022"],
+      "inputUsdPerMillion": 0.8,
+      "cachedInputUsdPerMillion": 0.08,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 4
+    }
+  ]
+}

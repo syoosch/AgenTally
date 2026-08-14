@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "catalogVersion": "reviewed-price-aliases-2026-08-10-r2",
+  "aliases": [
+    {
+      "alias": "kimi-k3-256k",
+      "pricedAs": "kimi-k3",
+      "officialSource": "https://www.kimi.com/code/docs/en/kimi-code/models.html",
+      "verifiedOn": "2026-08-10"
+    },
+    {
+      "alias": "kimi-for-coding",
+      "pricedAs": "kimi-k2.7-code",
+      "officialSource": "https://www.kimi.com/code/docs/en/kimi-code/models.html",
+      "verifiedOn": "2026-08-10"
+    },
+    {
+      "alias": "kimi-k2.6-agent",
+      "pricedAs": "kimi-k2.6",
+      "officialSource": "https://platform.kimi.ai/docs/guide/kimi-k2-6-quickstart",
+      "verifiedOn": "2026-08-10"
+    },
+    {
+      "alias": "kimi-k3-agent",
+      "pricedAs": "kimi-k3",
+      "officialSource": "https://www.kimi.com/code/docs/en/kimi-code/models.html",
+      "verifiedOn": "2026-08-10"
+    }
+  ]
+}

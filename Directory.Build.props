@@ -1,0 +1,21 @@
+<Project>
+    <PropertyGroup>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <Deterministic>true</Deterministic>
+        <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+        <NuGetAudit>true</NuGetAudit>
+        <NuGetAuditMode>all</NuGetAuditMode>
+        <NuGetAuditLevel>low</NuGetAuditLevel>
+        <AgenTallyChannel Condition="'$(AgenTallyChannel)' == ''">Development</AgenTallyChannel>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <AssemblyMetadata Include="AgenTallyChannel" Value="$(AgenTallyChannel)" />
+    </ItemGroup>
+
+    <Target Name="ValidateAgenTallyChannel" BeforeTargets="CoreCompile">
+        <Error Condition="'$(AgenTallyChannel)' != 'Development' and '$(AgenTallyChannel)' != 'Stable'"
+               Text="AgenTallyChannel must be Development or Stable." />
+    </Target>
+</Project>

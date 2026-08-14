@@ -1,0 +1,1048 @@
+<UserControl x:Class="AgenTally.UI.Views.SessionsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:AgenTally.UI.Controls"
+             xmlns:viewModels="clr-namespace:AgenTally.UI.ViewModels">
+    <Grid Margin="{DynamicResource PageMargin}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="0.36*" MinWidth="280" MaxWidth="360" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <Grid x:Name="SessionsHeader"
+              Grid.ColumnSpan="2"
+              Margin="{DynamicResource StatisticsHeaderScrollbarReserve}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <StackPanel Margin="0,0,16,0"
+                        VerticalAlignment="Center">
+                <TextBlock Text="会话"
+                           Style="{DynamicResource PageTitleStyle}" />
+                <TextBlock Text="{Binding PeriodSummaryText}"
+                           ToolTip="{Binding PeriodSummaryText}"
+                           Style="{DynamicResource PagePeriodTextStyle}" />
+            </StackPanel>
+            <StackPanel Grid.Column="1"
+                        HorizontalAlignment="Right">
+                <Grid x:Name="SessionsFilterBar">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="112" />
+                        <ColumnDefinition Width="8" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <ComboBox x:Name="SessionsProjectFilter"
+                              AutomationProperties.AutomationId="Sessions.ProjectFilter"
+                              ItemsSource="{Binding ProjectOptions}"
+                              SelectedValue="{Binding SelectedProject, Mode=TwoWay}"
+                              SelectedValuePath="SelectionValue"
+                              Style="{StaticResource ProjectTopFilterComboBoxStyle}">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock MaxWidth="360"
+                                           Text="{Binding DisplayText}"
+                                           TextTrimming="CharacterEllipsis"
+                                           ToolTip="{Binding ToolTipText}" />
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+                    <Grid x:Name="SessionsCommonFilterGroup"
+                          Grid.Column="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="112" />
+                            <ColumnDefinition Width="8" />
+                            <ColumnDefinition Width="112" />
+                            <ColumnDefinition Width="8" />
+                            <ColumnDefinition Width="112" />
+                            <ColumnDefinition Width="8" />
+                            <ColumnDefinition Width="72" />
+                        </Grid.ColumnDefinitions>
+                        <ComboBox x:Name="SessionsAgentFilter"
+                                  ItemsSource="{Binding AgentOptions}"
+                                  SelectedItem="{Binding SelectedAgent, Mode=TwoWay}"
+                                  Style="{StaticResource TopFilterComboBoxStyle}" />
+                        <ComboBox x:Name="SessionsModelFilter"
+                                  Grid.Column="2"
+                                  ItemsSource="{Binding ModelOptions}"
+                                  SelectedItem="{Binding SelectedModel, Mode=TwoWay}"
+                                  Style="{StaticResource TopFilterComboBoxStyle}" />
+                        <ComboBox x:Name="SessionsPeriodFilter"
+                                  Grid.Column="4"
+                                  ItemsSource="{Binding PeriodOptions}"
+                                  SelectedItem="{Binding SelectedPeriod, Mode=TwoWay}"
+                                  Style="{StaticResource TopFilterComboBoxStyle}" />
+                        <Button x:Name="SessionsRefreshButton"
+                                Grid.Column="6"
+                                Content="刷新"
+                                Command="{Binding RefreshCommand}"
+                                Style="{DynamicResource TopFilterRefreshButtonStyle}" />
+                    </Grid>
+                </Grid>
+                <controls:DateTimeRangePicker x:Name="SessionsDateTimeRangePicker"
+                                              Margin="0,6,0,0"
+                                              HorizontalAlignment="Right"
+                                              StartLocal="{Binding CustomStartDate, Mode=OneWay}"
+                                              EndExclusiveLocal="{Binding CustomEndDate, Mode=OneWay}"
+                                              IsSelectionPending="{Binding IsCustomRangeSelectionPending, Mode=OneWay}"
+                                              CommitCommand="{Binding CommitCustomRangeCommand}"
+                                              CancelCommand="{Binding CancelCustomRangeCommand}"
+                                              TimeZone="{Binding LocalTimeZone}"
+                                              Visibility="{Binding IsCustomPeriod, Converter={StaticResource BooleanToVisibilityConverter}}" />
+            </StackPanel>
+        </Grid>
+
+        <Border x:Name="SessionsListCard"
+                Grid.Row="1"
+                Margin="{DynamicResource StatisticsFirstContentGap}"
+                Padding="12"
+                Style="{DynamicResource CardStyle}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <TextBlock Text="根会话"
+                           Style="{DynamicResource SectionTitleStyle}" />
+                <ListBox x:Name="SessionsListBox"
+                         Grid.Row="1"
+                         Margin="0,10,0,0"
+                         HorizontalContentAlignment="Stretch"
+                         Background="Transparent"
+                         BorderThickness="0"
+                         Style="{DynamicResource StatisticsListBoxStyle}"
+                         ItemsSource="{Binding Sessions}"
+                         SelectedItem="{Binding SelectedSession, Mode=TwoWay}"
+                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                         ScrollViewer.VerticalScrollBarVisibility="Auto"
+                         ScrollViewer.ScrollChanged="OnSessionsScrollChanged">
+                    <ListBox.ItemContainerStyle>
+                        <Style TargetType="ListBoxItem">
+                            <Setter Property="Margin" Value="0,0,0,6" />
+                            <Setter Property="Padding" Value="0" />
+                            <Setter Property="Background" Value="Transparent" />
+                            <Setter Property="BorderThickness" Value="0" />
+                            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="ListBoxItem">
+                                        <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                                          SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </ListBox.ItemContainerStyle>
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Border Padding="12,10"
+                                    BorderThickness="1"
+                                    CornerRadius="{DynamicResource ControlCornerRadius}">
+                                <Border.Style>
+                                    <Style TargetType="Border">
+                                        <Setter Property="Background" Value="{DynamicResource SurfaceSubtleBrush}" />
+                                        <Setter Property="BorderBrush" Value="Transparent" />
+                                        <Style.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter Property="Background" Value="{DynamicResource SurfaceRaisedBrush}" />
+                                            </Trigger>
+                                            <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=ListBoxItem}}" Value="True">
+                                                <Setter Property="Background" Value="{DynamicResource AccentSoftBrush}" />
+                                                <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+                                    <TextBlock FontWeight="SemiBold"
+                                               Text="{Binding TitleText}"
+                                               TextTrimming="CharacterEllipsis"
+                                               ToolTip="{Binding TitleText}" />
+                                    <TextBlock Grid.Row="1"
+                                               Margin="0,2,0,0"
+                                               Text="{Binding ProjectPathText}"
+                                               TextTrimming="CharacterEllipsis"
+                                               ToolTip="{Binding ProjectPathText}"
+                                               Style="{DynamicResource SecondaryTextStyle}" />
+                                    <TextBlock Grid.Row="2"
+                                               Margin="0,2,0,0"
+                                               Text="{Binding SubtitleText}"
+                                               TextTrimming="CharacterEllipsis"
+                                               ToolTip="{Binding SubtitleText}"
+                                               Style="{DynamicResource CaptionTextStyle}" />
+                                    <Grid Grid.Row="3" Margin="0,6,0,0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock VerticalAlignment="Center"
+                                                   Text="{Binding TokensText}"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   Style="{DynamicResource CompactDataNumberStyle}" />
+                                        <TextBlock Grid.Column="1"
+                                                   Margin="8,0,0,0"
+                                                   HorizontalAlignment="Right"
+                                                   VerticalAlignment="Center"
+                                                   FontSize="11"
+                                                   Text="{Binding PriceText}">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding PriceState}" Value="{x:Static viewModels:SessionPriceState.Complete}">
+                                                            <Setter Property="Foreground" Value="{DynamicResource PositiveBrush}" />
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding PriceState}" Value="{x:Static viewModels:SessionPriceState.Partial}">
+                                                            <Setter Property="Foreground" Value="{DynamicResource WarningBrush}" />
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding PriceState}" Value="{x:Static viewModels:SessionPriceState.Unpriced}">
+                                                            <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </Grid>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+                <TextBlock Grid.Row="1"
+                           Margin="0,10,0,0"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"
+                           Text="当前范围暂无会话记录"
+                           IsHitTestVisible="False">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock" BasedOn="{StaticResource MutedTextStyle}">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                            <Style.Triggers>
+                                <MultiDataTrigger>
+                                    <MultiDataTrigger.Conditions>
+                                        <Condition Binding="{Binding HasSessions}" Value="False" />
+                                        <Condition Binding="{Binding IsLoading}" Value="False" />
+                                    </MultiDataTrigger.Conditions>
+                                    <Setter Property="Visibility" Value="Visible" />
+                                </MultiDataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+            </Grid>
+        </Border>
+
+        <ScrollViewer x:Name="SessionsDetailScrollViewer"
+                      Grid.Row="1"
+                      Grid.Column="1"
+                      Margin="{DynamicResource StatisticsFirstContentColumnGap}"
+                      HorizontalScrollBarVisibility="Disabled"
+                      VerticalScrollBarVisibility="Auto">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <TextBlock HorizontalAlignment="Center"
+                           VerticalAlignment="Center"
+                           Text="选择左侧会话查看详情"
+                           IsHitTestVisible="False">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock" BasedOn="{StaticResource MutedTextStyle}">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                            <Style.Triggers>
+                                <MultiDataTrigger>
+                                    <MultiDataTrigger.Conditions>
+                                        <Condition Binding="{Binding HasSelection}" Value="False" />
+                                        <Condition Binding="{Binding IsLoading}" Value="False" />
+                                    </MultiDataTrigger.Conditions>
+                                    <Setter Property="Visibility" Value="Visible" />
+                                </MultiDataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+                <TextBlock HorizontalAlignment="Center"
+                           VerticalAlignment="Center"
+                           Text="未找到该会话的详情。"
+                           IsHitTestVisible="False">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock" BasedOn="{StaticResource MutedTextStyle}">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                            <Style.Triggers>
+                                <MultiDataTrigger>
+                                    <MultiDataTrigger.Conditions>
+                                        <Condition Binding="{Binding HasSelection}" Value="True" />
+                                        <Condition Binding="{Binding HasDetail}" Value="False" />
+                                        <Condition Binding="{Binding IsDetailLoading}" Value="False" />
+                                        <Condition Binding="{Binding HasDetailError}" Value="False" />
+                                    </MultiDataTrigger.Conditions>
+                                    <Setter Property="Visibility" Value="Visible" />
+                                </MultiDataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+                <TextBlock Text="{Binding DetailErrorMessage}"
+                           TextWrapping="Wrap"
+                           Foreground="{DynamicResource ErrorBrush}"
+                           Visibility="{Binding HasDetailError, Converter={StaticResource BooleanToVisibilityConverter}}" />
+
+                <Grid Visibility="{Binding HasDetail, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <Border x:Name="SessionSummaryCard"
+                            Padding="20,16"
+                            Style="{DynamicResource CardStyle}">
+                        <StackPanel>
+                            <TextBlock Text="{Binding Detail.TitleText}"
+                                       TextTrimming="CharacterEllipsis"
+                                       ToolTip="{Binding Detail.TitleText}"
+                                       Style="{DynamicResource SectionTitleStyle}" />
+                            <TextBlock Margin="0,4,0,0"
+                                       Text="{Binding Detail.ProjectPathText}"
+                                       TextTrimming="CharacterEllipsis"
+                                       ToolTip="{Binding Detail.ProjectPathText}"
+                                       Style="{DynamicResource SecondaryTextStyle}" />
+                            <TextBlock Margin="0,4,0,0"
+                                       Text="{Binding Detail.TimeRangeText}"
+                                       TextTrimming="CharacterEllipsis"
+                                       ToolTip="{Binding Detail.TimeRangeText}"
+                                       Style="{DynamicResource MutedTextStyle}" />
+                            <StackPanel Margin="0,4,0,0"
+                                        Orientation="Horizontal">
+                                <TextBlock VerticalAlignment="Center"
+                                           Text="所属项目："
+                                           Style="{DynamicResource CaptionTextStyle}" />
+                                <Button x:Name="SessionProjectLink"
+                                        VerticalAlignment="Center"
+                                        Content="{Binding Detail.ProjectNameText}"
+                                        Command="{Binding OpenProjectCommand}"
+                                        CommandParameter="{Binding Detail.ProjectId}"
+                                        IsEnabled="{Binding Detail.CanOpenProject}"
+                                        Style="{DynamicResource CompactTextLinkButtonStyle}"
+                                        ToolTip="{Binding Detail.ProjectPathText}" />
+                            </StackPanel>
+                            <TextBlock Margin="0,4,0,0"
+                                       Text="{Binding Detail.ProjectNote}">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock" BasedOn="{StaticResource CaptionTextStyle}">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Detail.ProjectNote}" Value="{x:Null}">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+
+                            <Grid x:Name="SessionSummaryMetricsHost"
+                                  Margin="0,12,0,0">
+                                <Grid x:Name="SessionSummaryMetrics"
+                                      HorizontalAlignment="Stretch">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" MinWidth="32" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" MinWidth="32" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel x:Name="SessionTotalMetric">
+                                        <TextBlock Text="总 Token"
+                                                   Style="{DynamicResource MetricLabelStyle}" />
+                                        <TextBlock Margin="0,4,0,0"
+                                                   FontSize="18"
+                                                   Text="{Binding Detail.TotalTokensText}"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   ToolTip="{Binding Detail.TotalTokensText}"
+                                                   Style="{DynamicResource MetricValueStyle}" />
+                                    </StackPanel>
+                                    <StackPanel x:Name="SessionPriceMetric"
+                                                Grid.Column="2">
+                                        <TextBlock Text="等效 API 价格（估算）"
+                                                   Style="{DynamicResource MetricLabelStyle}" />
+                                        <TextBlock Margin="0,4,0,0"
+                                                   FontSize="18"
+                                                   Text="{Binding Detail.PriceText}"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   ToolTip="{Binding Detail.PriceText}"
+                                                   Style="{DynamicResource MetricValueStyle}" />
+                                    </StackPanel>
+                                    <StackPanel x:Name="SessionPromptTurnMetric"
+                                                Grid.Column="4">
+                                        <TextBlock Text="Prompt 轮次"
+                                                   Style="{DynamicResource MetricLabelStyle}" />
+                                        <TextBlock Margin="0,4,0,0"
+                                                   FontSize="18"
+                                                   Text="{Binding Detail.PromptTurnCountText}"
+                                                   ToolTip="{Binding Detail.PromptTurnCountText}"
+                                                   Style="{DynamicResource MetricValueStyle}" />
+                                    </StackPanel>
+                                </Grid>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+
+                    <TabControl x:Name="SessionDetailTabs"
+                                Grid.Row="1"
+                                Margin="{DynamicResource CardStackGap}"
+                                SelectedIndex="{Binding SelectedDetailTabIndex, Mode=TwoWay}"
+                                Style="{DynamicResource LedgerTabControlStyle}">
+                        <TabItem x:Name="PromptTimelineTab"
+                                 Header="Prompt 时间线"
+                                 Style="{DynamicResource LedgerTabItemStyle}">
+                            <Border Margin="0,10,0,0"
+                                    Padding="{DynamicResource CardPadding}"
+                                    Style="{DynamicResource CardStyle}">
+                                <StackPanel>
+                                    <TextBlock Text="{Binding Detail.TurnCoverageNote}"
+                                               TextWrapping="Wrap"
+                                               Visibility="{Binding Detail.HasTurnCoverageNote, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                               Style="{DynamicResource CaptionTextStyle}" />
+                                    <ItemsControl x:Name="PromptTimelineItems"
+                                                  Margin="0,4,0,0"
+                                                  ItemsSource="{Binding Detail.Turns}"
+                                                  RequestBringIntoView="OnPromptTimelineItemsRequestBringIntoView">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border Padding="0,9"
+                                                        BorderBrush="{DynamicResource BorderBrush}"
+                                                        BorderThickness="0,0,0,1">
+                                                    <Grid>
+                                                        <Grid.RowDefinitions>
+                                                            <RowDefinition Height="Auto" />
+                                                            <RowDefinition Height="Auto" />
+                                                            <RowDefinition Height="Auto" />
+                                                        </Grid.RowDefinitions>
+                                                        <Grid>
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="28" />
+                                                                <ColumnDefinition Width="*" />
+                                                                <ColumnDefinition Width="88" />
+                                                                <ColumnDefinition Width="68" />
+                                                            </Grid.ColumnDefinitions>
+                                                            <Button Width="22"
+                                                                    Height="22"
+                                                                    Padding="0"
+                                                                    Command="{Binding ToggleExpandedCommand}">
+                                                                <Button.Style>
+                                                                    <Style TargetType="Button" BasedOn="{StaticResource BaseButtonStyle}">
+                                                                        <Setter Property="Content" Value="▸" />
+                                                                        <Style.Triggers>
+                                                                            <DataTrigger Binding="{Binding IsExpanded}" Value="True">
+                                                                                <Setter Property="Content" Value="▾" />
+                                                                            </DataTrigger>
+                                                                        </Style.Triggers>
+                                                                    </Style>
+                                                                </Button.Style>
+                                                            </Button>
+                                                            <StackPanel Grid.Column="1"
+                                                                        Margin="8,0,6,0">
+                                                                <TextBlock FontWeight="SemiBold"
+                                                                           Text="{Binding PromptText}"
+                                                                           TextTrimming="CharacterEllipsis"
+                                                                           ToolTip="{Binding PromptText}" />
+                                                                <Grid Margin="0,3,0,0">
+                                                                    <Grid.ColumnDefinitions>
+                                                                        <ColumnDefinition Width="Auto" />
+                                                                        <ColumnDefinition Width="*" />
+                                                                    </Grid.ColumnDefinitions>
+                                                                    <TextBlock Text="{Binding TimeText}"
+                                                                               Style="{DynamicResource CaptionTextStyle}" />
+                                                                    <TextBlock Grid.Column="1"
+                                                                               Margin="10,0,0,0"
+                                                                               Text="{Binding ActivityText}"
+                                                                               TextTrimming="CharacterEllipsis"
+                                                                               ToolTip="{Binding ActivityText}"
+                                                                               Style="{DynamicResource CaptionTextStyle}" />
+                                                                </Grid>
+                                                            </StackPanel>
+                                                            <TextBlock Grid.Column="2"
+                                                                       VerticalAlignment="Center"
+                                                                       Text="{Binding TokensText}"
+                                                                       TextAlignment="Right"
+                                                                       Style="{DynamicResource CompactDataNumberStyle}" />
+                                                            <TextBlock Grid.Column="3"
+                                                                       VerticalAlignment="Center"
+                                                                       Text="{Binding PriceText}"
+                                                                       TextAlignment="Right"
+                                                                       Style="{DynamicResource CaptionTextStyle}" />
+                                                        </Grid>
+                                                        <ProgressBar Grid.Row="1"
+                                                                     Height="5"
+                                                                     Margin="36,7,0,0"
+                                                                     Maximum="1"
+                                                                     Value="{Binding RelativeUsage, Mode=OneWay}" />
+                                                        <StackPanel Grid.Row="2"
+                                                                    Margin="36,8,0,0"
+                                                                    Visibility="{Binding IsExpanded, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                            <TextBlock Margin="0,0,0,6"
+                                                                       Foreground="{DynamicResource ErrorBrush}"
+                                                                       Text="{Binding ErrorText}"
+                                                                       TextWrapping="Wrap"
+                                                                       Visibility="{Binding HasError, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                                                            <ItemsControl ItemsSource="{Binding Calls}">
+                                                                <ItemsControl.ItemTemplate>
+                                                                    <DataTemplate>
+                                                                        <Border Margin="0,0,0,7"
+                                                                                Padding="10,8"
+                                                                                Background="{DynamicResource SurfaceSubtleBrush}"
+                                                                                CornerRadius="8">
+                                                                            <Grid>
+                                                                                <Grid.RowDefinitions>
+                                                                                    <RowDefinition Height="Auto" />
+                                                                                    <RowDefinition Height="Auto" />
+                                                                                    <RowDefinition Height="Auto" />
+                                                                                </Grid.RowDefinitions>
+                                                                                <Grid>
+                                                                                    <Grid.ColumnDefinitions>
+                                                                                        <ColumnDefinition Width="*" />
+                                                                                        <ColumnDefinition Width="88" />
+                                                                                        <ColumnDefinition Width="68" />
+                                                                                    </Grid.ColumnDefinitions>
+                                                                                    <Grid>
+                                                                                        <Grid.ColumnDefinitions>
+                                                                                            <ColumnDefinition Width="Auto" />
+                                                                                            <ColumnDefinition Width="Auto" />
+                                                                                            <ColumnDefinition Width="*" />
+                                                                                        </Grid.ColumnDefinitions>
+                                                                                        <TextBlock FontWeight="SemiBold"
+                                                                                                   Text="{Binding TitleText}" />
+                                                                                        <Border Grid.Column="1"
+                                                                                                Margin="6,0,0,0"
+                                                                                                Padding="6,1"
+                                                                                                Background="{DynamicResource SurfaceRaisedBrush}"
+                                                                                                CornerRadius="6">
+                                                                                            <TextBlock FontSize="10"
+                                                                                                       Text="{Binding SourceText}"
+                                                                                                       Foreground="{DynamicResource TextSecondaryBrush}" />
+                                                                                        </Border>
+                                                                                        <TextBlock Grid.Column="2"
+                                                                                                   Margin="6,0,0,0"
+                                                                                                   Text="{Binding ModelText}"
+                                                                                                   TextTrimming="CharacterEllipsis"
+                                                                                                   ToolTip="{Binding ModelText}"
+                                                                                                   Style="{DynamicResource CaptionTextStyle}" />
+                                                                                    </Grid>
+                                                                                    <TextBlock Grid.Column="1"
+                                                                                               Text="{Binding TokensText}"
+                                                                                               TextAlignment="Right"
+                                                                                               Style="{DynamicResource CompactDataNumberStyle}" />
+                                                                                    <TextBlock Grid.Column="2"
+                                                                                               Text="{Binding PriceText}"
+                                                                                               TextAlignment="Right"
+                                                                                               Style="{DynamicResource CaptionTextStyle}" />
+                                                                                </Grid>
+                                                                                <TextBlock Grid.Row="1"
+                                                                                           Margin="0,4,0,0"
+                                                                                           Text="{Binding MetricsText}"
+                                                                                           TextWrapping="Wrap"
+                                                                                           Style="{DynamicResource CaptionTextStyle}" />
+                                                                                <TextBlock Grid.Row="2"
+                                                                                           Margin="0,4,0,0"
+                                                                                           Text="{Binding ToolText}"
+                                                                                           TextWrapping="Wrap"
+                                                                                           Visibility="{Binding HasTools, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                                                                           Style="{DynamicResource CaptionTextStyle}" />
+                                                                            </Grid>
+                                                                        </Border>
+                                                                    </DataTemplate>
+                                                                </ItemsControl.ItemTemplate>
+                                                            </ItemsControl>
+                                                        </StackPanel>
+                                                    </Grid>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                    <TextBlock Margin="0,8,0,0"
+                                               Text="{Binding Detail.UnattributedText}"
+                                               TextWrapping="Wrap"
+                                               Visibility="{Binding Detail.HasUnattributed, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                               Style="{DynamicResource CaptionTextStyle}" />
+                                    <Button x:Name="LoadMorePromptsButton"
+                                            Margin="0,8,0,0"
+                                            HorizontalAlignment="Center"
+                                            Content="加载更多 Prompt"
+                                            Command="{Binding LoadMoreTurnsCommand}"
+                                            Style="{DynamicResource SecondaryButtonStyle}"
+                                            Visibility="{Binding HasMoreTurns, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                                </StackPanel>
+                            </Border>
+                        </TabItem>
+                        <TabItem x:Name="SessionCompositionTab"
+                                 Header="会话构成"
+                                 Style="{DynamicResource LedgerTabItemStyle}">
+                            <Border Margin="0,10,0,0"
+                                    Padding="{DynamicResource CardPadding}"
+                                    Style="{DynamicResource CardStyle}">
+                                <ItemsControl ItemsSource="{Binding Detail.Contributions}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid Margin="{Binding Indent}">
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto" />
+                                                    <RowDefinition Height="Auto" />
+                                                </Grid.RowDefinitions>
+                                                <Grid MinHeight="42">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="28" />
+                                                        <ColumnDefinition Width="*" />
+                                                        <ColumnDefinition Width="96" />
+                                                        <ColumnDefinition Width="76" />
+                                                    </Grid.ColumnDefinitions>
+                                                    <Button Width="22"
+                                                            Height="22"
+                                                            Padding="0"
+                                                            Command="{Binding ToggleExpandedCommand}">
+                                                        <Button.Style>
+                                                            <Style TargetType="Button" BasedOn="{StaticResource BaseButtonStyle}">
+                                                                <Setter Property="Content" Value="▸" />
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding IsExpanded}" Value="True">
+                                                                        <Setter Property="Content" Value="▾" />
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding HasModels}" Value="False">
+                                                                        <Setter Property="Visibility" Value="Collapsed" />
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </Button.Style>
+                                                    </Button>
+                                                    <StackPanel Grid.Column="1"
+                                                                Margin="8,0">
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <Border Padding="6,1"
+                                                                    Background="{DynamicResource SurfaceRaisedBrush}"
+                                                                    CornerRadius="6">
+                                                                <TextBlock FontSize="10"
+                                                                           Text="{Binding KindText}"
+                                                                           Foreground="{DynamicResource TextSecondaryBrush}" />
+                                                            </Border>
+                                                            <TextBlock Margin="8,0,0,0"
+                                                                       Text="{Binding SessionIdText}"
+                                                                       Style="{DynamicResource CaptionTextStyle}" />
+                                                        </StackPanel>
+                                                        <TextBlock Margin="0,3,0,0"
+                                                                   Style="{DynamicResource CaptionTextStyle}">
+                                                            <Run Text="{Binding RequestCountText, Mode=OneWay}" />
+                                                            <Run Text=" 次调用" />
+                                                        </TextBlock>
+                                                    </StackPanel>
+                                                    <TextBlock Grid.Column="2"
+                                                               VerticalAlignment="Center"
+                                                               Text="{Binding TokensText}"
+                                                               TextAlignment="Right"
+                                                               Style="{DynamicResource CompactDataNumberStyle}" />
+                                                    <TextBlock Grid.Column="3"
+                                                               VerticalAlignment="Center"
+                                                               Text="{Binding PriceText}"
+                                                               TextAlignment="Right"
+                                                               Style="{DynamicResource CaptionTextStyle}" />
+                                                </Grid>
+                                                <ItemsControl Grid.Row="1"
+                                                              Margin="36,0,0,6"
+                                                              ItemsSource="{Binding Models}"
+                                                              Visibility="{Binding IsExpanded, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <Grid Margin="0,2">
+                                                                <Grid.ColumnDefinitions>
+                                                                    <ColumnDefinition Width="*" />
+                                                                    <ColumnDefinition Width="96" />
+                                                                    <ColumnDefinition Width="76" />
+                                                                </Grid.ColumnDefinitions>
+                                                                <TextBlock Text="{Binding ModelText}"
+                                                                           TextTrimming="CharacterEllipsis" />
+                                                                <TextBlock Grid.Column="1"
+                                                                           Text="{Binding TokensText}"
+                                                                           TextAlignment="Right"
+                                                                           Style="{DynamicResource CompactDataNumberStyle}" />
+                                                                <TextBlock Grid.Column="2"
+                                                                           Text="{Binding PriceText}"
+                                                                           TextAlignment="Right"
+                                                                           Style="{DynamicResource CaptionTextStyle}" />
+                                                            </Grid>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </Border>
+                        </TabItem>
+                        <TabItem x:Name="SessionModelsTab"
+                                 Header="模型"
+                                 Style="{DynamicResource LedgerTabItemStyle}">
+                            <Border Margin="0,10,0,0"
+                                    Padding="{DynamicResource CardPadding}"
+                                    Style="{DynamicResource CardStyle}">
+                                <ItemsControl ItemsSource="{Binding Detail.Models}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid MinHeight="42">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="90" />
+                                                    <ColumnDefinition Width="96" />
+                                                    <ColumnDefinition Width="76" />
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock VerticalAlignment="Center"
+                                                           Text="{Binding ModelText}"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           ToolTip="{Binding ModelText}" />
+                                                <TextBlock Grid.Column="1"
+                                                           VerticalAlignment="Center"
+                                                           TextAlignment="Right"
+                                                           Style="{DynamicResource CaptionTextStyle}">
+                                                    <Run Text="{Binding RequestCountText, Mode=OneWay}" />
+                                                    <Run Text=" 次" />
+                                                </TextBlock>
+                                                <TextBlock Grid.Column="2"
+                                                           VerticalAlignment="Center"
+                                                           Text="{Binding TokensText}"
+                                                           TextAlignment="Right"
+                                                           Style="{DynamicResource CompactDataNumberStyle}" />
+                                                <TextBlock Grid.Column="3"
+                                                           VerticalAlignment="Center"
+                                                           Text="{Binding PriceText}"
+                                                           TextAlignment="Right"
+                                                           Style="{DynamicResource CaptionTextStyle}" />
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </Border>
+                        </TabItem>
+                    </TabControl>
+
+                    <Border Grid.Row="2"
+                            Visibility="Collapsed"
+                            Margin="{DynamicResource CardStackGap}"
+                            Padding="{DynamicResource CardPadding}"
+                            Style="{DynamicResource CardStyle}">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <TextBlock Text="会话构成"
+                                       Style="{DynamicResource SectionTitleStyle}" />
+                            <Border Grid.Row="1"
+                                    Margin="0,12,0,0"
+                                    Padding="0,0,0,7"
+                                    BorderBrush="{DynamicResource BorderBrush}"
+                                    BorderThickness="0,0,0,1">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="32" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="96" />
+                                        <ColumnDefinition Width="76" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="1"
+                                               Text="会话与调用"
+                                               Style="{DynamicResource TableHeaderTextStyle}" />
+                                    <TextBlock Grid.Column="2"
+                                               Text="Token"
+                                               TextAlignment="Right"
+                                               Style="{DynamicResource TableHeaderTextStyle}" />
+                                    <TextBlock Grid.Column="3"
+                                               Text="金额"
+                                               TextAlignment="Right"
+                                               Style="{DynamicResource TableHeaderTextStyle}" />
+                                </Grid>
+                            </Border>
+                            <ItemsControl Grid.Row="2"
+                                          Margin="0,4,0,0"
+                                          ItemsSource="{Binding Detail.Contributions}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid Margin="{Binding Indent}">
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="Auto" />
+                                            </Grid.RowDefinitions>
+                                            <Grid Margin="0,3"
+                                                  MinHeight="40">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="32" />
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="96" />
+                                                    <ColumnDefinition Width="76" />
+                                                </Grid.ColumnDefinitions>
+                                                <Button Width="24"
+                                                        Height="24"
+                                                        Padding="0"
+                                                        VerticalAlignment="Center"
+                                                        Command="{Binding ToggleExpandedCommand}">
+                                                    <Button.Style>
+                                                        <Style TargetType="Button" BasedOn="{StaticResource BaseButtonStyle}">
+                                                            <Setter Property="Content" Value="▸" />
+                                                            <Setter Property="Visibility" Value="Visible" />
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding IsExpanded}" Value="True">
+                                                                    <Setter Property="Content" Value="▾" />
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding HasModels}" Value="False">
+                                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Button.Style>
+                                                </Button>
+                                                <Grid Grid.Column="1"
+                                                      Margin="8,0,8,0"
+                                                      VerticalAlignment="Center">
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="Auto" />
+                                                        <RowDefinition Height="Auto" />
+                                                    </Grid.RowDefinitions>
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="Auto" />
+                                                            <ColumnDefinition Width="*" />
+                                                        </Grid.ColumnDefinitions>
+                                                        <Border Padding="6,1"
+                                                                VerticalAlignment="Center"
+                                                                Background="{DynamicResource SurfaceRaisedBrush}"
+                                                                CornerRadius="6">
+                                                            <TextBlock FontSize="10"
+                                                                       Foreground="{DynamicResource TextSecondaryBrush}"
+                                                                       Text="{Binding KindText}" />
+                                                        </Border>
+                                                        <TextBlock Grid.Column="1"
+                                                                   Margin="8,0,0,0"
+                                                                   VerticalAlignment="Center"
+                                                                   Text="{Binding SessionIdText}"
+                                                                   TextTrimming="CharacterEllipsis"
+                                                                   ToolTip="{Binding SessionIdText}"
+                                                                   Style="{DynamicResource CaptionTextStyle}" />
+                                                    </Grid>
+                                                    <TextBlock Grid.Row="1"
+                                                               Margin="0,3,0,0"
+                                                               Style="{DynamicResource CaptionTextStyle}">
+                                                        <Run Text="{Binding RequestCountText, Mode=OneWay}" />
+                                                        <Run Text=" 次调用" />
+                                                    </TextBlock>
+                                                </Grid>
+                                                <TextBlock Grid.Column="2"
+                                                           VerticalAlignment="Center"
+                                                           Text="{Binding TokensText}"
+                                                           TextAlignment="Right"
+                                                           Style="{DynamicResource CompactDataNumberStyle}" />
+                                                <TextBlock Grid.Column="3"
+                                                           VerticalAlignment="Center"
+                                                           FontSize="11"
+                                                           Text="{Binding PriceText}"
+                                                           TextAlignment="Right">
+                                                    <TextBlock.Style>
+                                                        <Style TargetType="TextBlock">
+                                                            <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}" />
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding PriceState}" Value="{x:Static viewModels:SessionPriceState.Partial}">
+                                                                    <Setter Property="Foreground" Value="{DynamicResource WarningBrush}" />
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding PriceState}" Value="{x:Static viewModels:SessionPriceState.Complete}">
+                                                                    <Setter Property="Foreground" Value="{DynamicResource PositiveBrush}" />
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
+                                                </TextBlock>
+                                            </Grid>
+                                            <ItemsControl Grid.Row="1"
+                                                          Margin="32,0,0,4"
+                                                          ItemsSource="{Binding Models}"
+                                                          Visibility="{Binding IsExpanded, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Grid Margin="0,2">
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="*" />
+                                                                <ColumnDefinition Width="96" />
+                                                                <ColumnDefinition Width="76" />
+                                                            </Grid.ColumnDefinitions>
+                                                            <TextBlock VerticalAlignment="Center"
+                                                                       FontSize="11"
+                                                                       Text="{Binding ModelText}"
+                                                                       TextTrimming="CharacterEllipsis"
+                                                                       ToolTip="{Binding ModelText}" />
+                                                            <TextBlock Grid.Column="1"
+                                                                       VerticalAlignment="Center"
+                                                                       Text="{Binding TokensText}"
+                                                                       TextAlignment="Right"
+                                                                       Style="{DynamicResource CompactDataNumberStyle}" />
+                                                            <TextBlock Grid.Column="2"
+                                                                       VerticalAlignment="Center"
+                                                                       FontSize="11"
+                                                                       Foreground="{DynamicResource TextSecondaryBrush}"
+                                                                       Text="{Binding PriceText}"
+                                                                       TextAlignment="Right" />
+                                                        </Grid>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </Grid>
+                    </Border>
+
+                    <Border Grid.Row="3"
+                            Visibility="Collapsed"
+                            Margin="{DynamicResource CardStackGap}"
+                            Padding="{DynamicResource CardPadding}"
+                            Style="{DynamicResource CardStyle}">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <TextBlock Text="逐轮用量"
+                                       Style="{DynamicResource SectionTitleStyle}" />
+                            <TextBlock Grid.Row="1"
+                                       Margin="0,4,0,0"
+                                       Text="{Binding Detail.TurnCoverageNote}">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock" BasedOn="{StaticResource CaptionTextStyle}">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Detail.HasTurnCoverageNote}" Value="True">
+                                                <Setter Property="Visibility" Value="Visible" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                            <Border Grid.Row="2"
+                                    Margin="0,12,0,0"
+                                    Padding="0,0,0,7"
+                                    BorderBrush="{DynamicResource BorderBrush}"
+                                    BorderThickness="0,0,0,1">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="96" />
+                                        <ColumnDefinition Width="76" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="时间与调用"
+                                               Style="{DynamicResource TableHeaderTextStyle}" />
+                                    <TextBlock Grid.Column="1"
+                                               Text="Token"
+                                               TextAlignment="Right"
+                                               Style="{DynamicResource TableHeaderTextStyle}" />
+                                    <TextBlock Grid.Column="2"
+                                               Text="金额"
+                                               TextAlignment="Right"
+                                               Style="{DynamicResource TableHeaderTextStyle}" />
+                                </Grid>
+                            </Border>
+                            <ItemsControl Grid.Row="3"
+                                          Margin="0,3,0,0"
+                                          ItemsSource="{Binding Detail.Turns}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Padding="0,7"
+                                                BorderBrush="{DynamicResource BorderBrush}"
+                                                BorderThickness="0,0,0,1">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="96" />
+                                                    <ColumnDefinition Width="76" />
+                                                </Grid.ColumnDefinitions>
+                                                <StackPanel VerticalAlignment="Center"
+                                                            Orientation="Horizontal">
+                                                    <TextBlock VerticalAlignment="Center"
+                                                               Text="{Binding TimeText}"
+                                                               Style="{DynamicResource CompactDataNumberStyle}" />
+                                                    <TextBlock Margin="10,0,0,0"
+                                                               VerticalAlignment="Center"
+                                                               Style="{DynamicResource CaptionTextStyle}">
+                                                        <Run Text="{Binding CallCountText, Mode=OneWay}" />
+                                                        <Run Text=" 次调用" />
+                                                    </TextBlock>
+                                                </StackPanel>
+                                                <TextBlock Grid.Column="1"
+                                                           VerticalAlignment="Center"
+                                                           Text="{Binding TokensText}"
+                                                           TextAlignment="Right"
+                                                           Style="{DynamicResource CompactDataNumberStyle}" />
+                                                <TextBlock Grid.Column="2"
+                                                           VerticalAlignment="Center"
+                                                           FontSize="11"
+                                                           Text="{Binding PriceText}"
+                                                           TextAlignment="Right">
+                                                    <TextBlock.Style>
+                                                        <Style TargetType="TextBlock">
+                                                            <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}" />
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding PriceState}" Value="{x:Static viewModels:SessionPriceState.Partial}">
+                                                                    <Setter Property="Foreground" Value="{DynamicResource WarningBrush}" />
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding PriceState}" Value="{x:Static viewModels:SessionPriceState.Complete}">
+                                                                    <Setter Property="Foreground" Value="{DynamicResource PositiveBrush}" />
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
+                                                </TextBlock>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                            <StackPanel Grid.Row="4" Margin="0,8,0,0">
+                                <TextBlock Text="{Binding Detail.UnattributedText}">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock" BasedOn="{StaticResource CaptionTextStyle}">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Detail.HasUnattributed}" Value="True">
+                                                    <Setter Property="Visibility" Value="Visible" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                                <Button Margin="0,8,0,0"
+                                        HorizontalAlignment="Center"
+                                        Content="加载更多轮次"
+                                        Command="{Binding LoadMoreTurnsCommand}"
+                                        Style="{DynamicResource SecondaryButtonStyle}"
+                                        Visibility="{Binding HasMoreTurns, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </Grid>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

@@ -1,0 +1,44 @@
+<Application x:Class="AgenTally.UI.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:infrastructure="clr-namespace:AgenTally.UI.Infrastructure"
+             xmlns:viewModels="clr-namespace:AgenTally.UI.ViewModels"
+             xmlns:views="clr-namespace:AgenTally.UI.Views"
+             ShutdownMode="OnMainWindowClose">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Resources/Themes.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+
+            <infrastructure:NullableNumberConverter x:Key="NullableNumberConverter" />
+            <infrastructure:UtcToLocalDateTimeConverter x:Key="UtcToLocalDateTimeConverter" />
+            <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+
+            <DataTemplate DataType="{x:Type viewModels:DashboardViewModel}">
+                <views:DashboardView />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type viewModels:AnalysisViewModel}">
+                <views:AnalysisView />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type viewModels:ProjectsViewModel}">
+                <views:ProjectsView />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type viewModels:SessionsViewModel}">
+                <views:SessionsView />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type viewModels:SourcesViewModel}">
+                <views:SourcesView />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type viewModels:SettingsViewModel}">
+                <views:SettingsView />
+            </DataTemplate>
+
+            <Style TargetType="Window">
+                <Setter Property="FontFamily" Value="Microsoft YaHei UI" />
+                <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+                <Setter Property="Background" Value="{DynamicResource AppBackgroundBrush}" />
+            </Style>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

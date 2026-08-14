@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Windows release gate
+    runs-on: windows-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          dotnet-version: 10.0.300
+          cache: true
+          cache-dependency-path: '**/packages.lock.json'
+
+      - name: Enforce public repository boundary
+        shell: pwsh
+        run: .\scripts\Test-AgenTallyPublicBoundary.ps1
+
+      - name: Run source security gate
+        shell: pwsh
+        run: .\scripts\Test-AgenTallyPrepackageSecurity.ps1
+
+      - name: Run non-windowed tests
+        shell: pwsh
+        run: dotnet test --project tests/AgenTally.Tests/AgenTally.Tests.csproj --configuration Release --no-restore
+
+      - name: Run isolated WindowedDesktop tests
+        shell: pwsh
+        run: dotnet test --project tests/AgenTally.Tests/AgenTally.Tests.csproj --configuration Release --no-restore -p:AgenTallyIncludeWindowedDesktopTests=true --filter "TestCategory=WindowedDesktop"
+
+      - name: Run strict Release build
+        shell: pwsh
+        run: dotnet build AgenTally.sln --configuration Release --no-restore --no-incremental -warnaserror

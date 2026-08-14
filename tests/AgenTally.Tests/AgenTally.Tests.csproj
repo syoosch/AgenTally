@@ -1,0 +1,16 @@
+<Project Sdk="MSTest.Sdk/4.3.2">
+    <PropertyGroup>
+        <TargetFramework>net10.0-windows</TargetFramework>
+        <UseWPF>true</UseWPF>
+        <TestingExtensionsProfile>None</TestingExtensionsProfile>
+        <RunSettingsFilePath Condition="'$(AgenTallyIncludeWindowedDesktopTests)' != 'true'">$(MSBuildProjectDirectory)\AgenTally.runsettings</RunSettingsFilePath>
+        <TestingPlatformCommandLineArguments Condition="'$(AgenTallyIncludeWindowedDesktopTests)' != 'true'">$(TestingPlatformCommandLineArguments) --settings &quot;$(RunSettingsFilePath)&quot;</TestingPlatformCommandLineArguments>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\src\AgenTally.Domain\AgenTally.Domain.csproj" />
+        <ProjectReference Include="..\..\src\AgenTally.Storage\AgenTally.Storage.csproj" />
+        <ProjectReference Include="..\..\src\AgenTally.Core\AgenTally.Core.csproj" />
+        <ProjectReference Include="..\..\src\AgenTally.UI\AgenTally.UI.csproj" />
+    </ItemGroup>
+</Project>

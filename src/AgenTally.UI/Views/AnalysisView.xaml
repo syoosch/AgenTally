@@ -1,0 +1,288 @@
+<UserControl x:Class="AgenTally.UI.Views.AnalysisView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:AgenTally.UI.Controls">
+    <Grid Margin="{DynamicResource PageMargin}"
+          MaxWidth="1500"
+          HorizontalAlignment="Stretch">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Grid x:Name="AnalysisHeader"
+              Margin="{DynamicResource StatisticsHeaderScrollbarReserve}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <StackPanel Margin="0,0,16,0"
+                        VerticalAlignment="Center">
+                <TextBlock Text="分析"
+                           Style="{DynamicResource PageTitleStyle}" />
+                <TextBlock Text="{Binding PeriodSummaryText}"
+                           ToolTip="{Binding PeriodSummaryText}"
+                           Style="{DynamicResource PagePeriodTextStyle}" />
+            </StackPanel>
+            <StackPanel Grid.Column="1"
+                        HorizontalAlignment="Right">
+                <Grid x:Name="AnalysisFilterBar">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="112" />
+                        <ColumnDefinition Width="8" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <ComboBox x:Name="AnalysisProjectFilter"
+                              AutomationProperties.AutomationId="Analysis.ProjectFilter"
+                              ItemsSource="{Binding ProjectOptions}"
+                              SelectedValue="{Binding SelectedProject, Mode=TwoWay}"
+                              SelectedValuePath="SelectionValue"
+                              Style="{StaticResource ProjectTopFilterComboBoxStyle}">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock MaxWidth="360"
+                                           Text="{Binding DisplayText}"
+                                           TextTrimming="CharacterEllipsis"
+                                           ToolTip="{Binding ToolTipText}" />
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+                    <Grid x:Name="AnalysisCommonFilterGroup"
+                          Grid.Column="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="112" />
+                            <ColumnDefinition Width="8" />
+                            <ColumnDefinition Width="112" />
+                            <ColumnDefinition Width="8" />
+                            <ColumnDefinition Width="112" />
+                            <ColumnDefinition Width="8" />
+                            <ColumnDefinition Width="72" />
+                        </Grid.ColumnDefinitions>
+                        <ComboBox x:Name="AnalysisAgentFilter"
+                                  ItemsSource="{Binding AgentOptions}"
+                                  SelectedItem="{Binding SelectedAgent, Mode=TwoWay}"
+                                  Style="{StaticResource TopFilterComboBoxStyle}" />
+                        <ComboBox x:Name="AnalysisModelFilter"
+                                  Grid.Column="2"
+                                  ItemsSource="{Binding ModelOptions}"
+                                  SelectedItem="{Binding SelectedModel, Mode=TwoWay}"
+                                  Style="{StaticResource TopFilterComboBoxStyle}" />
+                        <ComboBox x:Name="AnalysisPeriodFilter"
+                                  Grid.Column="4"
+                                  ItemsSource="{Binding PeriodOptions}"
+                                  SelectedItem="{Binding SelectedPeriod, Mode=TwoWay}"
+                                  Style="{StaticResource TopFilterComboBoxStyle}" />
+                        <Button x:Name="AnalysisRefreshButton"
+                                Grid.Column="6"
+                                Content="刷新"
+                                Command="{Binding RefreshCommand}"
+                                Style="{DynamicResource TopFilterRefreshButtonStyle}" />
+                    </Grid>
+                </Grid>
+                <controls:DateTimeRangePicker x:Name="AnalysisDateTimeRangePicker"
+                                              Margin="0,6,0,0"
+                                              HorizontalAlignment="Right"
+                                              StartLocal="{Binding CustomStartDate, Mode=OneWay}"
+                                              EndExclusiveLocal="{Binding CustomEndDate, Mode=OneWay}"
+                                              IsSelectionPending="{Binding IsCustomRangeSelectionPending, Mode=OneWay}"
+                                              CommitCommand="{Binding CommitCustomRangeCommand}"
+                                              CancelCommand="{Binding CancelCustomRangeCommand}"
+                                              TimeZone="{Binding LocalTimeZone}"
+                                              Visibility="{Binding IsCustomPeriod, Converter={StaticResource BooleanToVisibilityConverter}}" />
+            </StackPanel>
+        </Grid>
+
+        <Border x:Name="AnalysisMetricsCard"
+                Grid.Row="1"
+                MinHeight="104"
+                Margin="{DynamicResource StatisticsFirstContentGap}"
+                Padding="20,16"
+                Style="{DynamicResource CardStyle}">
+            <Grid x:Name="AnalysisMetricsGrid">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="48" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" MinWidth="32" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" MinWidth="32" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" MinWidth="32" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock x:Name="AnalysisTotalLabel"
+                           Text="总 Token"
+                           Style="{DynamicResource MetricLabelStyle}" />
+                <TextBlock x:Name="AnalysisTotalValue"
+                           Grid.Row="1"
+                           VerticalAlignment="Center"
+                           FontSize="23"
+                           Text="{Binding TotalTokensText}"
+                           ToolTip="{Binding TotalTokensText}"
+                           Style="{DynamicResource MetricValueStyle}" />
+                <TextBlock x:Name="AnalysisRequestLabel"
+                           Grid.Column="2"
+                           Text="请求数"
+                           Style="{DynamicResource MetricLabelStyle}" />
+                <TextBlock x:Name="AnalysisRequestValue"
+                           Grid.Row="1"
+                           Grid.Column="2"
+                           VerticalAlignment="Center"
+                           FontSize="23"
+                           Text="{Binding RequestCountText}"
+                           ToolTip="{Binding RequestCountText}"
+                           Style="{DynamicResource MetricValueStyle}" />
+                <TextBlock x:Name="AnalysisDailyAverageLabel"
+                           Grid.Column="4"
+                           Text="日均 Token"
+                           Style="{DynamicResource MetricLabelStyle}" />
+                <TextBlock x:Name="AnalysisDailyAverageValue"
+                           Grid.Row="1"
+                           Grid.Column="4"
+                           VerticalAlignment="Center"
+                           FontSize="23"
+                           Text="{Binding DailyAverageText}"
+                           ToolTip="{Binding DailyAverageText}"
+                           Style="{DynamicResource MetricValueStyle}" />
+                <TextBlock x:Name="AnalysisEquivalentLabel"
+                           Grid.Column="6"
+                           Text="等效 API 价格（估算）"
+                           Style="{DynamicResource MetricLabelStyle}" />
+                <TextBlock x:Name="AnalysisEquivalentValue"
+                           Grid.Row="1"
+                           Grid.Column="6"
+                           VerticalAlignment="Center"
+                           FontSize="23"
+                           Text="{Binding EquivalentValueText}"
+                           ToolTip="{Binding EquivalentValueText}"
+                           Style="{DynamicResource MetricValueStyle}" />
+            </Grid>
+        </Border>
+
+        <TabControl x:Name="AnalysisTabs"
+                    Grid.Row="2"
+                    Margin="{DynamicResource CardStackGap}"
+                    SelectedIndex="{Binding SelectedViewIndex, Mode=TwoWay}"
+                    Style="{DynamicResource LedgerTabControlStyle}">
+            <TabItem Header="每日"
+                     Style="{DynamicResource LedgerTabItemStyle}">
+                <controls:RoundedClipBorder Margin="0,10,0,0"
+                                            Style="{DynamicResource TableCardStyle}">
+                    <Grid>
+                        <DataGrid x:Name="DailyGrid"
+                                  IsReadOnly="True"
+                                  ColumnHeaderStyle="{StaticResource DataGridCenteredHeaderStyle}"
+                                  ItemsSource="{Binding DailyRows}"
+                                  SelectedItem="{Binding SelectedDailyRow, Mode=TwoWay}">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Width="1.15*" MinWidth="110" Header="日期" Binding="{Binding DateText}" ElementStyle="{StaticResource DataGridCenteredTextStyle}" />
+                                <DataGridTextColumn Width="*" MinWidth="100" Header="总 Token" Binding="{Binding TotalTokensText}" ElementStyle="{StaticResource DataGridNumberTextStyle}" />
+                                <DataGridTextColumn Width="0.75*" MinWidth="70" Header="请求数" Binding="{Binding RequestCountText}" ElementStyle="{StaticResource DataGridNumberTextStyle}" />
+                                <DataGridTextColumn Width="1.05*" MinWidth="100" Header="缓存输入" Binding="{Binding CacheReadText}" ElementStyle="{StaticResource DataGridNumberTextStyle}" />
+                                <DataGridTextColumn Width="1.05*" MinWidth="100" Header="未缓存输入" Binding="{Binding UncachedInputText}" ElementStyle="{StaticResource DataGridNumberTextStyle}" />
+                                <DataGridTextColumn Width="0.85*" MinWidth="80" Header="输出" Binding="{Binding OutputText}" ElementStyle="{StaticResource DataGridNumberTextStyle}" />
+                                <DataGridTextColumn Width="0.95*" MinWidth="90" Header="缓存命中率" Binding="{Binding CacheHitRateText}" ElementStyle="{StaticResource DataGridNumberTextStyle}" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                        <TextBlock HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   Text="当前范围暂无每日数据"
+                                   IsHitTestVisible="False">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock"
+                                       BasedOn="{StaticResource MutedTextStyle}">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding HasItems, ElementName=DailyGrid}" Value="False">
+                                            <Setter Property="Visibility" Value="Visible" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </Grid>
+                </controls:RoundedClipBorder>
+            </TabItem>
+            <TabItem Header="平台"
+                     Style="{DynamicResource LedgerTabItemStyle}">
+                <controls:RoundedClipBorder Margin="0,10,0,0"
+                                            Style="{DynamicResource TableCardStyle}">
+                    <Grid>
+                        <DataGrid x:Name="AgentGrid"
+                                  IsReadOnly="True"
+                                  ColumnHeaderStyle="{StaticResource DataGridCenteredHeaderStyle}"
+                                  ItemsSource="{Binding AgentRows}">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Width="1.25*" MinWidth="110" Header="平台" Binding="{Binding AgentId}" ElementStyle="{StaticResource DataGridTextStyle}" />
+                                <DataGridTextColumn Width="*" MinWidth="100" Header="总 Token" Binding="{Binding TotalTokensText}" ElementStyle="{StaticResource DataGridNumberTextStyle}" />
+                                <DataGridTextColumn Width="0.7*" MinWidth="70" Header="占比" Binding="{Binding ShareText}" ElementStyle="{StaticResource DataGridNumberTextStyle}" />
+                                <DataGridTextColumn Width="0.7*" MinWidth="70" Header="请求数" Binding="{Binding RequestCountText}" ElementStyle="{StaticResource DataGridNumberTextStyle}" />
+                                <DataGridTextColumn Width="1.05*" MinWidth="100" Header="缓存输入" Binding="{Binding CacheReadText}" ElementStyle="{StaticResource DataGridNumberTextStyle}" />
+                                <DataGridTextColumn Width="1.05*" MinWidth="100" Header="未缓存输入" Binding="{Binding UncachedInputText}" ElementStyle="{StaticResource DataGridNumberTextStyle}" />
+                                <DataGridTextColumn Width="0.85*" MinWidth="80" Header="输出" Binding="{Binding OutputText}" ElementStyle="{StaticResource DataGridNumberTextStyle}" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                        <TextBlock HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   Text="当前范围暂无平台数据"
+                                   IsHitTestVisible="False">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock"
+                                       BasedOn="{StaticResource MutedTextStyle}">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding HasItems, ElementName=AgentGrid}" Value="False">
+                                            <Setter Property="Visibility" Value="Visible" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </Grid>
+                </controls:RoundedClipBorder>
+            </TabItem>
+            <TabItem Header="模型"
+                     Style="{DynamicResource LedgerTabItemStyle}">
+                <controls:RoundedClipBorder Margin="0,10,0,0"
+                                            Style="{DynamicResource TableCardStyle}">
+                    <Grid>
+                        <DataGrid x:Name="ModelGrid"
+                                  IsReadOnly="True"
+                                  ColumnHeaderStyle="{StaticResource DataGridCenteredHeaderStyle}"
+                                  ItemsSource="{Binding ModelRows}">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Width="1.3*" MinWidth="120" Header="模型" Binding="{Binding Model}" ElementStyle="{StaticResource DataGridTextStyle}" />
+                                <DataGridTextColumn Width="*" MinWidth="90" Header="所属平台" Binding="{Binding AgentId}" ElementStyle="{StaticResource DataGridTextStyle}" />
+                                <DataGridTextColumn Width="*" MinWidth="90" Header="总 Token" Binding="{Binding TotalTokensText}" ElementStyle="{StaticResource DataGridNumberTextStyle}" />
+                                <DataGridTextColumn Width="0.65*" MinWidth="60" Header="占比" Binding="{Binding ShareText}" ElementStyle="{StaticResource DataGridNumberTextStyle}" />
+                                <DataGridTextColumn Width="0.7*" MinWidth="70" Header="请求数" Binding="{Binding RequestCountText}" ElementStyle="{StaticResource DataGridNumberTextStyle}" />
+                                <DataGridTextColumn Width="1.05*" MinWidth="90" Header="缓存输入" Binding="{Binding CacheReadText}" ElementStyle="{StaticResource DataGridNumberTextStyle}" />
+                                <DataGridTextColumn Width="1.05*" MinWidth="90" Header="未缓存输入" Binding="{Binding UncachedInputText}" ElementStyle="{StaticResource DataGridNumberTextStyle}" />
+                                <DataGridTextColumn Width="0.85*" MinWidth="80" Header="输出" Binding="{Binding OutputText}" ElementStyle="{StaticResource DataGridNumberTextStyle}" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                        <TextBlock HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   Text="当前范围暂无模型数据"
+                                   IsHitTestVisible="False">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock"
+                                       BasedOn="{StaticResource MutedTextStyle}">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding HasItems, ElementName=ModelGrid}" Value="False">
+                                            <Setter Property="Visibility" Value="Visible" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </Grid>
+                </controls:RoundedClipBorder>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</UserControl>

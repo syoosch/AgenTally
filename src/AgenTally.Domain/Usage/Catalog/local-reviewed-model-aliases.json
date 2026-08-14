@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "catalogVersion": "local-reviewed-model-aliases-v1",
+  "globalAliases": [
+    {
+      "alias": "deepseek-v4 pro",
+      "canonical": "deepseek-v4-pro",
+      "evidence": [
+        "workbuddy-local-display-and-route"
+      ]
+    },
+    {
+      "alias": "k2d6-agent",
+      "canonical": "kimi-k2.6-agent",
+      "evidence": [
+        "kimi-local-route-id"
+      ]
+    },
+    {
+      "alias": "qmodel_38max",
+      "canonical": "qwen3.8-max",
+      "evidence": [
+        "qoder-cn-local-model-info"
+      ]
+    }
+  ],
+  "sourceAliases": [
+    {
+      "agentId": "workbuddy",
+      "alias": "minimax-m3-play",
+      "canonical": "minimax-m3",
+      "evidence": [
+        "workbuddy-local-display-and-route"
+      ]
+    }
+  ]
+}
