@@ -7,6 +7,8 @@ and releases use [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-08-14
+
 ### Added
 
 - Initial Windows-only public release preparation.
@@ -23,6 +25,3 @@ and releases use [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Local-first privacy boundary with no telemetry or automatic data upload.
 - Source, dependency, secret, installer ownership, and local-input validation
   gates for release preparation.
-
-The first public GitHub Release will move these entries into the `0.1.0`
-section with its actual publication date.
