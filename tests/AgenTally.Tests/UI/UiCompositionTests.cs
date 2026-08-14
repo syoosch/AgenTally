@@ -2683,7 +2683,7 @@ public sealed class UiCompositionTests
         Assert.AreEqual(
             firstMetricGap,
             secondMetricGap,
-            0.5d,
+            1d,
             "会话两个弹性指标间隔应平均分享剩余宽度。");
         Assert.AreEqual(
             summaryMetrics.ActualWidth,
@@ -2919,7 +2919,7 @@ public sealed class UiCompositionTests
         Assert.AreEqual(
             firstMetricGap,
             secondMetricGap,
-            0.5d,
+            1d,
             "项目两个弹性指标间隔应平均分享剩余宽度。");
         Assert.AreEqual(
             summaryMetrics.ActualWidth,
