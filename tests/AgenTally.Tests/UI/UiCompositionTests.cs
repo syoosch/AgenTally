@@ -1549,7 +1549,9 @@ public sealed class UiCompositionTests
             })
             {
                 viewModel.SelectedDetailTabIndex = 0;
-                Layout(window, width, height);
+                window.Width = width;
+                window.Height = height;
+                window.UpdateLayout();
                 AssertProjectsLayout(view);
                 Grid projectsContent = Assert.IsInstanceOfType<Grid>(
                     view.FindName("ProjectsContent"));
