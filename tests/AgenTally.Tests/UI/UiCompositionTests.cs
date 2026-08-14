@@ -1524,9 +1524,11 @@ public sealed class UiCompositionTests
             Assert.HasCount(8, viewModel.Detail.Models);
 
             var view = new ProjectsView { DataContext = viewModel };
+            var layoutHost = new Canvas();
+            layoutHost.Children.Add(view);
             window = new Window
             {
-                Content = view,
+                Content = layoutHost,
                 WindowStyle = WindowStyle.None,
                 ResizeMode = ResizeMode.NoResize,
                 ShowActivated = false,
@@ -1549,8 +1551,8 @@ public sealed class UiCompositionTests
             })
             {
                 viewModel.SelectedDetailTabIndex = 0;
-                window.Width = width;
-                window.Height = height;
+                view.Width = width;
+                view.Height = height;
                 window.UpdateLayout();
                 AssertProjectsLayout(view);
                 Grid projectsContent = Assert.IsInstanceOfType<Grid>(
