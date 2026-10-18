@@ -14,7 +14,7 @@ AgenTally 使用 Inno Setup 生成一个面向 Windows x64、当前用户安装�
 - 已退出源码构建或其他无法验证身份的 AgenTally 进程。
 
 ```powershell
-.\scripts\Publish-AgenTallyStablePackage.ps1 -Version 0.1.0
+.\scripts\Publish-AgenTallyStablePackage.ps1 -Version 0.2.0
 ```
 
 构建首先执行公开仓库边界、锁定依赖、NuGet 漏洞、敏感内容和联网边界检查，
@@ -22,13 +22,34 @@ AgenTally 使用 Inno Setup 生成一个面向 Windows x64、当前用户安装�
 `artifacts/stable-package/`：
 
 ```text
-AgenTally-0.1.0-win-x64-setup.exe
-AgenTally-0.1.0-win-x64-setup.sha256
-AgenTally-0.1.0-win-x64-setup.json
+AgenTally-0.2.0-win-x64-setup.exe
+AgenTally-0.2.0-win-x64-setup.sha256
+AgenTally-0.2.0-win-x64-setup.json
 ```
 
 构建安装包本身不会安装、启动或注册 AgenTally。发布者未签名时，SHA-256
 只能验证传输完整性，不能替代代码签名或发布者身份验证。
+
+## 正式发布产物验证
+
+正式安装包必须从已推送且 CI 通过的公开 `main` 精确提交构建。构建完成后，
+在同一个干净工作树固定并验证提交与产物身份：
+
+```powershell
+$expectedCommit = (git rev-parse HEAD).Trim()
+.\scripts\Publish-AgenTallyStablePackage.ps1 -Version 0.2.0
+.\scripts\Test-AgenTallyStableReleaseArtifact.ps1 `
+    -Version 0.2.0 `
+    -ExpectedCommit $expectedCommit
+```
+
+验证器会核对官方公开仓库、`main`、干净工作树、精确 Git 提交，以及 JSON
+报告中的版本、提交、`releaseCandidate`、自包含形态、文件大小、SHA-256、
+签名策略和 Inno Setup 编译器身份。任一项不一致都会失败。
+
+JSON 报告是本地构建证据，不作为 Release 下载文件。实机验收通过后，Release
+只上传已验证的正式 EXE 和对应 SHA-256；不得上传带 `UNCOMMITTED` 的本地
+验证包。创建 Release 后还应重新下载这两个文件，并与本地已验收产物核对。
 
 ## 安装形态
 
@@ -41,6 +62,15 @@ AgenTally-0.1.0-win-x64-setup.json
 
 升级复用同一固定应用身份和已记录的安装目录。网络盘、UNC、卷根、重解析点
 路径、冲突的安装记录或无法证明所有权的非空目录都会失败关闭。
+
+新版安装器在关闭程序或替换文件之前比较已有安装登记及实际 UI/Core 文件版本；
+拒绝低版本覆盖高版本，允许同版本修复和高版本升级。登记缺失仍核对文件版本，
+已有版本无法可靠解析时停止安装，保留原有程序与数据。已发布的 v0.1.0 安装包
+本身不能追溯加入该保护；保留的数据本身也不能证明已安装程序的版本。
+
+安装器逻辑发生变化的正式版本仍须完成首次安装、自定义目录与运行中升级、
+降级拒绝、同版本修复、保留数据卸载及删除数据卸载的实机验收。源码检查、
+脚本编译或自动化用例不替代该项验收。
 
 ## 升级与卸载安全边界
 

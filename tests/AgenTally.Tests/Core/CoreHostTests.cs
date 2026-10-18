@@ -10,6 +10,7 @@ using AgenTally.Storage;
 using AgenTally.Storage.Database;
 using AgenTally.Storage.Pricing;
 using AgenTally.Storage.Queries;
+using AgenTally.Storage.Runtime;
 using AgenTally.Storage.Writing;
 using AgenTally.Tests.Support;
 using Microsoft.Data.Sqlite;
@@ -286,6 +287,37 @@ public sealed class CoreHostTests
     }
 
     [TestMethod]
+    public async Task RunAsync_CheckIncludesDefaultAndConfiguredClaudeCodeRoots()
+    {
+        using var directory = new TestTempDirectory();
+        string repository = directory.File("repository");
+        Directory.CreateDirectory(repository);
+        File.WriteAllText(Path.Combine(repository, "AgenTally.sln"), string.Empty);
+        File.WriteAllText(Path.Combine(repository, ".agentally-root"), string.Empty);
+        string codexHome = directory.File(Path.Combine("profile", ".codex"));
+        Directory.CreateDirectory(codexHome);
+        AgenTallyRuntimeProfile profile =
+            AgenTallyRuntimeProfile.CreateDevelopment(repository, codexHome);
+        string defaultClaudeHome = directory.File(
+            Path.Combine("profile", ".claude"));
+        string customClaudeHome = directory.File("custom-claude-root");
+        Directory.CreateDirectory(Path.Combine(defaultClaudeHome, "projects"));
+        Directory.CreateDirectory(Path.Combine(customClaudeHome, "projects"));
+        new ClaudeCodeSourceConfigurationStore(profile)
+            .WriteAdditionalRoots([customClaudeHome]);
+        using var output = new StringWriter(CultureInfo.InvariantCulture);
+
+        int exitCode = await new CoreHost(
+            new StorageOptions(profile.DatabasePath),
+            output: output,
+            runtimeProfile: profile).RunAsync(["--check"]);
+
+        Assert.AreEqual(0, exitCode);
+        Assert.Contains("Claude Code roots：2/2 可用", output.ToString());
+        Assert.IsFalse(File.Exists(profile.DatabasePath));
+    }
+
+    [TestMethod]
     public async Task RunAsync_OnceImportsIncrementallyWithExplicitFixturePaths()
     {
         using var directory = new TestTempDirectory();
@@ -363,8 +395,11 @@ public sealed class CoreHostTests
             JsonSerializer.Serialize(new
             {
                 type = "user",
+                uuid = "claude-user",
+                parentUuid = (string?)null,
                 sessionId = "claude-session",
                 promptId = "claude-prompt",
+                entrypoint = "cli",
                 cwd = @"C:\fixture\claude-project",
                 timestamp = "2026-08-01T01:00:00Z",
                 message = new { role = "user", content = "Run one safe check." }
@@ -372,6 +407,8 @@ public sealed class CoreHostTests
             JsonSerializer.Serialize(new
             {
                 type = "assistant",
+                uuid = "claude-assistant",
+                parentUuid = "claude-user",
                 sessionId = "claude-session",
                 cwd = @"C:\fixture\claude-project",
                 timestamp = "2026-08-01T01:00:01Z",
@@ -410,29 +447,49 @@ public sealed class CoreHostTests
         Directory.CreateDirectory(Path.GetDirectoryName(desktopTranscript)!);
         await File.WriteAllTextAsync(
             desktopTranscript,
-            JsonSerializer.Serialize(new
-            {
-                type = "assistant",
-                sessionId = "desktop-session",
-                cwd = @"C:\fixture\desktop-project",
-                timestamp = "2026-08-01T01:30:01Z",
-                entrypoint = "desktop-local-agent",
-                message = new
+            string.Join(
+                Environment.NewLine,
+                JsonSerializer.Serialize(new
                 {
-                    role = "assistant",
-                    id = "desktop-message",
-                    model = "test-claude-model",
-                    stop_reason = "end_turn",
-                    usage = new
+                    type = "user",
+                    uuid = "desktop-user",
+                    parentUuid = (string?)null,
+                    sessionId = "desktop-session",
+                    promptId = "desktop-prompt",
+                    cwd = @"C:\fixture\desktop-project",
+                    timestamp = "2026-08-01T01:30:00Z",
+                    entrypoint = "local-agent",
+                    message = new
                     {
-                        input_tokens = 10,
-                        cache_read_input_tokens = 4,
-                        cache_creation_input_tokens = 2,
-                        output_tokens = 7
-                    },
-                    content = Array.Empty<object>()
-                }
-            }) + Environment.NewLine,
+                        role = "user",
+                        content = "Run one Desktop Code check."
+                    }
+                }),
+                JsonSerializer.Serialize(new
+                {
+                    type = "assistant",
+                    uuid = "desktop-assistant",
+                    parentUuid = "desktop-user",
+                    sessionId = "desktop-session",
+                    cwd = @"C:\fixture\desktop-project",
+                    timestamp = "2026-08-01T01:30:01Z",
+                    entrypoint = "local-agent",
+                    message = new
+                    {
+                        role = "assistant",
+                        id = "desktop-message",
+                        model = "test-claude-model",
+                        stop_reason = "end_turn",
+                        usage = new
+                        {
+                            input_tokens = 10,
+                            cache_read_input_tokens = 4,
+                            cache_creation_input_tokens = 2,
+                            output_tokens = 7
+                        },
+                        content = Array.Empty<object>()
+                    }
+                })) + Environment.NewLine,
             Utf8WithoutBom);
         string kimiHome = directory.File(".kimi-code");
         string kimiSessionDirectory = Path.Combine(
@@ -619,6 +676,210 @@ public sealed class CoreHostTests
         Assert.AreEqual(23L, kimiOverview.NormalizedTotal.Value);
         Assert.AreEqual(1L, kimiWorkOverview.RequestCount);
         Assert.AreEqual(23L, kimiWorkOverview.NormalizedTotal.Value);
+    }
+
+    [TestMethod]
+    public async Task RunAsync_OncePersistsExactClaudeSubagentRelation()
+    {
+        using var directory = new TestTempDirectory();
+        string codexHome = directory.File(".codex");
+        string claudeHome = directory.File(".claude-custom");
+        string sourceSessionId = Guid.NewGuid().ToString("D");
+        string mainTranscript = Path.Combine(
+            claudeHome,
+            "projects",
+            "project-a",
+            $"{sourceSessionId}.jsonl");
+        string childTranscript = Path.Combine(
+            claudeHome,
+            "projects",
+            "project-a",
+            sourceSessionId,
+            "subagents",
+            "agent-child.jsonl");
+        Directory.CreateDirectory(Path.GetDirectoryName(mainTranscript)!);
+        Directory.CreateDirectory(Path.GetDirectoryName(childTranscript)!);
+        string[] mainRecords =
+        [
+            JsonSerializer.Serialize(new
+            {
+                type = "user",
+                uuid = "parent-user",
+                parentUuid = (string?)null,
+                sessionId = sourceSessionId,
+                promptId = "parent-prompt",
+                entrypoint = "cli",
+                isSidechain = false,
+                cwd = @"C:\fixture\claude-project",
+                timestamp = "2026-08-01T01:00:00Z",
+                message = new { role = "user", content = "Delegate one task." }
+            }),
+            JsonSerializer.Serialize(new
+            {
+                type = "assistant",
+                uuid = "parent-assistant",
+                parentUuid = "parent-user",
+                sessionId = sourceSessionId,
+                entrypoint = "cli",
+                isSidechain = false,
+                cwd = @"C:\fixture\claude-project",
+                timestamp = "2026-08-01T01:00:01Z",
+                message = new
+                {
+                    role = "assistant",
+                    id = "parent-message",
+                    model = "test-claude-model",
+                    stop_reason = "tool_use",
+                    usage = new
+                    {
+                        input_tokens = 10,
+                        cache_read_input_tokens = 4,
+                        cache_creation_input_tokens = 0,
+                        output_tokens = 2
+                    },
+                    content = new object[]
+                    {
+                        new
+                        {
+                            type = "tool_use",
+                            id = "agent-tool-use",
+                            name = "Agent"
+                        }
+                    }
+                }
+            }),
+            JsonSerializer.Serialize(new
+            {
+                type = "user",
+                uuid = "agent-result",
+                parentUuid = "parent-assistant",
+                sessionId = sourceSessionId,
+                promptId = "parent-prompt",
+                entrypoint = "cli",
+                isSidechain = false,
+                cwd = @"C:\fixture\claude-project",
+                timestamp = "2026-08-01T01:00:02Z",
+                sourceToolAssistantUUID = "parent-assistant",
+                toolUseResult = new { agentId = "child-agent" },
+                message = new
+                {
+                    role = "user",
+                    content = new object[]
+                    {
+                        new
+                        {
+                            type = "tool_result",
+                            tool_use_id = "agent-tool-use"
+                        }
+                    }
+                }
+            })
+        ];
+        string[] childRecords =
+        [
+            JsonSerializer.Serialize(new
+            {
+                type = "user",
+                uuid = "child-user",
+                parentUuid = (string?)null,
+                sessionId = sourceSessionId,
+                promptId = "child-prompt",
+                entrypoint = "cli",
+                isSidechain = true,
+                agentId = "child-agent",
+                cwd = @"C:\fixture\claude-project",
+                timestamp = "2026-08-01T01:00:03Z",
+                message = new { role = "user", content = "Child task." }
+            }),
+            JsonSerializer.Serialize(new
+            {
+                type = "assistant",
+                uuid = "child-assistant",
+                parentUuid = "child-user",
+                sessionId = sourceSessionId,
+                entrypoint = "cli",
+                isSidechain = true,
+                agentId = "child-agent",
+                cwd = @"C:\fixture\claude-project",
+                timestamp = "2026-08-01T01:00:04Z",
+                message = new
+                {
+                    role = "assistant",
+                    id = "child-message",
+                    model = "test-claude-model",
+                    stop_reason = "end_turn",
+                    usage = new
+                    {
+                        input_tokens = 3,
+                        cache_read_input_tokens = 5,
+                        cache_creation_input_tokens = 0,
+                        output_tokens = 7
+                    },
+                    content = Array.Empty<object>()
+                }
+            })
+        ];
+        await File.WriteAllTextAsync(
+            mainTranscript,
+            string.Join(Environment.NewLine, mainRecords) + Environment.NewLine,
+            Utf8WithoutBom);
+        await File.WriteAllTextAsync(
+            childTranscript,
+            string.Join(Environment.NewLine, childRecords) + Environment.NewLine,
+            Utf8WithoutBom);
+        string database = directory.File("claude-subagent.db");
+
+        int exitCode = await new CoreHost(new StorageOptions(database)).RunAsync([
+            "--once",
+            "--codex-home", codexHome,
+            "--claude-home", claudeHome,
+            "--database", database
+        ]);
+
+        var connections = new SqliteConnectionFactory(new StorageOptions(database));
+        await using SqliteConnection connection =
+            await connections.OpenReaderAsync(CancellationToken.None);
+        await using SqliteCommand command = connection.CreateCommand();
+        command.CommandText = """
+            SELECT
+                direct_parent_session_id,
+                relation_origin,
+                relation_state,
+                agent_leaf_hash,
+                (SELECT COUNT(*)
+                   FROM usage_turn_dispatches AS dispatch
+                  WHERE dispatch.agent_id = session.agent_id
+                    AND dispatch.source_instance_id = session.source_instance_id
+                    AND dispatch.source_session_id = $parent_session
+                    AND dispatch.target_agent_hash = session.agent_leaf_hash),
+                (SELECT COUNT(*)
+                   FROM usage_events AS event
+                  WHERE event.agent_id = session.agent_id
+                    AND event.source_instance_id = session.source_instance_id
+                    AND event.session_id = session.session_id),
+                (SELECT COUNT(*)
+                   FROM usage_turn_attributions AS attribution
+                  WHERE attribution.agent_id = session.agent_id
+                    AND attribution.source_instance_id = session.source_instance_id
+                    AND attribution.session_id = session.session_id)
+            FROM usage_sessions AS session
+            WHERE agent_id = 'claude-code'
+              AND session_role = 2;
+            """;
+        command.Parameters.AddWithValue("$parent_session", sourceSessionId);
+        await using SqliteDataReader reader =
+            await command.ExecuteReaderAsync(CancellationToken.None);
+
+        Assert.AreEqual(0, exitCode);
+        Assert.IsTrue(await reader.ReadAsync(CancellationToken.None));
+        Assert.AreEqual(sourceSessionId, reader.GetString(0));
+        Assert.AreEqual((int)SessionRelationOrigin.SourceAgentParent, reader.GetInt32(1));
+        Assert.AreEqual((int)SessionRelationState.Confirmed, reader.GetInt32(2));
+        Assert.AreEqual(64, reader.GetString(3).Length);
+        Assert.AreEqual(1L, reader.GetInt64(4));
+        Assert.AreEqual(1L, reader.GetInt64(5));
+        Assert.AreEqual(1L, reader.GetInt64(6));
+        Assert.IsFalse(await reader.ReadAsync(CancellationToken.None));
     }
 
     [TestMethod]
@@ -1603,6 +1864,255 @@ public sealed class CoreHostTests
     }
 
     [TestMethod]
+    [DataRow("--rescan-codex", true)]
+    [DataRow("--rescan-codex", false)]
+    [DataRow("--clear-statistics", true)]
+    [DataRow("--clear-statistics", false)]
+    public async Task RunAsync_OversizedClaudeRecordBlocksMaintenanceAndPreservesLedger(
+        string mode, bool completed)
+    {
+        using var directory = new TestTempDirectory();
+        string codexHome = directory.File(".codex");
+        Directory.CreateDirectory(Path.Combine(codexHome, "sessions"));
+        string claudeHome = directory.File(".claude");
+        string transcript = Path.Combine(claudeHome, "projects", "synthetic", "large.jsonl");
+        Directory.CreateDirectory(Path.GetDirectoryName(transcript)!);
+        await File.WriteAllTextAsync(transcript,
+            ClaudeAssistantRecord("synthetic-large-session", "synthetic-kept-message",
+                "2030-02-03T04:05:00Z", "cli"), Utf8WithoutBom);
+        string database = directory.File("oversized-maintenance.db");
+        string[] arguments =
+        [
+            "--codex-home", codexHome,
+            "--claude-home", claudeHome,
+            "--gemini-home", directory.File("empty-gemini"),
+            "--opencode-home", directory.File("empty-opencode"),
+            "--database", database
+        ];
+        var storage = new StorageOptions(database);
+        using var seedOutput = new StringWriter(CultureInfo.InvariantCulture);
+        Assert.AreEqual(0, await new CoreHost(storage, output: seedOutput)
+            .RunAsync(["--once", .. arguments]), seedOutput.ToString());
+        var connections = new SqliteConnectionFactory(storage);
+        string before = await ReadMaintenanceLedgerAsync(connections);
+        string large = "{\"type\":\"user\",\"toolUseResult\":{\"syntheticPayload\":\"" +
+            new string('S', AgenTally.Core.Collectors.Jsonl.JsonlCursor.MaxLogicalLineBytes) +
+            "\"}}";
+        await File.AppendAllTextAsync(transcript,
+            completed ? large + "\n" + large + "\n" : large,
+            Utf8WithoutBom);
+        long sourceLength = new FileInfo(transcript).Length;
+        DateTime sourceWriteTime = File.GetLastWriteTimeUtc(transcript);
+        using var output = new StringWriter(CultureInfo.InvariantCulture);
+        int exit = await new CoreHost(storage, output: output)
+            .RunAsync([mode, .. arguments]);
+        Assert.AreEqual(1, exit, output.ToString());
+        Assert.Contains(completed ? "jsonl.line_too_long" :
+            "jsonl.incomplete_line_too_long", output.ToString());
+        Assert.Contains("维护操作未修改主数据库", output.ToString());
+        if (completed) { Assert.DoesNotContain("claude_code.invalid_", output.ToString()); }
+        Assert.AreEqual(before, await ReadMaintenanceLedgerAsync(connections));
+        Assert.AreEqual(1L, await CountAgentRowsAsync(connections, "claude-code"));
+        Assert.AreEqual(sourceLength, new FileInfo(transcript).Length);
+        Assert.AreEqual(sourceWriteTime, File.GetLastWriteTimeUtc(transcript));
+        Assert.IsEmpty(Directory.EnumerateFiles(directory.Path,
+            $".{Path.GetFileName(database)}.codex-rebuild-*.tmp*"));
+    }
+
+    [TestMethod]
+    public async Task RunAsync_SuccessfulClaudeMaintenanceExportsWarningTotals()
+    {
+        using var directory = new TestTempDirectory();
+        string claudeHome = directory.File(".claude");
+        string transcript = Path.Combine(claudeHome, "projects", "synthetic", "warnings.jsonl");
+        Directory.CreateDirectory(Path.GetDirectoryName(transcript)!);
+        string meta = JsonSerializer.Serialize(new
+        {
+            type = "user", uuid = "invented-unparented-meta", parentUuid = (string?)null,
+            sessionId = "invented-warning-session", entrypoint = "cli", isMeta = true,
+            timestamp = "2030-02-03T04:05:01Z",
+            message = new { role = "user", content = "Invented notification only." }
+        });
+        await File.WriteAllTextAsync(transcript,
+            ClaudeAssistantRecord("invented-warning-session", "invented-warning-call",
+                "2030-02-03T04:05:00Z", "cli") + meta + "\n", Utf8WithoutBom);
+        string database = directory.File("warnings.db");
+        using var output = new StringWriter(CultureInfo.InvariantCulture);
+        int exit = await new CoreHost(new StorageOptions(database), output: output).RunAsync(
+        [
+            "--rescan-codex", "--database", database,
+            "--codex-home", directory.File("empty-codex"), "--claude-home", claudeHome,
+            "--kimi-home", directory.File("empty-kimi"),
+            "--qwen-home", directory.File("empty-qwen"),
+            "--qoder-root", directory.File("empty-qoder"),
+            "--qoder-cn-root", directory.File("empty-qoder-cn"),
+            "--qoder-cli-home", directory.File("empty-qoder-cli"),
+            "--zcode-home", directory.File("empty-zcode"),
+            "--workbuddy-home", directory.File("empty-workbuddy"),
+            "--gemini-home", directory.File("empty-gemini"),
+            "--opencode-home", directory.File("empty-opencode")
+        ]);
+        Assert.AreEqual(0, exit, output.ToString());
+        Assert.Contains("claude_code.causal_parent_unavailable=1", output.ToString());
+        Assert.DoesNotContain("Invented notification only.", output.ToString());
+        Assert.AreEqual(1L, await CountAgentRowsAsync(
+            new SqliteConnectionFactory(new StorageOptions(database)), "claude-code"));
+    }
+
+    [TestMethod]
+    public async Task RunAsync_ProjectedClaudeMaintenancePreservesHistoryPricesAndRestartBaseline()
+    {
+        using var directory = new TestTempDirectory();
+        string claudeHome = directory.File(".claude");
+        string transcript = Path.Combine(claudeHome, "projects", "synthetic",
+            "fixture-session", "subagents", "agent-fixture.jsonl");
+        Directory.CreateDirectory(Path.GetDirectoryName(transcript)!);
+        string[] fixture = File.ReadAllLines(Path.GetFullPath(Path.Combine(
+            AppContext.BaseDirectory, "..", "..", "..", "Fixtures", "ClaudeCode",
+            "synthetic-oversized-nonprompt.jsonl")));
+        await File.WriteAllTextAsync(transcript, string.Join('\n', fixture) + "\n",
+            Utf8WithoutBom);
+        string historical = Path.Combine(claudeHome, "projects", "synthetic", "history.jsonl");
+        await File.WriteAllTextAsync(historical,
+            ClaudeAssistantRecord("invented-history-session", "invented-history-call",
+                "2030-02-03T04:05:00Z", "cli"), Utf8WithoutBom);
+        string database = directory.File("projected-maintenance.db");
+        string[] arguments =
+        [
+            "--database", database,
+            "--codex-home", directory.File("empty-codex"), "--claude-home", claudeHome,
+            "--claude-desktop-root", directory.File("empty-desktop"),
+            "--kimi-home", directory.File("empty-kimi"),
+            "--kimi-desktop-home", directory.File("empty-kimi-desktop"),
+            "--qwen-home", directory.File("empty-qwen"),
+            "--qoder-root", directory.File("empty-qoder"),
+            "--qoder-cn-root", directory.File("empty-qoder-cn"),
+            "--qoder-cli-home", directory.File("empty-qoder-cli"),
+            "--zcode-home", directory.File("empty-zcode"),
+            "--workbuddy-home", directory.File("empty-workbuddy"),
+            "--gemini-home", directory.File("empty-gemini"),
+            "--opencode-home", directory.File("empty-opencode")
+        ];
+        var storage = new StorageOptions(database);
+        var connections = new SqliteConnectionFactory(storage);
+        async Task Run(string mode)
+        {
+            using var output = new StringWriter(CultureInfo.InvariantCulture);
+            Assert.AreEqual(0, await new CoreHost(storage, output: output)
+                .RunAsync([mode, .. arguments]), output.ToString());
+            Assert.DoesNotContain("jsonl.line_too_long", output.ToString());
+            Assert.DoesNotContain("claude_code.invalid_", output.ToString());
+        }
+
+        async Task<string> Facts()
+        {
+            await using SqliteConnection connection =
+                await connections.OpenReaderAsync(CancellationToken.None);
+            await using SqliteCommand command = connection.CreateCommand();
+            command.CommandText = """
+                SELECT event_id, dedup_key, uncached_input_value, cache_read_value,
+                    cache_write_value, output_value, reasoning_value, reasoning_origin,
+                    normalized_total_value, turn_id_hash, price_rule_id,
+                    input_rate_usd_per_million, cached_input_rate_usd_per_million,
+                    cache_write_rate_usd_per_million, output_rate_usd_per_million,
+                    estimated_cost_usd FROM usage_events ORDER BY event_id;
+                """;
+            var facts = new List<object[]>();
+            await using SqliteDataReader reader = await command.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+            {
+                var row = new object[reader.FieldCount];
+                reader.GetValues(row);
+                facts.Add(row);
+            }
+            return JsonSerializer.Serialize(facts);
+        }
+
+        await Run("--once");
+        var ledger = new SqlitePriceLedger(connections);
+        Assert.AreEqual(2, await ledger.SetCustomPriceAsync(
+            new ModelPriceRate("fixture-model", 2m, 0.2m, 3m, 8m), CancellationToken.None));
+        string before = await Facts();
+        await ledger.SetCustomPriceAsync(
+            new ModelPriceRate("fixture-model", 20m, 2m, 30m, 80m), CancellationToken.None);
+        Assert.AreEqual(before, await Facts());
+        File.Delete(historical); // Only a generated test source; becomes database-only history.
+        string expanded = string.Join('\n', fixture).Replace(new string('A', 64),
+            new string('A', AgenTally.Core.Collectors.Jsonl.JsonlCursor.MaxLogicalLineBytes + 1),
+            StringComparison.Ordinal) + "\n";
+        await File.WriteAllTextAsync(transcript, expanded, Utf8WithoutBom);
+        long length = new FileInfo(transcript).Length;
+        DateTime writtenAt = File.GetLastWriteTimeUtc(transcript);
+
+        await Run("--rescan-codex");
+        Assert.AreEqual(3L, await CountAgentRowsAsync(connections, "claude-code"));
+        Assert.AreEqual(before, await Facts());
+        string committed = await ReadMaintenanceLedgerAsync(connections);
+        await Run("--once"); // A new host resumes persisted cursors without replaying calls.
+        Assert.AreEqual(committed, await ReadMaintenanceLedgerAsync(connections));
+
+        await using (SqliteConnection connection =
+            await connections.OpenReaderAsync(CancellationToken.None))
+        {
+            await using SqliteCommand command = connection.CreateCommand();
+            command.CommandText = "SELECT cursor_json FROM source_cursors WHERE source_path = $path;";
+            command.Parameters.AddWithValue("$path", transcript);
+            string cursor = (string)(await command.ExecuteScalarAsync())!;
+            using JsonDocument parsed = JsonDocument.Parse(cursor);
+            Assert.AreEqual(length, parsed.RootElement.GetProperty("jsonl")
+                .GetProperty("byteOffset").GetInt64());
+            Assert.AreEqual(string.Empty, parsed.RootElement.GetProperty("jsonl")
+                .GetProperty("pendingBase64").GetString());
+        }
+
+        await Run("--clear-statistics");
+        await Run("--once");
+        Assert.AreEqual(0L, await CountAgentRowsAsync(connections, "claude-code"));
+        Assert.AreEqual(length, new FileInfo(transcript).Length);
+        Assert.AreEqual(writtenAt, File.GetLastWriteTimeUtc(transcript));
+        string next = fixture[^1].Replace("fixture-call-next", "invented-new-call",
+            StringComparison.Ordinal).Replace("following-1", "invented-new-node",
+            StringComparison.Ordinal);
+        await File.AppendAllTextAsync(transcript, next + "\n", Utf8WithoutBom);
+        await Run("--once");
+        Assert.AreEqual(1L, await CountAgentRowsAsync(connections, "claude-code"));
+    }
+
+    private static async Task<string> ReadMaintenanceLedgerAsync(
+        SqliteConnectionFactory connections)
+    {
+        await using SqliteConnection connection =
+            await connections.OpenReaderAsync(CancellationToken.None);
+        var snapshot = new List<object[]>();
+        foreach (string query in new[]
+        {
+            """
+            SELECT event_id, dedup_key, normalized_total_value, source_revision,
+                price_catalog_version, price_rule_id, estimated_cost_usd,
+                input_rate_usd_per_million, cached_input_rate_usd_per_million,
+                cache_write_rate_usd_per_million, output_rate_usd_per_million
+            FROM usage_events ORDER BY event_id;
+            """,
+            """
+            SELECT source_instance_id, source_entity_id, cursor_json, parser_version
+            FROM source_cursors ORDER BY source_instance_id, source_entity_id;
+            """
+        })
+        {
+            await using SqliteCommand command = connection.CreateCommand();
+            command.CommandText = query;
+            await using SqliteDataReader reader = await command.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+            {
+                var values = new object[reader.FieldCount];
+                reader.GetValues(values);
+                snapshot.Add(values);
+            }
+        }
+        return JsonSerializer.Serialize(snapshot);
+    }
+
+    [TestMethod]
     public async Task RunAsync_RebuildFailureKeepsExistingDerivedData()
     {
         using var directory = new TestTempDirectory();
@@ -1746,29 +2256,49 @@ public sealed class CoreHostTests
         string messageId,
         string timestamp,
         string entrypoint) =>
-        JsonSerializer.Serialize(new
-        {
-            type = "assistant",
-            sessionId,
-            cwd = @"C:\fixture\claude-project",
-            timestamp,
-            entrypoint,
-            message = new
+        string.Join(
+            Environment.NewLine,
+            JsonSerializer.Serialize(new
             {
-                role = "assistant",
-                id = messageId,
-                model = "test-claude-model",
-                stop_reason = "end_turn",
-                usage = new
+                type = "user",
+                uuid = $"user-{messageId}",
+                parentUuid = (string?)null,
+                sessionId,
+                promptId = $"prompt-{messageId}",
+                cwd = @"C:\fixture\claude-project",
+                timestamp,
+                entrypoint,
+                message = new
                 {
-                    input_tokens = 10,
-                    cache_read_input_tokens = 4,
-                    cache_creation_input_tokens = 2,
-                    output_tokens = 7
-                },
-                content = Array.Empty<object>()
-            }
-        }) + Environment.NewLine;
+                    role = "user",
+                    content = "Run one fixture check."
+                }
+            }),
+            JsonSerializer.Serialize(new
+            {
+                type = "assistant",
+                uuid = $"assistant-{messageId}",
+                parentUuid = $"user-{messageId}",
+                sessionId,
+                cwd = @"C:\fixture\claude-project",
+                timestamp,
+                entrypoint,
+                message = new
+                {
+                    role = "assistant",
+                    id = messageId,
+                    model = "test-claude-model",
+                    stop_reason = "end_turn",
+                    usage = new
+                    {
+                        input_tokens = 10,
+                        cache_read_input_tokens = 4,
+                        cache_creation_input_tokens = 2,
+                        output_tokens = 7
+                    },
+                    content = Array.Empty<object>()
+                }
+            })) + Environment.NewLine;
 
     private static async Task<string> WriteCodexRolloutAsync(
         string codexHome,

@@ -1260,6 +1260,91 @@ public sealed class SqliteUsageWriterTests
     }
 
     [TestMethod]
+    public async Task MergeFromStaging_RestoresPromptPreviewWithoutChangingTokensOrFrozenPrice()
+    {
+        using var directory = new TestTempDirectory();
+        const string summaryParserVersion = "codex-canonical-v13";
+        (SqliteUsageWriter writer, _, SqliteConnectionFactory connections) =
+            await CreateServicesAsync(directory);
+        SourceInstanceDescriptor codex = ScopedInstance(
+            "codex:windows:summary-repair", "codex", "Codex summary repair");
+        SourceEntityDescriptor entity = ScopedEntity(codex, "rollout:summary-repair");
+        string turnHash = new('b', 64);
+        UsageEvent before = ScopedEvent(codex, entity, "event-summary-repair",
+            parserVersion: "codex-canonical-v11", dedupKey: new string('c', 64)) with
+        {
+            SessionId = "summary-session",
+            TurnIdHash = turnHash
+        };
+        UsageTurnMetadata oldTurn = new(codex.AgentId, codex.SourceInstanceId,
+            entity.SourceEntityId, before.SessionId!, turnHash, BatchCheckedAtUtc,
+            null, null, 0, "codex-canonical-v11");
+        await writer.CommitAsync(ScopedBatch(codex, entity, before, "old-cursor") with
+        {
+            Turns = [oldTurn]
+        }, CancellationToken.None);
+        await using (SqliteConnection connection =
+            await connections.OpenWriterAsync(CancellationToken.None))
+        {
+            await using SqliteCommand freeze = connection.CreateCommand();
+            freeze.CommandText = """
+                UPDATE usage_events
+                SET price_catalog_version = 'frozen-before-summary-repair',
+                    price_rule_id = 'frozen-rule', input_rate_usd_per_million = '5',
+                    estimated_cost_usd = '0.0042', pricing_status = 1
+                WHERE event_id = 'event-summary-repair';
+                """;
+            await freeze.ExecuteNonQueryAsync(CancellationToken.None);
+        }
+        string stagingPath = directory.File("summary-staging.db");
+        var staged = new SqliteUsageWriter(new SqliteConnectionFactory(
+            new StorageOptions(stagingPath)));
+        await staged.InitializeAsync(CancellationToken.None);
+        UsageEvent reparsed = ScopedEvent(codex, entity, "event-summary-repair",
+            parserVersion: summaryParserVersion,
+            dedupKey: before.DedupKey) with
+        {
+            SessionId = before.SessionId,
+            TurnIdHash = turnHash
+        };
+        UsageTurnMetadata restoredTurn = new(codex.AgentId, codex.SourceInstanceId,
+            entity.SourceEntityId, before.SessionId!, turnHash, BatchCheckedAtUtc,
+            null, "修复摘要的合成用户输入", 1, summaryParserVersion);
+        await staged.CommitAsync(ScopedBatch(codex, entity,
+            reparsed, "new-cursor") with
+        {
+            Turns = [restoredTurn]
+        }, CancellationToken.None);
+        await writer.MergeSourceInstancesFromStagingAsync([codex], stagingPath,
+            summaryParserVersion, CancellationToken.None);
+        await using SqliteConnection verify =
+            await connections.OpenReaderAsync(CancellationToken.None);
+        await using SqliteCommand command = verify.CreateCommand();
+        command.CommandText = """
+            SELECT e.normalized_total_value, e.price_catalog_version,
+                e.price_rule_id, e.input_rate_usd_per_million,
+                e.estimated_cost_usd, e.pricing_status,
+                t.prompt_preview, t.user_message_count,
+                (SELECT COUNT(*) FROM usage_events)
+            FROM usage_events e JOIN usage_turns t
+                ON t.agent_id=e.agent_id AND t.source_instance_id=e.source_instance_id
+                AND t.session_id=e.session_id AND t.turn_id_hash=e.turn_id_hash
+            WHERE e.event_id='event-summary-repair';
+            """;
+        await using SqliteDataReader reader = await command.ExecuteReaderAsync(CancellationToken.None);
+        Assert.IsTrue(await reader.ReadAsync(CancellationToken.None));
+        Assert.AreEqual(before.Tokens.NormalizedTotal.Value, reader.GetInt64(0));
+        Assert.AreEqual("frozen-before-summary-repair", reader.GetString(1));
+        Assert.AreEqual("frozen-rule", reader.GetString(2));
+        Assert.AreEqual("5", reader.GetString(3));
+        Assert.AreEqual("0.0042", reader.GetString(4));
+        Assert.AreEqual(1L, reader.GetInt64(5));
+        Assert.AreEqual("修复摘要的合成用户输入", reader.GetString(6));
+        Assert.AreEqual(1L, reader.GetInt64(7));
+        Assert.AreEqual(1L, reader.GetInt64(8));
+    }
+
+    [TestMethod]
     public async Task MergeFromStaging_PreservesDatabaseOnlyHistoryAndBoundPrice()
     {
         using var directory = new TestTempDirectory();
@@ -2413,7 +2498,7 @@ public sealed class SqliteUsageWriterTests
             await connections.OpenWriterAsync(CancellationToken.None))
         {
             await using SqliteCommand downgrade = connection.CreateCommand();
-            downgrade.CommandText = """
+            downgrade.CommandText = LegacyPriceFixtureSchema + """
                 UPDATE usage_events
                 SET project_id = $path_project_id,
                     project_repository_hash = NULL
@@ -2469,7 +2554,7 @@ public sealed class SqliteUsageWriterTests
         await using SqliteDataReader reader =
             await command.ExecuteReaderAsync(CancellationToken.None);
         Assert.IsTrue(await reader.ReadAsync(CancellationToken.None));
-        Assert.AreEqual(14L, reader.GetInt64(0));
+        Assert.AreEqual((long)DatabaseSchemaInfo.CurrentVersion, reader.GetInt64(0));
         Assert.AreEqual(1L, reader.GetInt64(1));
         Assert.AreEqual(2L, reader.GetInt64(2));
         Assert.AreEqual(1L, reader.GetInt64(3));
@@ -2483,7 +2568,7 @@ public sealed class SqliteUsageWriterTests
     }
 
     [TestMethod]
-    public async Task Initialize_NewDatabaseUsesV14Schema()
+    public async Task Initialize_NewDatabaseUsesV15Schema()
     {
         using var directory = new TestTempDirectory();
         (_, _, SqliteConnectionFactory connections) =
@@ -2495,7 +2580,7 @@ public sealed class SqliteUsageWriterTests
         command.CommandText = """
             SELECT
                 (SELECT user_version FROM pragma_user_version),
-                (SELECT COUNT(*) FROM schema_migrations WHERE version = 14),
+                (SELECT COUNT(*) FROM schema_migrations WHERE version = 15),
                 (SELECT COUNT(*) FROM pragma_table_info('usage_events')
                  WHERE name IN ('turn_id_hash', 'price_catalog_version',
                                 'estimated_cost_usd',
@@ -2537,7 +2622,7 @@ public sealed class SqliteUsageWriterTests
         await using SqliteDataReader reader =
             await command.ExecuteReaderAsync(CancellationToken.None);
         Assert.IsTrue(await reader.ReadAsync(CancellationToken.None));
-        Assert.AreEqual(14L, reader.GetInt64(0));
+        Assert.AreEqual((long)DatabaseSchemaInfo.CurrentVersion, reader.GetInt64(0));
         Assert.AreEqual(1L, reader.GetInt64(1));
         Assert.AreEqual(7L, reader.GetInt64(2));
         Assert.AreEqual(4L, reader.GetInt64(3));
@@ -2562,7 +2647,7 @@ public sealed class SqliteUsageWriterTests
             await connections.OpenWriterAsync(CancellationToken.None))
         {
             await using SqliteCommand downgrade = connection.CreateCommand();
-            downgrade.CommandText = """
+            downgrade.CommandText = LegacyPriceFixtureSchema + """
                 ALTER TABLE usage_turns DROP COLUMN prompt_origin_turn_id_hash;
                 DROP TABLE model_identity_catalog_state;
                 DELETE FROM schema_migrations WHERE version IN (11, 12, 13, 14);
@@ -2593,7 +2678,7 @@ public sealed class SqliteUsageWriterTests
         await using SqliteDataReader reader =
             await command.ExecuteReaderAsync(CancellationToken.None);
         Assert.IsTrue(await reader.ReadAsync(CancellationToken.None));
-        Assert.AreEqual(14L, reader.GetInt64(0));
+        Assert.AreEqual((long)DatabaseSchemaInfo.CurrentVersion, reader.GetInt64(0));
         Assert.AreEqual(1L, reader.GetInt64(1));
         Assert.AreEqual(1L, reader.GetInt64(2));
         Assert.AreEqual(1L, reader.GetInt64(3));
@@ -2623,7 +2708,7 @@ public sealed class SqliteUsageWriterTests
             await connections.OpenWriterAsync(CancellationToken.None))
         {
             await using SqliteCommand downgrade = connection.CreateCommand();
-            downgrade.CommandText = """
+            downgrade.CommandText = LegacyPriceFixtureSchema + """
                 UPDATE usage_events
                 SET agent_id = CASE event_id
                         WHEN 'event-kimi-prefixed' THEN 'kimi-code'
@@ -2683,7 +2768,7 @@ public sealed class SqliteUsageWriterTests
         await using SqliteDataReader reader =
             await command.ExecuteReaderAsync(CancellationToken.None);
         Assert.IsTrue(await reader.ReadAsync(CancellationToken.None));
-        Assert.AreEqual(14L, reader.GetInt64(0));
+        Assert.AreEqual((long)DatabaseSchemaInfo.CurrentVersion, reader.GetInt64(0));
         Assert.AreEqual(2L, reader.GetInt64(1));
         Assert.AreEqual(2L, reader.GetInt64(2));
         Assert.AreEqual(1L, reader.GetInt64(3));
@@ -2712,7 +2797,7 @@ public sealed class SqliteUsageWriterTests
             await connections.OpenWriterAsync(CancellationToken.None))
         {
             await using SqliteCommand downgrade = connection.CreateCommand();
-            downgrade.CommandText = """
+            downgrade.CommandText = LegacyPriceFixtureSchema + """
                 UPDATE usage_events
                 SET agent_id = CASE event_id
                         WHEN 'event-qoder-route' THEN 'qoder-cn'
@@ -2783,7 +2868,7 @@ public sealed class SqliteUsageWriterTests
         await using SqliteDataReader reader =
             await command.ExecuteReaderAsync(CancellationToken.None);
         Assert.IsTrue(await reader.ReadAsync(CancellationToken.None));
-        Assert.AreEqual(14L, reader.GetInt64(0));
+        Assert.AreEqual((long)DatabaseSchemaInfo.CurrentVersion, reader.GetInt64(0));
         Assert.AreEqual(2L, reader.GetInt64(1));
         Assert.AreEqual(1L, reader.GetInt64(2));
         Assert.AreEqual(1L, reader.GetInt64(3));
@@ -2875,7 +2960,7 @@ public sealed class SqliteUsageWriterTests
         await using SqliteDataReader reader =
             await command.ExecuteReaderAsync(CancellationToken.None);
         Assert.IsTrue(await reader.ReadAsync(CancellationToken.None));
-        Assert.AreEqual(14L, reader.GetInt64(0));
+        Assert.AreEqual((long)DatabaseSchemaInfo.CurrentVersion, reader.GetInt64(0));
         Assert.AreEqual("openai/gpt-4o", reader.GetString(1));
         Assert.AreEqual("gpt-4o", reader.GetString(2));
         Assert.AreEqual("frozen-catalog", reader.GetString(3));
@@ -2944,7 +3029,7 @@ public sealed class SqliteUsageWriterTests
         await using SqliteDataReader reader =
             await verifyCommand.ExecuteReaderAsync(CancellationToken.None);
         Assert.IsTrue(await reader.ReadAsync(CancellationToken.None));
-        Assert.AreEqual(14L, reader.GetInt64(0));
+        Assert.AreEqual((long)DatabaseSchemaInfo.CurrentVersion, reader.GetInt64(0));
         Assert.AreEqual(100L, reader.GetInt64(1));
         Assert.AreEqual(repositoryHash[..24], reader.GetString(2));
         Assert.AreEqual(projectPath, reader.GetString(3));
@@ -3023,7 +3108,7 @@ public sealed class SqliteUsageWriterTests
         await using SqliteDataReader reader =
             await verifyCommand.ExecuteReaderAsync(CancellationToken.None);
         Assert.IsTrue(await reader.ReadAsync(CancellationToken.None));
-        Assert.AreEqual(14L, reader.GetInt64(0));
+        Assert.AreEqual((long)DatabaseSchemaInfo.CurrentVersion, reader.GetInt64(0));
         Assert.AreEqual(1L, reader.GetInt64(1));
         Assert.AreEqual(100L, reader.GetInt64(2));
         Assert.AreEqual("immutable-catalog", reader.GetString(3));
@@ -3151,7 +3236,7 @@ public sealed class SqliteUsageWriterTests
         Assert.AreEqual(1L, reader.GetInt64(12));
         Assert.AreEqual(1L, reader.GetInt64(13));
         Assert.AreEqual(1L, reader.GetInt64(14));
-        Assert.AreEqual(14L, reader.GetInt64(15));
+        Assert.AreEqual((long)DatabaseSchemaInfo.CurrentVersion, reader.GetInt64(15));
     }
 
     private static readonly DateTimeOffset BatchCheckedAtUtc =
@@ -3170,6 +3255,30 @@ public sealed class SqliteUsageWriterTests
         return (writer, new SqliteUsageQueryService(connections), connections);
     }
 
+    private const string LegacyPriceFixtureSchema = """
+        ALTER TABLE pricing_overrides RENAME TO pricing_overrides_current;
+        CREATE TABLE pricing_overrides (
+            normalized_model TEXT NOT NULL PRIMARY KEY,
+            input_rate_usd_per_million TEXT NOT NULL,
+            cached_input_rate_usd_per_million TEXT NULL,
+            cache_write_rate_usd_per_million TEXT NULL,
+            output_rate_usd_per_million TEXT NOT NULL,
+            long_context_threshold_tokens INTEGER NULL,
+            long_context_input_multiplier TEXT NOT NULL,
+            long_context_output_multiplier TEXT NOT NULL,
+            updated_at_unix_ms INTEGER NOT NULL
+        );
+        INSERT INTO pricing_overrides
+        SELECT normalized_model, input_rate_usd_per_million,
+            cached_input_rate_usd_per_million, cache_write_rate_usd_per_million,
+            output_rate_usd_per_million, long_context_threshold_tokens,
+            long_context_input_multiplier, long_context_output_multiplier,
+            updated_at_unix_ms
+        FROM pricing_overrides_current;
+        DROP TABLE pricing_overrides_current;
+        DELETE FROM schema_migrations WHERE version = 15;
+        """;
+
     private static async Task ConvertCurrentFixtureToV2Async(
         SqliteConnectionFactory connections)
     {
@@ -3184,7 +3293,7 @@ public sealed class SqliteUsageWriterTests
             return;
         }
 
-        Assert.AreEqual(14, version);
+        Assert.AreEqual(DatabaseSchemaInfo.CurrentVersion, version);
         await using SqliteCommand command = connection.CreateCommand();
         command.CommandText = """
             DROP INDEX ix_usage_turn_attributions_origin;
@@ -3244,12 +3353,12 @@ public sealed class SqliteUsageWriterTests
         await using SqliteCommand versionCommand = connection.CreateCommand();
         versionCommand.CommandText = "PRAGMA user_version;";
         Assert.AreEqual(
-            14,
+            DatabaseSchemaInfo.CurrentVersion,
             Convert.ToInt32(
                 await versionCommand.ExecuteScalarAsync(CancellationToken.None)));
 
         await using SqliteCommand command = connection.CreateCommand();
-        command.CommandText = """
+        command.CommandText = LegacyPriceFixtureSchema + """
             ALTER TABLE source_cursors DROP COLUMN event_revision_high_watermark;
             ALTER TABLE usage_events DROP COLUMN project_repository_hash;
             ALTER TABLE usage_events DROP COLUMN route_model_id;
@@ -3273,12 +3382,12 @@ public sealed class SqliteUsageWriterTests
         await using SqliteCommand versionCommand = connection.CreateCommand();
         versionCommand.CommandText = "PRAGMA user_version;";
         Assert.AreEqual(
-            14,
+            DatabaseSchemaInfo.CurrentVersion,
             Convert.ToInt32(
                 await versionCommand.ExecuteScalarAsync(CancellationToken.None)));
 
         await using SqliteCommand command = connection.CreateCommand();
-        command.CommandText = """
+        command.CommandText = LegacyPriceFixtureSchema + """
             ALTER TABLE source_cursors DROP COLUMN event_revision_high_watermark;
             DROP INDEX ix_usage_turn_attributions_origin;
             DROP INDEX ix_usage_turn_dispatches_target;

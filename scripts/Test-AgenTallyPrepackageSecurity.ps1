@@ -76,6 +76,36 @@ function Get-RepositoryTextFiles {
     })
 }
 
+function Get-SolutionProjectFiles {
+    $listing = @(& dotnet sln $solution list)
+    if ($LASTEXITCODE -ne 0) {
+        throw 'Could not enumerate solution projects.'
+    }
+    $paths = @($listing | Where-Object { $_.Trim().EndsWith(
+        '.csproj', [System.StringComparison]::OrdinalIgnoreCase) })
+    if ($paths.Count -eq 0) {
+        throw 'The solution did not report any C# projects.'
+    }
+
+    $rootPrefix = $repositoryRoot.TrimEnd('\', '/') +
+        [System.IO.Path]::DirectorySeparatorChar
+    $seen = [System.Collections.Generic.HashSet[string]]::new(
+        [System.StringComparer]::OrdinalIgnoreCase)
+    foreach ($path in $paths) {
+        $relativePath = $path.Trim()
+        $fullPath = [System.IO.Path]::GetFullPath(
+            (Join-Path $repositoryRoot $relativePath))
+        if ([System.IO.Path]::IsPathRooted($relativePath) -or
+            -not $fullPath.StartsWith(
+                $rootPrefix, [System.StringComparison]::OrdinalIgnoreCase) -or
+            -not $seen.Add($fullPath) -or
+            -not (Test-Path -LiteralPath $fullPath -PathType Leaf)) {
+            throw "Invalid or missing solution project: $relativePath"
+        }
+        Get-Item -LiteralPath $fullPath
+    }
+}
+
 Push-Location $repositoryRoot
 try {
     if (-not (Test-Path -LiteralPath $solution -PathType Leaf)) {
@@ -108,8 +138,8 @@ try {
         '-p:TreatWarningsAsErrors=true'
     )
 
-    $projects = @(Get-ChildItem -LiteralPath $repositoryRoot -Recurse -Filter '*.csproj' |
-        Where-Object { $_.FullName -notmatch '[\\/](bin|obj|artifacts)[\\/]' })
+    # Match the actual restore/audit input, rather than unrelated project templates.
+    $projects = @(Get-SolutionProjectFiles)
     $missingLocks = @($projects | Where-Object {
         -not (Test-Path -LiteralPath (
             Join-Path $_.DirectoryName 'packages.lock.json') -PathType Leaf)

@@ -1,0 +1,52 @@
+name: Feature request / 功能建议
+description: Describe a use case and the outcome you want / 描述场景和期望结果
+title: "[Feature] "
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please search [existing issues](https://github.com/syoosch/AgenTally/issues) first, then describe the problem to solve rather than only an implementation. Reports in English or Chinese are welcome.
+        请先搜索现有 Issues，再优先描述要解决的问题而不只是实现方式，可以使用英文或中文提交。
+
+        AgenTally stays local-first and read-only. Requests involving hooks, injection, proxies, command wrappers, credential or quota access, telemetry, or automatic data uploads are outside the product boundary.
+        AgenTally 保持本地优先、只读采集，不接受 Hook、注入、代理、命令包装、凭据或额度读取、遥测及自动上传数据等方向。
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or use case / 问题场景
+      description: What is difficult today, and which workflow does it affect? / 现在遇到了什么困难，会影响什么使用流程？
+    validations:
+      required: true
+
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Desired outcome / 期望结果
+      description: How should AgenTally help you complete the task? / 希望 AgenTally 最终如何帮助你完成任务？
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered / 已考虑的替代方式
+      description: Optional. Explain how you handle this today and why it is insufficient. / 可选，说明当前如何处理以及为什么仍不够。
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context / 其他信息
+      description: Optional. Do not upload Prompts, Agent source records, databases, credentials, complete local paths, or other private data. / 可选，请勿上传私人数据。
+
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Privacy confirmation / 隐私确认
+      options:
+        - label: I confirm that this request contains no real Prompts, Agent source records, databases, credentials, complete local paths, or other private data. / 我确认本建议不含上述私人数据。
+          required: true
+    validations:
+      required: true

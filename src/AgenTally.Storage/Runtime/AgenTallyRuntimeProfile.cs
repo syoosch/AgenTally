@@ -81,6 +81,9 @@ public sealed record AgenTallyRuntimeProfile
         StartupRegistrationStatePath = Path.Combine(
             dataRoot,
             $"startup-registration-{ProfileId}.json");
+        ClaudeCodeSourceConfigurationPath = Path.Combine(
+            dataRoot,
+            $"claude-code-sources-{ProfileId}.json");
         string userHash = CurrentUserHash();
         ShutdownEventName =
             $@"Local\AgenTally.AppShutdown.{channel}.{userHash}.{ProfileId}";
@@ -128,6 +131,8 @@ public sealed record AgenTallyRuntimeProfile
     public string DataManagementStatePath { get; }
 
     public string StartupRegistrationStatePath { get; }
+
+    public string ClaudeCodeSourceConfigurationPath { get; }
 
     public string CodexHome { get; }
 

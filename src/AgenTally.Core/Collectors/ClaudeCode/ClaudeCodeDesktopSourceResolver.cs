@@ -132,8 +132,12 @@ public sealed class ClaudeCodeDesktopSourceResolver : IClaudeCodeSourceResolver
         }
 
         string name = Path.GetFileNameWithoutExtension(path);
-        if (!name.StartsWith("session_", StringComparison.OrdinalIgnoreCase) ||
-            !Guid.TryParse(name["session_".Length..], out _))
+        string candidate = name.StartsWith(
+            "session_",
+            StringComparison.OrdinalIgnoreCase)
+                ? name["session_".Length..]
+                : name;
+        if (!Guid.TryParse(candidate, out _))
         {
             return false;
         }

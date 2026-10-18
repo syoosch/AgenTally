@@ -8,15 +8,32 @@ public static class PriceEstimator
 
     public static EventPriceEstimate Estimate(
         TokenUsage tokens,
-        ResolvedPriceRule? rule)
+        ResolvedPriceRule? rule,
+        DateTimeOffset? occurredAtUtc = null)
     {
         ArgumentNullException.ThrowIfNull(tokens);
+        PricingMissingCategory unavailable = PricingMissingCategory.ModelRate;
+        if (rule is not null &&
+            (rule.EffectiveFromUtc.HasValue || rule.EffectiveUntilUtc.HasValue) &&
+            (!occurredAtUtc.HasValue || !PriceRuleTimeline.Contains(rule, occurredAtUtc.Value)))
+        {
+            unavailable = PricingMissingCategory.PriceEffectivePeriod;
+            rule = null;
+        }
+        if (rule?.PeakOffPeak is not null)
+        {
+            unavailable = PricingMissingCategory.PriceTimeSchedule;
+            rule = occurredAtUtc.HasValue
+                ? rule.PeakOffPeak.Resolve(rule, occurredAtUtc.Value)
+                : null;
+        }
+
         if (rule is null)
         {
             return new EventPriceEstimate(
                 EventPricingStatus.Unpriced,
                 null,
-                PricingMissingCategory.ModelRate,
+                unavailable,
                 null,
                 null,
                 null,

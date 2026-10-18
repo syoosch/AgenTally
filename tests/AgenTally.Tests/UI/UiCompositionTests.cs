@@ -987,6 +987,21 @@ public sealed class UiCompositionTests
                 Assert.IsTrue(
                     Assert.IsInstanceOfType<TextBox>(
                         settingsView.FindName("DatabasePathTextBox")).IsVisible);
+                ListBox claudeRoots = Assert.IsInstanceOfType<ListBox>(
+                    settingsView.FindName("ClaudeCodeAdditionalRootsList"));
+                Button addClaudeRoot = Assert.IsInstanceOfType<Button>(
+                    settingsView.FindName("AddClaudeCodeSourceButton"));
+                Button saveClaudeRoots = Assert.IsInstanceOfType<Button>(
+                    settingsView.FindName("SaveClaudeCodeSourcesButton"));
+                Assert.IsTrue(claudeRoots.IsVisible);
+                Assert.AreSame(
+                    settings.AddClaudeCodeSourceCommand,
+                    addClaudeRoot.Command);
+                Assert.AreSame(
+                    settings.SaveClaudeCodeSourcesCommand,
+                    saveClaudeRoots.Command);
+                Assert.IsFalse(addClaudeRoot.IsEnabled);
+                Assert.IsFalse(saveClaudeRoots.IsEnabled);
                 Assert.AreEqual(
                     Visibility.Visible,
                     Assert.IsInstanceOfType<Button>(
@@ -1165,11 +1180,14 @@ public sealed class UiCompositionTests
                 window.Height = 650d;
                 await System.Windows.Threading.Dispatcher.Yield(
                     System.Windows.Threading.DispatcherPriority.Render);
+                // WPF rounds requested DIPs to device pixels at fractional DPI.
+                // Persist the actual normal size, which can differ from 930x650.
+                var expectedWindowSize = new UiWindowSize(window.ActualWidth, window.ActualHeight);
                 window.Close();
                 windowClosed = true;
                 Assert.IsFalse(window.IsVisible);
                 Assert.AreEqual(
-                    new UiWindowSize(930d, 650d),
+                    expectedWindowSize,
                     preferencesStore.ReadWindowSize());
                 main.Dispose();
                 main = null;

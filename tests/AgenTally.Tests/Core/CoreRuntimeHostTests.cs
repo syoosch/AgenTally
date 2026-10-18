@@ -291,9 +291,12 @@ public sealed class CoreRuntimeHostTests
             "fixture",
             "session.jsonl");
         Directory.CreateDirectory(Path.GetDirectoryName(claudeTranscript)!);
-        await File.WriteAllTextAsync(
+        await File.WriteAllLinesAsync(
             claudeTranscript,
-            """{"type":"assistant","sessionId":"claude-parser-upgrade","cwd":"C:\\fixture\\project","timestamp":"2026-07-16T01:30:00Z","entrypoint":"cli","message":{"role":"assistant","id":"claude-parser-message","model":"test-claude-model","stop_reason":"end_turn","usage":{"input_tokens":10,"cache_read_input_tokens":4,"cache_creation_input_tokens":2,"output_tokens":7},"content":[]}}""" + Environment.NewLine);
+            [
+                """{"type":"user","uuid":"claude-parser-user","parentUuid":null,"sessionId":"claude-parser-upgrade","cwd":"C:\\fixture\\project","timestamp":"2026-07-16T01:29:59Z","entrypoint":"cli","isSidechain":false,"message":{"role":"user","content":"Parser upgrade fixture."}}""",
+                """{"type":"assistant","uuid":"claude-parser-assistant","parentUuid":"claude-parser-user","sessionId":"claude-parser-upgrade","cwd":"C:\\fixture\\project","timestamp":"2026-07-16T01:30:00Z","entrypoint":"cli","message":{"role":"assistant","id":"claude-parser-message","model":"test-claude-model","stop_reason":"end_turn","usage":{"input_tokens":10,"cache_read_input_tokens":4,"cache_creation_input_tokens":2,"output_tokens":7},"content":[]}}"""
+            ]);
         var storage = new StorageOptions(profile.DatabasePath);
         int seedExit = await new CoreHost(storage).RunAsync([
             "--once",
@@ -416,9 +419,12 @@ public sealed class CoreRuntimeHostTests
             "fixture",
             "session.jsonl");
         Directory.CreateDirectory(Path.GetDirectoryName(claudeTranscript)!);
-        await File.WriteAllTextAsync(
+        await File.WriteAllLinesAsync(
             claudeTranscript,
-            """{"type":"assistant","sessionId":"multiple-parser-claude","cwd":"C:\\fixture\\project","timestamp":"2026-07-16T01:30:00Z","entrypoint":"cli","message":{"role":"assistant","id":"multiple-parser-message","model":"test-claude-model","stop_reason":"end_turn","usage":{"input_tokens":10,"cache_read_input_tokens":4,"cache_creation_input_tokens":2,"output_tokens":7},"content":[]}}""" + Environment.NewLine);
+            [
+                """{"type":"user","uuid":"multiple-parser-user","parentUuid":null,"sessionId":"multiple-parser-claude","cwd":"C:\\fixture\\project","timestamp":"2026-07-16T01:29:59Z","entrypoint":"cli","isSidechain":false,"message":{"role":"user","content":"Multiple parser fixture."}}""",
+                """{"type":"assistant","uuid":"multiple-parser-assistant","parentUuid":"multiple-parser-user","sessionId":"multiple-parser-claude","cwd":"C:\\fixture\\project","timestamp":"2026-07-16T01:30:00Z","entrypoint":"cli","message":{"role":"assistant","id":"multiple-parser-message","model":"test-claude-model","stop_reason":"end_turn","usage":{"input_tokens":10,"cache_read_input_tokens":4,"cache_creation_input_tokens":2,"output_tokens":7},"content":[]}}"""
+            ]);
         var storage = new StorageOptions(profile.DatabasePath);
         int seedExit = await new CoreHost(storage).RunAsync([
             "--once",

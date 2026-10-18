@@ -128,6 +128,10 @@ public sealed class SqliteUsageQueryService : IUsageQueryService
                 THEN 64 ELSE 0 END), 0)
             + COALESCE(MAX(CASE WHEN ({0}.pricing_missing_categories & 128) <> 0
                 THEN 128 ELSE 0 END), 0)
+            + COALESCE(MAX(CASE WHEN ({0}.pricing_missing_categories & 256) <> 0
+                THEN 256 ELSE 0 END), 0)
+            + COALESCE(MAX(CASE WHEN ({0}.pricing_missing_categories & 512) <> 0
+                THEN 512 ELSE 0 END), 0)
         )
         """;
 
@@ -823,37 +827,14 @@ public sealed class SqliteUsageQueryService : IUsageQueryService
 
         await using SqliteConnection connection =
             await _connections.OpenReaderAsync(cancellationToken);
-        await using (SqliteCommand overrides = connection.CreateCommand())
+        IReadOnlyList<PriceOverridePeriod> overridePeriods =
+            await SqlitePriceLedger.ReadPeriodsAsync(connection, null, cancellationToken);
+        foreach (IGrouping<string, PriceOverridePeriod> group in overridePeriods.GroupBy(
+                     static period => period.NormalizedModel, StringComparer.Ordinal))
         {
-            overrides.CommandText = """
-                SELECT
-                    normalized_model,
-                    input_rate_usd_per_million,
-                    cached_input_rate_usd_per_million,
-                    cache_write_rate_usd_per_million,
-                    output_rate_usd_per_million,
-                    long_context_threshold_tokens,
-                    long_context_input_multiplier,
-                    long_context_output_multiplier
-                FROM pricing_overrides
-                ORDER BY normalized_model;
-                """;
-            await using SqliteDataReader reader =
-                await overrides.ExecuteReaderAsync(cancellationToken);
-            while (await reader.ReadAsync(cancellationToken))
-            {
-                string model = reader.GetString(0);
-                PriceSettingAccumulator row = GetOrCreate(rows, model);
-                row.CustomRate = new ModelPriceRate(
-                    model,
-                    ReadRequiredDecimal(reader, 1),
-                    ReadNullableDecimal(reader, 2),
-                    ReadNullableDecimal(reader, 3),
-                    ReadRequiredDecimal(reader, 4),
-                    reader.IsDBNull(5) ? null : reader.GetInt64(5),
-                    ReadRequiredDecimal(reader, 6),
-                    ReadRequiredDecimal(reader, 7));
-            }
+            PriceSettingAccumulator row = GetOrCreate(rows, group.Key);
+            row.CustomHistory = group.OrderBy(static period => period.EffectiveFromUtc).ToArray();
+            row.CustomRate = row.CustomHistory[^1].Rate;
         }
 
         await using (SqliteCommand observed = connection.CreateCommand())
@@ -876,12 +857,21 @@ public sealed class SqliteUsageQueryService : IUsageQueryService
             }
         }
 
+        ILookup<string, ResolvedPriceRule> builtInHistory = _catalog.Entries.ToLookup(
+            static rule => rule.MatchedModel, StringComparer.Ordinal);
         foreach ((string model, PriceSettingAccumulator row) in rows)
         {
-            if (_catalog.TryResolve(model, out ResolvedPriceRule? rule) &&
+            DateTimeOffset displayAt = DateTimeOffset.UtcNow;
+            if (row.CustomHistory?.LastOrDefault()?.EffectiveFromUtc is { } scheduled && scheduled > displayAt)
+            {
+                displayAt = scheduled;
+            }
+            row.BuiltInHistory = builtInHistory[model].ToArray();
+            if (_catalog.TryResolve(model, displayAt, out ResolvedPriceRule? rule) &&
                 rule is not null)
             {
                 row.BuiltInRate = rule.Rate;
+                row.BuiltInTimeSchedule = rule.PeakOffPeak;
             }
         }
 
@@ -890,7 +880,10 @@ public sealed class SqliteUsageQueryService : IUsageQueryService
                 pair.Key,
                 pair.Value.BuiltInRate,
                 pair.Value.CustomRate,
-                pair.Value.ObservedRecords))
+                pair.Value.ObservedRecords,
+                pair.Value.BuiltInTimeSchedule,
+                pair.Value.BuiltInHistory,
+                pair.Value.CustomHistory))
             .OrderBy(static row => row.NormalizedModel, StringComparer.OrdinalIgnoreCase)
             .ToArray();
     }
@@ -1944,6 +1937,12 @@ public sealed class SqliteUsageQueryService : IUsageQueryService
     private sealed class PriceSettingAccumulator
     {
         public ModelPriceRate? BuiltInRate { get; set; }
+
+        public PeakOffPeakSchedule? BuiltInTimeSchedule { get; set; }
+
+        public IReadOnlyList<ResolvedPriceRule>? BuiltInHistory { get; set; }
+
+        public IReadOnlyList<PriceOverridePeriod>? CustomHistory { get; set; }
 
         public ModelPriceRate? CustomRate { get; set; }
 

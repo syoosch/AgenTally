@@ -80,7 +80,7 @@ internal static class SqlitePriceBinder
             return;
         }
 
-        IReadOnlyDictionary<string, ModelPriceRate> overrides =
+        IReadOnlyDictionary<string, IReadOnlyList<PriceOverridePeriod>> overrides =
             await ReadOverridesAsync(connection, transaction, cancellationToken);
         foreach (UsageEvent usageEvent in events)
         {
@@ -90,9 +90,11 @@ internal static class SqlitePriceBinder
                     usageEvent.AgentId,
                     usageEvent.Model.ProviderId),
                 overrides,
-                catalog);
+                catalog,
+                usageEvent.OccurredAtUtc);
             EventPriceEstimate estimate =
-                PriceEstimator.Estimate(usageEvent.Tokens, rule);
+                PriceEstimator.Estimate(
+                    usageEvent.Tokens, rule, usageEvent.OccurredAtUtc);
             await UpdateEventAsync(
                 connection,
                 transaction,
@@ -111,7 +113,7 @@ internal static class SqlitePriceBinder
         string? normalizedModel,
         CancellationToken cancellationToken)
     {
-        IReadOnlyDictionary<string, ModelPriceRate> overrides =
+        IReadOnlyDictionary<string, IReadOnlyList<PriceOverridePeriod>> overrides =
             await ReadOverridesAsync(connection, transaction, cancellationToken);
         var events = new List<StoredPricingEvent>();
         await using (SqliteCommand select = connection.CreateCommand())
@@ -134,7 +136,8 @@ internal static class SqlitePriceBinder
                     output_value,
                     output_origin,
                     cache_included_in_input,
-                    reasoning_included_in_output
+                    reasoning_included_in_output,
+                    occurred_at_unix_ms
                 FROM usage_events
                 WHERE pricing_status = 0
                   AND (
@@ -155,6 +158,7 @@ internal static class SqlitePriceBinder
                     reader.GetString(1),
                     reader.GetString(2),
                     reader.IsDBNull(3) ? null : reader.GetString(3),
+                    DateTimeOffset.FromUnixTimeMilliseconds(reader.GetInt64(16)),
                     new TokenUsage
                     {
                         InputReported = ReadMetric(reader, 4),
@@ -178,7 +182,9 @@ internal static class SqlitePriceBinder
                 Resolve(
                     usageEvent.NormalizedModel,
                     overrides,
-                    catalog));
+                    catalog,
+                    usageEvent.OccurredAtUtc),
+                usageEvent.OccurredAtUtc);
             priced += await UpdateEventAsync(
                 connection,
                 transaction,
@@ -192,52 +198,26 @@ internal static class SqlitePriceBinder
         return priced;
     }
 
-    public static async Task<IReadOnlyDictionary<string, ModelPriceRate>>
+    public static async Task<IReadOnlyDictionary<string, IReadOnlyList<PriceOverridePeriod>>>
         ReadOverridesAsync(
             SqliteConnection connection,
             SqliteTransaction transaction,
             CancellationToken cancellationToken)
     {
-        await using SqliteCommand command = connection.CreateCommand();
-        command.Transaction = transaction;
-        command.CommandText = """
-            SELECT
-                normalized_model,
-                input_rate_usd_per_million,
-                cached_input_rate_usd_per_million,
-                cache_write_rate_usd_per_million,
-                output_rate_usd_per_million,
-                long_context_threshold_tokens,
-                long_context_input_multiplier,
-                long_context_output_multiplier
-            FROM pricing_overrides
-            ORDER BY normalized_model;
-            """;
-        var result = new Dictionary<string, ModelPriceRate>(
-            StringComparer.Ordinal);
-        await using SqliteDataReader reader =
-            await command.ExecuteReaderAsync(cancellationToken);
-        while (await reader.ReadAsync(cancellationToken))
-        {
-            var rate = new ModelPriceRate(
-                reader.GetString(0),
-                ReadDecimal(reader, 1),
-                ReadNullableDecimal(reader, 2),
-                ReadNullableDecimal(reader, 3),
-                ReadDecimal(reader, 4),
-                reader.IsDBNull(5) ? null : reader.GetInt64(5),
-                ReadDecimal(reader, 6),
-                ReadDecimal(reader, 7));
-            result.Add(rate.NormalizedModel, rate);
-        }
-
-        return result;
+        IReadOnlyList<PriceOverridePeriod> periods = await SqlitePriceLedger.ReadPeriodsAsync(
+            connection, transaction, cancellationToken);
+        return periods.GroupBy(static period => period.NormalizedModel, StringComparer.Ordinal)
+            .ToDictionary(static group => group.Key,
+                static group => (IReadOnlyList<PriceOverridePeriod>)group
+                    .OrderByDescending(static period => period.EffectiveFromUtc).ToArray(),
+                StringComparer.Ordinal);
     }
 
     private static ResolvedPriceRule? Resolve(
         string? normalizedModel,
-        IReadOnlyDictionary<string, ModelPriceRate> overrides,
-        OfflinePriceCatalog catalog)
+        IReadOnlyDictionary<string, IReadOnlyList<PriceOverridePeriod>> overrides,
+        OfflinePriceCatalog catalog,
+        DateTimeOffset occurredAtUtc)
     {
         if (string.IsNullOrWhiteSpace(normalizedModel))
         {
@@ -245,16 +225,31 @@ internal static class SqlitePriceBinder
         }
 
         string key = ModelPriceRate.NormalizeModel(normalizedModel);
-        if (overrides.TryGetValue(key, out ModelPriceRate? custom))
+        if (overrides.TryGetValue(key, out IReadOnlyList<PriceOverridePeriod>? periods))
         {
-            return new ResolvedPriceRule(
-                "user-v1",
-                $"user:{key}",
-                key,
-                custom);
+            for (int index = 0; index < periods.Count; index++)
+            {
+                PriceOverridePeriod period = periods[index];
+                if (period.EffectiveFromUtc > occurredAtUtc)
+                {
+                    continue;
+                }
+                if (period.Rate is { } custom)
+                {
+                    bool legacy = period.EffectiveFromUtc == DateTimeOffset.MinValue;
+                    return new ResolvedPriceRule(legacy ? "user-v1" : "user-v2",
+                        legacy ? $"user:{key}" : $"user:{key}/{period.EffectiveFromUtc.ToUnixTimeMilliseconds()}",
+                        key, custom,
+                        EffectiveFromUtc: legacy ? null : period.EffectiveFromUtc,
+                        EffectiveUntilUtc: index > 0 ? periods[index - 1].EffectiveFromUtc : null);
+                }
+                // A default marker ends prior custom rates; it is not a hole
+                // through which an older custom period can take precedence.
+                break;
+            }
         }
 
-        return catalog.TryResolve(key, out ResolvedPriceRule? builtIn)
+        return catalog.TryResolve(key, occurredAtUtc, out ResolvedPriceRule? builtIn)
             ? builtIn
             : null;
     }
@@ -338,17 +333,6 @@ internal static class SqlitePriceBinder
             reader.IsDBNull(index) ? null : reader.GetInt64(index),
             (MetricOrigin)reader.GetInt32(index + 1));
 
-    private static decimal ReadDecimal(SqliteDataReader reader, int index) =>
-        decimal.Parse(
-            reader.GetString(index),
-            NumberStyles.Number,
-            CultureInfo.InvariantCulture);
-
-    private static decimal? ReadNullableDecimal(
-        SqliteDataReader reader,
-        int index) =>
-        reader.IsDBNull(index) ? null : ReadDecimal(reader, index);
-
     private static void AddNullable(
         SqliteCommand command,
         string name,
@@ -369,5 +353,6 @@ internal static class SqlitePriceBinder
         string SourceInstanceId,
         string DedupKey,
         string? NormalizedModel,
+        DateTimeOffset OccurredAtUtc,
         TokenUsage Tokens);
 }

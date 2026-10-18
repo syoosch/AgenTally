@@ -30,10 +30,9 @@ public sealed class ClaudeCodeDesktopCollector : IIncrementalFileCollector
     public string ParserVersion => _inner.ParserVersion;
 
     public CompatibilityLevel MaintenanceCompatibilityLevel =>
-        CompatibilityLevel.PartiallyCompatible;
+        CompatibilityLevel.FullyCompatible;
 
-    public string MaintenanceCompatibilityCode =>
-        "desktop_prompt_attribution_unavailable";
+    public string? MaintenanceCompatibilityCode => null;
 
     public ValueTask<SourceProbeResult> ProbeAsync(
         CollectorContext context,

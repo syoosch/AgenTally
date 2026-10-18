@@ -312,7 +312,10 @@ public sealed record PriceSettingRow(
     string NormalizedModel,
     ModelPriceRate? BuiltInRate,
     ModelPriceRate? CustomRate,
-    long ObservedRecords)
+    long ObservedRecords,
+    PeakOffPeakSchedule? BuiltInTimeSchedule = null,
+    IReadOnlyList<ResolvedPriceRule>? BuiltInHistory = null,
+    IReadOnlyList<PriceOverridePeriod>? CustomHistory = null)
 {
     public ModelPriceRate? EffectiveRate => CustomRate ?? BuiltInRate;
 

@@ -544,6 +544,7 @@
                                         <RowDefinition Height="Auto" />
                                         <RowDefinition Height="Auto" />
                                         <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
                                     </Grid.RowDefinitions>
 
                                     <Grid>
@@ -551,6 +552,11 @@
                                             <ColumnDefinition Width="*" />
                                             <ColumnDefinition Width="Auto" />
                                         </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                        </Grid.RowDefinitions>
                                         <TextBlock Text="{Binding SelectedPriceModel.NormalizedModel, TargetNullValue=请选择模型}"
                                                    TextTrimming="CharacterEllipsis"
                                                    ToolTip="{Binding SelectedPriceModel.NormalizedModel}"
@@ -565,6 +571,22 @@
                                                        HorizontalAlignment="Right"
                                                        Text="USD / 百万 Token"
                                                        Style="{DynamicResource CaptionTextStyle}" />
+                                        </StackPanel>
+                                        <TextBlock Grid.Row="1"
+                                                   Grid.ColumnSpan="2"
+                                                   Margin="0,8,0,0"
+                                                   Text="{Binding SelectedPriceModel.TimePricingText}"
+                                                   TextWrapping="Wrap"
+                                                   Visibility="{Binding SelectedPriceModel.HasTimePricing, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                                   Style="{DynamicResource CaptionTextStyle}" />
+                                        <StackPanel Grid.Row="2" Grid.ColumnSpan="2" Margin="0,10,0,0">
+                                            <TextBlock Text="生效日期（本地时间 00:00）" Margin="0,0,0,5"
+                                                       Style="{DynamicResource CaptionTextStyle}" />
+                                            <DatePicker x:Name="PriceEffectiveDatePicker"
+                                                        SelectedDate="{Binding PriceEffectiveDate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                        DateValidationError="OnPriceEffectiveDateValidationError"
+                                                        IsEnabled="{Binding CanEditSelectedPrice}"
+                                                        ToolTip="按调用日期使用对应费率，已计价历史不变。" />
                                         </StackPanel>
                                     </Grid>
 
@@ -744,10 +766,28 @@
                                                     Padding="10,0"
                                                     Content="保存更改"
                                                     Command="{Binding SavePriceCommand}"
-                                                    ToolTip="自定义价格只影响尚未计价和未来记录，已计价历史保持不变。"
+                                                    ToolTip="从所选日期起使用新价格；此前使用旧费率，已计价历史保持不变。"
                                                     Style="{DynamicResource PrimaryButtonStyle}" />
                                         </Grid>
                                     </Grid>
+                                    <StackPanel Grid.Row="5" Margin="0,12,0,0">
+                                        <ToggleButton Content="价格历史 · USD / 百万 Token"
+                                                      IsChecked="{Binding IsPriceHistoryExpanded, Mode=TwoWay}"
+                                                      Style="{StaticResource PriceSectionToggleStyle}" />
+                                        <ItemsControl ItemsSource="{Binding SelectedPriceModel.PriceHistory}"
+                                                      Visibility="{Binding IsPriceHistoryExpanded, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <StackPanel Margin="0,10,0,0">
+                                                        <TextBlock Text="{Binding Title}" TextWrapping="Wrap"
+                                                                   Style="{DynamicResource BodyTextStyle}" />
+                                                        <TextBlock Text="{Binding Detail}" TextWrapping="Wrap" Margin="0,4,0,0"
+                                                                   Style="{DynamicResource CaptionTextStyle}" />
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </StackPanel>
                                 </Grid>
                             </Border>
                         </Grid>
@@ -938,18 +978,76 @@
                                 </Style.Triggers>
                             </Style>
                         </Grid.Style>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="112" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-                        <TextBlock VerticalAlignment="Center"
-                                   Text="数据库路径"
-                                   Style="{DynamicResource SecondaryTextStyle}" />
-                        <TextBox x:Name="DatabasePathTextBox"
-                                 Grid.Column="1"
-                                 Text="{Binding DatabasePath, Mode=OneWay}"
-                                 ToolTip="{Binding DatabasePath}"
-                                 Style="{DynamicResource ReadOnlyTextBoxStyle}" />
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="112" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock VerticalAlignment="Center"
+                                       Text="数据库路径"
+                                       Style="{DynamicResource SecondaryTextStyle}" />
+                            <TextBox x:Name="DatabasePathTextBox"
+                                     Grid.Column="1"
+                                     Text="{Binding DatabasePath, Mode=OneWay}"
+                                     ToolTip="{Binding DatabasePath}"
+                                     Style="{DynamicResource ReadOnlyTextBoxStyle}" />
+                        </Grid>
+                        <StackPanel Grid.Row="1"
+                                    Margin="0,18,0,0">
+                            <TextBlock Text="Claude Code 自定义数据目录"
+                                       Style="{DynamicResource BodyTextStyle}" />
+                            <TextBlock Margin="0,5,0,0"
+                                       Text="默认目录会自动扫描。这里只添加其他 Claude Code 数据目录；不会修改 Claude Code 配置，也不会创建独立平台。"
+                                       TextWrapping="Wrap"
+                                       Style="{DynamicResource SecondaryTextStyle}" />
+                            <ListBox x:Name="ClaudeCodeAdditionalRootsList"
+                                     MinHeight="52"
+                                     MaxHeight="156"
+                                     Margin="0,10,0,0"
+                                     ItemsSource="{Binding ClaudeCodeAdditionalRoots}"
+                                     SelectedItem="{Binding SelectedClaudeCodeAdditionalRoot, Mode=TwoWay}"
+                                     ScrollViewer.HorizontalScrollBarVisibility="Auto" />
+                            <WrapPanel Margin="0,10,0,0">
+                                <Button x:Name="AddClaudeCodeSourceButton"
+                                        MinWidth="112"
+                                        Margin="0,0,8,0"
+                                        Content="添加目录"
+                                        Command="{Binding AddClaudeCodeSourceCommand}"
+                                        Style="{DynamicResource SecondaryButtonStyle}" />
+                                <Button x:Name="RemoveClaudeCodeSourceButton"
+                                        MinWidth="112"
+                                        Margin="0,0,8,0"
+                                        Content="移除所选"
+                                        Command="{Binding RemoveClaudeCodeSourceCommand}"
+                                        Style="{DynamicResource SecondaryButtonStyle}" />
+                                <Button x:Name="SaveClaudeCodeSourcesButton"
+                                        MinWidth="148"
+                                        Content="保存并重新扫描"
+                                        Command="{Binding SaveClaudeCodeSourcesCommand}"
+                                        Style="{DynamicResource PrimaryButtonStyle}" />
+                            </WrapPanel>
+                            <TextBlock Margin="0,10,0,0"
+                                       Text="{Binding ClaudeCodeSourceStatusText}"
+                                       TextWrapping="Wrap"
+                                       Visibility="{Binding HasClaudeCodeSourceStatus, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock"
+                                           BasedOn="{StaticResource SecondaryTextStyle}">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding ClaudeCodeSourceStatusIsError}"
+                                                         Value="True">
+                                                <Setter Property="Foreground"
+                                                        Value="{DynamicResource ErrorBrush}" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </StackPanel>
                     </Grid>
                 </Grid>
             </Border>

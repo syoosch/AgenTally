@@ -58,7 +58,8 @@ public sealed class ClaudeCodeCollector : IIncrementalFileCollector
         _expectedInstanceId = expectedInstanceId;
         _timeProvider = timeProvider ?? TimeProvider.System;
         _resolver = resolver ?? throw new ArgumentNullException(nameof(resolver));
-        _reader = reader ?? new IncrementalJsonlReader();
+        _reader = reader ?? new IncrementalJsonlReader(
+            new ClaudeCodeOversizedLineProjector());
         _parser = parser ?? new ClaudeCodeTranscriptParser();
     }
 
@@ -167,6 +168,7 @@ public sealed class ClaudeCodeCollector : IIncrementalFileCollector
             var sessions = new List<UsageSessionMetadata>();
             var turns = new List<UsageTurnMetadata>();
             var eventTools = new List<UsageEventToolMetadata>();
+            var dispatches = new List<UsageTurnDispatch>();
             var diagnostics = new List<CollectorDiagnostic>();
             if (cursorDiagnostic is not null)
             {
@@ -208,12 +210,46 @@ public sealed class ClaudeCodeCollector : IIncrementalFileCollector
                     sessions.Add(result.SessionMetadata);
                 }
 
+                sessions.AddRange(result.RelatedSessions);
+
                 if (result.TurnMetadata is not null)
                 {
                     turns.Add(result.TurnMetadata);
                 }
 
                 eventTools.AddRange(result.EventTools);
+                dispatches.AddRange(result.Dispatches);
+                if (result.Diagnostic is not null)
+                {
+                    diagnostics.Add(result.Diagnostic);
+                }
+            }
+
+            foreach (ClaudeCodeParseResult result in
+                     _parser.FlushCompletedCalls(
+                         state,
+                         context,
+                         readBatch.EndOfFile))
+            {
+                state = result.State;
+                if (result.Event is not null)
+                {
+                    events.Add(result.Event);
+                }
+
+                if (result.SessionMetadata is not null)
+                {
+                    sessions.Add(result.SessionMetadata);
+                }
+
+                sessions.AddRange(result.RelatedSessions);
+                if (result.TurnMetadata is not null)
+                {
+                    turns.Add(result.TurnMetadata);
+                }
+
+                eventTools.AddRange(result.EventTools);
+                dispatches.AddRange(result.Dispatches);
                 if (result.Diagnostic is not null)
                 {
                     diagnostics.Add(result.Diagnostic);
@@ -241,7 +277,8 @@ public sealed class ClaudeCodeCollector : IIncrementalFileCollector
             {
                 Sessions = sessions,
                 Turns = turns,
-                EventTools = eventTools
+                EventTools = eventTools,
+                Dispatches = dispatches
             };
 
             if (readBatch.EndOfFile || collectionLimitReached)

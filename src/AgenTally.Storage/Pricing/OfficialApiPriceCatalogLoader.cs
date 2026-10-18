@@ -22,7 +22,7 @@ internal static class OfficialApiPriceCatalogLoader
                 PropertyNameCaseInsensitive = true
             }) ?? throw new InvalidDataException(
                 "Embedded official API price catalog did not contain a document.");
-        if (document.SchemaVersion != 1 ||
+        if (document.SchemaVersion is not (1 or 2 or 3) ||
             string.IsNullOrWhiteSpace(document.CatalogVersion) ||
             !string.Equals(document.Currency, "USD", StringComparison.Ordinal) ||
             !string.Equals(
@@ -36,11 +36,26 @@ internal static class OfficialApiPriceCatalogLoader
                 "Embedded official API price catalog metadata is invalid.");
         }
 
-        var rules = new Dictionary<string, ResolvedPriceRule>(
-            StringComparer.Ordinal);
+        var rules = new List<ResolvedPriceRule>();
         foreach (PriceCatalogRule sourceRule in document.Rules)
         {
             ValidateSourceRule(sourceRule);
+            if (sourceRule.PeakOffPeak is not null && document.SchemaVersion < 2)
+            {
+                throw new InvalidDataException(
+                    "Time-scheduled prices require catalog schema v2.");
+            }
+
+            PeakOffPeakSchedule? schedule = sourceRule.PeakOffPeak is null
+                ? null : new PeakOffPeakSchedule(sourceRule.PeakOffPeak);
+            DateTimeOffset? from = PriceRuleTimeline.ParseBoundary(sourceRule.EffectiveFromUtc);
+            DateTimeOffset? until = PriceRuleTimeline.ParseBoundary(sourceRule.EffectiveUntilUtc);
+            if ((from.HasValue || until.HasValue) &&
+                (document.SchemaVersion < 3 || !Uri.TryCreate(sourceRule.EffectiveDateSource,
+                    UriKind.Absolute, out Uri? evidence) || evidence.Scheme != Uri.UriSchemeHttps))
+            {
+                throw new InvalidDataException("Dated official prices require schema v3 and date evidence.");
+            }
             foreach (string sourceModel in sourceRule.Models)
             {
                 string model = ModelPriceRate.NormalizeModel(sourceModel);
@@ -62,19 +77,32 @@ internal static class OfficialApiPriceCatalogLoader
                     sourceRule.LongContextThresholdTokens,
                     sourceRule.LongContextInputMultiplier,
                     sourceRule.LongContextOutputMultiplier);
+                if (schedule is not null &&
+                    (rate.InputUsdPerMillion * schedule.PeakMultiplier > 1_000_000m ||
+                     rate.CachedInputUsdPerMillion * schedule.PeakMultiplier > 1_000_000m ||
+                     rate.CacheWriteUsdPerMillion * schedule.PeakMultiplier > 1_000_000m ||
+                     rate.OutputUsdPerMillion * schedule.PeakMultiplier > 1_000_000m))
+                {
+                    throw new InvalidDataException("Peak price exceeds the supported limit.");
+                }
                 rules.Add(
-                    model,
                     new ResolvedPriceRule(
                         document.CatalogVersion,
                         sourceRule.RuleId,
                         model,
-                        rate));
+                        rate,
+                        schedule,
+                        from,
+                        until,
+                        sourceRule.EffectiveDateSource,
+                        sourceRule.EffectiveFromBasis,
+                        sourceRule.EffectiveUntilBasis));
             }
         }
 
         return new OfficialApiPriceCatalogData(
             document.CatalogVersion,
-            rules.ToFrozenDictionary(StringComparer.Ordinal));
+            PriceRuleTimeline.Build(rules));
     }
 
     private static void ValidateSourceRule(PriceCatalogRule rule)
@@ -122,9 +150,15 @@ internal static class OfficialApiPriceCatalogLoader
         decimal OutputUsdPerMillion,
         long? LongContextThresholdTokens = null,
         decimal LongContextInputMultiplier = 1m,
-        decimal LongContextOutputMultiplier = 1m);
+        decimal LongContextOutputMultiplier = 1m,
+        PeakOffPeakScheduleDocument? PeakOffPeak = null,
+        string? EffectiveFromUtc = null,
+        string? EffectiveUntilUtc = null,
+        string? EffectiveDateSource = null,
+        string? EffectiveFromBasis = null,
+        string? EffectiveUntilBasis = null);
 }
 
 internal sealed record OfficialApiPriceCatalogData(
     string Version,
-    FrozenDictionary<string, ResolvedPriceRule> Rules);
+    FrozenDictionary<string, IReadOnlyList<ResolvedPriceRule>> Rules);

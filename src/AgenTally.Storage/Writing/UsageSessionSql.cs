@@ -162,7 +162,11 @@ internal static class UsageSessionSql
                      usage_sessions.session_name_updated_unix_ms IS NULL
                      OR excluded.session_name_updated_unix_ms >=
                         usage_sessions.session_name_updated_unix_ms
-                 )
+                )
+                THEN excluded.session_name
+                WHEN excluded.session_name IS NOT NULL
+                 AND excluded.session_name_updated_unix_ms IS NULL
+                 AND usage_sessions.session_name_updated_unix_ms IS NULL
                 THEN excluded.session_name
                 ELSE usage_sessions.session_name
             END,

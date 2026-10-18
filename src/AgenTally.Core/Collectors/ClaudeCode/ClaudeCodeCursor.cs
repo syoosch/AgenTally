@@ -13,12 +13,12 @@ public sealed record ClaudeCodeCursor(
     private const int MaxSerializedCursorCharacters =
         JsonlCursor.MaxSerializedCursorCharacters +
         (CodexProjectIdentity.MaxProjectPathCharacters * 6) +
-        16_384;
+        16_777_216;
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        MaxDepth = 8,
+        MaxDepth = 16,
         UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow
     };
 
@@ -88,12 +88,15 @@ public sealed record ClaudeCodeCursor(
             State is null ||
             !Jsonl.TryGetPendingBytes(out _) ||
             !ValidOptionalString(State.SessionId) ||
+            !ValidOptionalString(State.SourceSessionId) ||
+            !ValidOptionalString(State.Entrypoint) ||
+            State.RecognizedRecordCount < 0 ||
+            !ValidPreview(State.SessionName) ||
+            (State.HasCustomSessionName && State.SessionName is null) ||
             !ValidProject(State) ||
-            !ValidHash(State.CurrentTurnIdHash) ||
-            !ValidUtc(State.CurrentTurnStartedAtUtc) ||
-            !ValidPreview(State.CurrentPromptPreview) ||
-            State.CurrentUserMessageCount < 0 ||
+            !ValidHash(State.SubagentHash) ||
             !ValidUtc(State.LastTimestampUtc) ||
+            !ValidIndexes(State) ||
             !ValidFingerprint(Jsonl))
         {
             return false;
@@ -125,6 +128,77 @@ public sealed record ClaudeCodeCursor(
                    identity.ProjectId,
                    StringComparison.Ordinal) &&
                state.ProjectRepositoryIdentityHash is null;
+    }
+
+    private static bool ValidIndexes(ClaudeCodeParseState state)
+    {
+        if (state.NodeTurnIds is { Count: > 50_000 } ||
+            state.Turns is { Count: > 10_000 } ||
+            state.Calls is { Count: > 20_000 } ||
+            state.AgentDispatches is { Count: > 5_000 })
+        {
+            return false;
+        }
+
+        if (state.NodeTurnIds is not null && state.NodeTurnIds.Any(value =>
+                !ValidHash(value.Key) || !ValidHash(value.Value)))
+        {
+            return false;
+        }
+
+        if (state.Turns is not null && state.Turns.Any(value =>
+                !ValidHash(value.Key) ||
+                !ValidUtc(value.Value.StartedAtUtc) ||
+                !ValidPreview(value.Value.PromptPreview) ||
+                value.Value.UserMessageCount < 0))
+        {
+            return false;
+        }
+
+        if (state.Calls is not null && state.Calls.Any(value =>
+                !ValidHash(value.Key) ||
+                !ValidCall(value.Value)))
+        {
+            return false;
+        }
+
+        return state.AgentDispatches is null ||
+            state.AgentDispatches.All(value =>
+                ValidHash(value.Key) &&
+                ValidOptionalString(value.Value.SessionId) &&
+                ValidHash(value.Value.TurnIdHash) &&
+                ValidUtc(value.Value.OccurredAtUtc) &&
+                value.Value.AgentToolUseIdHashes is { Count: <= 1024 } &&
+                value.Value.AgentToolUseIdHashes.All(ValidHash));
+    }
+
+    private static bool ValidCall(ClaudeCodeCallState call)
+    {
+        if (!ValidOptionalString(call.SessionId) ||
+            string.IsNullOrWhiteSpace(call.Model) ||
+            call.Model.Length > 128 ||
+            call.Model.Any(char.IsControl) ||
+            call.Input < 0 || call.CacheRead < 0 || call.CacheWrite < 0 ||
+            call.Output < 0 || !ValidHash(call.TurnIdHash) ||
+            !ValidUtc(call.OccurredAtUtc) ||
+            call.LastSourceRevision < 0 ||
+            call.EmittedSourceRevision < -1 ||
+            call.EmittedSourceRevision > call.LastSourceRevision ||
+            call.NextToolOrdinal < 0 ||
+            call.Tools is null || call.Tools.Count > 10_000)
+        {
+            return false;
+        }
+
+        var ordinals = new HashSet<int>();
+        return call.Tools.All(value =>
+            ValidHash(value.Key) &&
+            value.Value.Ordinal >= 0 &&
+            value.Value.Ordinal < call.NextToolOrdinal &&
+            ordinals.Add(value.Value.Ordinal) &&
+            !string.IsNullOrWhiteSpace(value.Value.Name) &&
+            value.Value.Name.Length <= 128 &&
+            !value.Value.Name.Any(char.IsControl));
     }
 
     private static bool ValidOptionalString(string? value) =>

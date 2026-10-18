@@ -129,6 +129,57 @@ public sealed class SettingsViewModelTests
     }
 
     [TestMethod]
+    public async Task ClaudeCodeSources_AddSaveAndRescanGenericCustomRoot()
+    {
+        await using var host = new StaDispatcherTestHost();
+        using var directory = new AgenTally.Tests.Support.TestTempDirectory();
+        string existingRoot = directory.File("claude-custom-a");
+        string addedRoot = directory.File("claude-custom-b");
+        Directory.CreateDirectory(existingRoot);
+        Directory.CreateDirectory(addedRoot);
+        var sourceSettings = new FakeClaudeCodeSourceSettings(existingRoot);
+        var picker = new FakeClaudeCodeDirectoryPicker(addedRoot);
+        var runtime = new FakeCoreRuntimeController();
+        SettingsViewModel viewModel = await CreateAsync(
+            host,
+            new FakeUsageQueryService(),
+            new FakePriceCommandClient(),
+            new FakeRestoreConfirmation(),
+            claudeCodeSourceSettings: sourceSettings,
+            claudeCodeDirectoryPicker: picker,
+            coreRuntimeController: runtime);
+
+        await host.InvokeAsync(() =>
+        {
+            CollectionAssert.AreEqual(
+                new[] { Path.GetFullPath(existingRoot) },
+                viewModel.ClaudeCodeAdditionalRoots.ToArray());
+            viewModel.AddClaudeCodeSourceCommand.Execute(null);
+            Assert.IsTrue(viewModel.HasUnsavedClaudeCodeSources);
+            Assert.AreEqual(
+                Path.GetFullPath(addedRoot),
+                viewModel.SelectedClaudeCodeAdditionalRoot);
+        });
+
+        await host.InvokeAsync(async () =>
+            await viewModel.SaveClaudeCodeSourcesCommand.ExecuteAsync());
+
+        CollectionAssert.AreEqual(
+            new[]
+            {
+                Path.GetFullPath(existingRoot),
+                Path.GetFullPath(addedRoot)
+            },
+            sourceSettings.WrittenRoots);
+        Assert.AreEqual(1, runtime.RebuildCalls);
+        Assert.IsFalse(viewModel.HasUnsavedClaudeCodeSources);
+        Assert.IsFalse(viewModel.ClaudeCodeSourceStatusIsError);
+        StringAssert.Contains(
+            viewModel.ClaudeCodeSourceStatusText,
+            "已重新扫描");
+    }
+
+    [TestMethod]
     public async Task Refresh_ExposesOnlyActionablePriceStatesAndFilters()
     {
         await using var host = new StaDispatcherTestHost();
@@ -706,6 +757,127 @@ public sealed class SettingsViewModelTests
         });
     }
 
+    [TestMethod]
+    public async Task PriceEditor_DeepSeekShowsAutomaticDefaultsAndSavesOnlyFixedOverrides()
+    {
+        await using var host = new StaDispatcherTestHost();
+        var queries = new FakeUsageQueryService();
+        PriceSettingRow[] defaults = new[] { "deepseek-flash", "deepseek-v4-pro" }
+            .Select(model =>
+            {
+                Assert.IsTrue(OfflinePriceCatalog.Default.TryResolve(model, out var rule));
+                Assert.IsNotNull(rule);
+                return new PriceSettingRow(model, rule.Rate, null, 1, rule.PeakOffPeak);
+            }).ToArray();
+        queries.PriceSettings = defaults;
+        var client = new FakePriceCommandClient();
+        client.Handler = request =>
+        {
+            ModelPriceRate saved = request.Rate!.ToRate(request.NormalizedModel!);
+            queries.PriceSettings = defaults.Select(row => row.NormalizedModel == saved.NormalizedModel
+                ? row with { CustomRate = saved } : row).ToArray();
+            return Task.FromResult(new PriceCommandResponse(
+                PriceCommandProtocol.CurrentVersion, request.RequestId,
+                PriceCommandResultCode.Success, PriceCommandMessageCodes.PriceUpdated, 0));
+        };
+        SettingsViewModel viewModel = await CreateAsync(host, queries, client,
+            new FakeRestoreConfirmation());
+        await viewModel.RefreshAsync(CancellationToken.None);
+
+        await host.InvokeAsync(async () =>
+        {
+            foreach (string model in new[] { "deepseek-flash", "deepseek-v4-pro" })
+            {
+                viewModel.SelectedPriceModel = viewModel.PriceModels.Single(row =>
+                    row.NormalizedModel == model);
+                Assert.IsTrue(viewModel.IsInheritedPriceEditor);
+                Assert.AreEqual("默认峰谷价", viewModel.SelectedPriceModel.SourceText);
+                StringAssert.Contains(viewModel.SelectedPriceModel.TimePricingText, "按调用时间");
+                StringAssert.Contains(viewModel.SelectedPriceModel.TimePricingText, "2026");
+                Assert.AreEqual(model == "deepseek-flash" ? "0.15" : "0.66",
+                    viewModel.InputRateText);
+                viewModel.InputRateText = "7";
+                viewModel.DiscardPriceChangesCommand.Execute(null);
+                Assert.IsTrue(viewModel.IsInheritedPriceEditor);
+            }
+            viewModel.InputRateText = "7";
+            await viewModel.SavePriceCommand.ExecuteAsync();
+            Assert.IsFalse(viewModel.IsInheritedPriceEditor);
+            Assert.AreEqual("7", viewModel.InputRateText);
+            Assert.AreEqual("自定义价格", viewModel.SelectedPriceModel!.SourceText);
+            StringAssert.Contains(viewModel.SelectedPriceModel.TimePricingText, "固定使用");
+        });
+        Assert.AreEqual(7m, client.LastRequest!.Rate!.InputUsdPerMillion);
+    }
+
+    [TestMethod]
+    public void PriceHistory_ExplainsDateOnlyCutoversAndExactHistoricalNightRates()
+    {
+        var at = new DateTimeOffset(2025, 3, 1, 0, 0, 0, TimeSpan.Zero);
+        Assert.IsTrue(OfflinePriceCatalog.Default.TryResolve("deepseek-r1", at, out var night));
+        Assert.IsNotNull(night);
+        var nightView = new PriceSettingPresentation(new PriceSettingRow(
+            "deepseek-r1", night.Rate, null, 1, night.PeakOffPeak, BuiltInHistory: [night]));
+        string detail = Assert.ContainsSingle(nightView.PriceHistory).Detail;
+        StringAssert.Contains(detail, "UTC 16:30–次日 00:30");
+        StringAssert.Contains(detail, "输出 2.19");
+        Assert.IsTrue(OfflinePriceCatalog.Default.TryResolve("gpt-5.6-sol", out var sol));
+        Assert.IsNotNull(sol);
+        var solView = new PriceSettingPresentation(new PriceSettingRow(
+            "gpt-5.6-sol", sol.Rate, null, 1, BuiltInHistory: [sol]));
+        StringAssert.Contains(Assert.ContainsSingle(solView.PriceHistory).Detail,
+            "官方仅公布日期，采用该日 UTC 00:00");
+    }
+
+    [TestMethod]
+    public async Task PriceEditor_EffectiveDateUsesLocalMidnightAndSurvivesDraftRefresh()
+    {
+        await using var host = new StaDispatcherTestHost();
+        TimeZoneInfo zone = TimeZoneInfo.CreateCustomTimeZone("price-test-zone",
+            TimeSpan.FromHours(8), "price-test-zone", "price-test-zone");
+        DateTime day = TimeZoneInfo.ConvertTime(DateTimeOffset.UtcNow, zone).Date.AddDays(10);
+        var rate = new ModelPriceRate("dated-ui-model", 1m, 0.1m, 0m, 2m);
+        var builtin = new ResolvedPriceRule("ui-catalog", "ui-price", rate.NormalizedModel, rate);
+        var queries = new FakeUsageQueryService
+        {
+            PriceSettings = [new PriceSettingRow(rate.NormalizedModel, rate, null, 1,
+                BuiltInHistory: [builtin])]
+        };
+        var client = new FakePriceCommandClient();
+        client.Handler = request =>
+        {
+            ModelPriceRate saved = request.Rate!.ToRate(request.NormalizedModel!);
+            queries.PriceSettings = [new PriceSettingRow(rate.NormalizedModel, rate, saved, 1,
+                BuiltInHistory: [builtin], CustomHistory:
+                [new PriceOverridePeriod(rate.NormalizedModel, request.EffectiveFromUtc!.Value,
+                    saved, DateTimeOffset.UtcNow)])];
+            return Task.FromResult(new PriceCommandResponse(PriceCommandProtocol.CurrentVersion,
+                request.RequestId, PriceCommandResultCode.Success, PriceCommandMessageCodes.PriceUpdated, 0));
+        };
+        SettingsViewModel viewModel = await CreateAsync(host, queries, client,
+            new FakeRestoreConfirmation(), localTimeZone: zone);
+        await viewModel.RefreshAsync(CancellationToken.None);
+        await host.InvokeAsync(() =>
+        {
+            viewModel.PriceEffectiveDate = day;
+            viewModel.InputRateText = "3";
+            Assert.IsTrue(viewModel.HasUnsavedPriceChanges);
+        });
+        await viewModel.RefreshInBackgroundAsync(CancellationToken.None);
+        await host.InvokeAsync(async () =>
+        {
+            Assert.AreEqual(day, viewModel.PriceEffectiveDate);
+            Assert.AreEqual("3", viewModel.InputRateText);
+            await viewModel.SavePriceCommand.ExecuteAsync();
+            Assert.IsFalse(viewModel.HasUnsavedPriceChanges);
+            Assert.AreEqual(day, viewModel.PriceEffectiveDate);
+            StringAssert.Contains(viewModel.SelectedPriceModel!.SourceText, "待生效");
+            Assert.HasCount(2, viewModel.SelectedPriceModel.PriceHistory);
+        });
+        Assert.AreEqual(new DateTimeOffset(DateTime.SpecifyKind(day, DateTimeKind.Unspecified),
+            TimeSpan.FromHours(8)).ToUniversalTime(), client.LastRequest!.EffectiveFromUtc);
+    }
+
     private static async Task<SettingsViewModel> CreateAsync(
         StaDispatcherTestHost host,
         FakeUsageQueryService queries,
@@ -715,7 +887,10 @@ public sealed class SettingsViewModelTests
         IDataManagementStateStore? dataManagementState = null,
         TimeZoneInfo? localTimeZone = null,
         IStartupRegistrationStore? startupRegistration = null,
-        AgenTallyChannel? channel = null) =>
+        AgenTallyChannel? channel = null,
+        IClaudeCodeSourceSettings? claudeCodeSourceSettings = null,
+        IClaudeCodeDirectoryPicker? claudeCodeDirectoryPicker = null,
+        ICoreRuntimeController? coreRuntimeController = null) =>
         await host.InvokeAsync(() => new SettingsViewModel(
             queries,
             client,
@@ -726,7 +901,73 @@ public sealed class SettingsViewModelTests
             preferencesStore: new UnavailableUiPreferencesStore(),
             dataManagementState: dataManagementState,
             startupRegistration: startupRegistration,
-            localTimeZone: localTimeZone));
+            localTimeZone: localTimeZone,
+            claudeCodeSourceSettings: claudeCodeSourceSettings,
+            claudeCodeDirectoryPicker: claudeCodeDirectoryPicker,
+            coreRuntimeController: coreRuntimeController));
+
+    private sealed class FakeClaudeCodeSourceSettings :
+        IClaudeCodeSourceSettings
+    {
+        private readonly string[] _roots;
+
+        public FakeClaudeCodeSourceSettings(params string[] roots)
+        {
+            _roots = roots.Select(Path.GetFullPath).ToArray();
+        }
+
+        public bool IsAvailable => true;
+
+        public string[] WrittenRoots { get; private set; } = [];
+
+        public IReadOnlyList<string> ReadAdditionalRoots() => _roots;
+
+        public void WriteAdditionalRoots(IEnumerable<string> roots)
+        {
+            WrittenRoots = roots.Select(Path.GetFullPath).ToArray();
+        }
+    }
+
+    private sealed class FakeClaudeCodeDirectoryPicker(string path) :
+        IClaudeCodeDirectoryPicker
+    {
+        public string? PickDirectory() => path;
+    }
+
+    private sealed class FakeCoreRuntimeController : ICoreRuntimeController
+    {
+        public int RebuildCalls { get; private set; }
+
+        public Task<CoreRuntimeUiStatus> EnsureAsync(
+            CancellationToken cancellationToken) =>
+            ReadyAsync(cancellationToken);
+
+        public Task<CoreRuntimeUiStatus> ReadStatusAsync(
+            CancellationToken cancellationToken) =>
+            ReadyAsync(cancellationToken);
+
+        public Task<CoreRuntimeUiStatus> RebuildCodexAsync(
+            CancellationToken cancellationToken)
+        {
+            RebuildCalls++;
+            return ReadyAsync(cancellationToken);
+        }
+
+        public Task<CoreRuntimeUiStatus> ClearStatisticsAsync(
+            CancellationToken cancellationToken) =>
+            ReadyAsync(cancellationToken);
+
+        private static Task<CoreRuntimeUiStatus> ReadyAsync(
+            CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            return Task.FromResult(new CoreRuntimeUiStatus(
+                CoreRuntimeUiState.Ready,
+                "ready",
+                false,
+                false));
+        }
+    }
 
     private sealed class FakeStartupRegistrationStore :
         IStartupRegistrationStore

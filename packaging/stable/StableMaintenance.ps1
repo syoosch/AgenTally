@@ -430,6 +430,75 @@ function Get-AgenTallyStableRegisteredInstallRoot {
     return $registeredRoot
 }
 
+function ConvertTo-AgenTallyStableReleaseVersion {
+    [CmdletBinding()]
+    param([Parameter(Mandatory)] [AllowEmptyString()] [string] $Value)
+
+    $version = $null
+    if ($Value -cnotmatch '\A[0-9]+\.[0-9]+\.[0-9]+\z' -or
+        -not [version]::TryParse($Value, [ref] $version) -or
+        $version.Major -gt 65535 -or
+        $version.Minor -gt 65535 -or
+        $version.Build -gt 65535) {
+        throw 'Cannot verify the AgenTally release version; installation was refused.'
+    }
+
+    return $version
+}
+
+function Assert-AgenTallyStableUpgradeVersion {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)] $Paths,
+        [Parameter(Mandatory)] [AllowEmptyString()] [string] $IncomingVersion,
+        [Parameter(Mandatory)] [ValidateSet('first', 'upgrade')] [string] $InstallMode
+    )
+
+    $incoming = ConvertTo-AgenTallyStableReleaseVersion -Value $IncomingVersion
+    if ($InstallMode -eq 'first') {
+        return
+    }
+
+    $installedVersions = [System.Collections.Generic.List[version]]::new()
+    foreach ($registryPath in @(
+        $Paths.InnoUninstallRegistryPath,
+        $Paths.UninstallRegistryPath)) {
+        $registered = Get-AgenTallyStableRegistryValue `
+            -RegistryPath $registryPath `
+            -ValueName 'DisplayVersion'
+        if ($null -ne $registered) {
+            if ($registered -isnot [string]) {
+                throw 'Cannot verify the registered AgenTally version; installation was refused.'
+            }
+            $installedVersions.Add((ConvertTo-AgenTallyStableReleaseVersion -Value $registered))
+        }
+    }
+
+    # Read both owned executables even if the uninstall record exists. Stale or
+    # missing registration must not conceal a newer installed UI or Core.
+    foreach ($fileName in @('AgenTally.UI.exe', 'AgenTally.Core.exe')) {
+        $path = Join-Path $Paths.InstallRoot $fileName
+        $information = [System.Diagnostics.FileVersionInfo]::GetVersionInfo($path)
+        if ([string]::IsNullOrWhiteSpace($information.FileVersion) -or
+            $information.FilePrivatePart -ne 0) {
+            throw "Cannot verify the installed AgenTally version: $fileName"
+        }
+
+        $installedVersions.Add((ConvertTo-AgenTallyStableReleaseVersion -Value (
+            '{0}.{1}.{2}' -f $information.FileMajorPart,
+                $information.FileMinorPart, $information.FileBuildPart)))
+    }
+
+    foreach ($installed in $installedVersions) {
+        if ($incoming.CompareTo($installed) -lt 0) {
+            throw (
+                ('AgenTally downgrade refused: installed version {0} is newer than installer {1}. ' +
+                 'Use the same or a newer installer; no application files or data were changed.') -f
+                $installed, $incoming)
+        }
+    }
+}
+
 function Assert-AgenTallyStableInstallRootDisjointFromOwnedData {
     [CmdletBinding()]
     param(

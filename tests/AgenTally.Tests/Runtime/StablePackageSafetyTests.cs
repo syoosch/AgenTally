@@ -150,6 +150,8 @@ public sealed class StablePackageSafetyTests
     {
         string wrapper = File.ReadAllText(Script("Publish-AgenTallyStablePackage.ps1"));
         string publisher = File.ReadAllText(Script("Build-AgenTallyStableInstaller.ps1"));
+        string verifier = File.ReadAllText(Script("Test-AgenTallyStableReleaseArtifact.ps1"));
+        string publicBoundary = File.ReadAllText(Script("Test-AgenTallyPublicBoundary.ps1"));
 
         Assert.Contains("Build-AgenTallyStableInstaller.ps1", wrapper, StringComparison.Ordinal);
         Assert.Contains("status --porcelain=v1 --untracked-files=all", publisher, StringComparison.Ordinal);
@@ -169,6 +171,134 @@ public sealed class StablePackageSafetyTests
         Assert.Contains("Get-AuthenticodeSignature", publisher, StringComparison.Ordinal);
         Assert.Contains("CN=Pyrsys B.V.", publisher, StringComparison.Ordinal);
         Assert.DoesNotContain("Compress-Archive", publisher, StringComparison.Ordinal);
+        Assert.Contains(".agentally-public", verifier, StringComparison.Ordinal);
+        Assert.Contains("https://github.com/syoosch/AgenTally", verifier, StringComparison.Ordinal);
+        Assert.Contains("status', '--porcelain=v1", verifier, StringComparison.Ordinal);
+        Assert.Contains("rev-parse', '--verify", verifier, StringComparison.Ordinal);
+        Assert.Contains("releaseCandidate", verifier, StringComparison.Ordinal);
+        Assert.Contains("UNCOMMITTED", verifier, StringComparison.Ordinal);
+        Assert.Contains("System.Security.Cryptography.SHA256", verifier, StringComparison.Ordinal);
+        Assert.Contains("Get-AuthenticodeSignature", verifier, StringComparison.Ordinal);
+        Assert.Contains("staging-*", verifier, StringComparison.Ordinal);
+        Assert.AreEqual(
+            2,
+            CountOccurrences(
+                publicBoundary,
+                "scripts/Test-AgenTallyStableReleaseArtifact.ps1"));
+    }
+
+    [TestMethod]
+    public void StableReleaseArtifactVerifier_AcceptsExactFormalArtifactAndRejectsNonCandidate()
+    {
+        using var directory = new TestTempDirectory();
+        string publicRepository = directory.File("public");
+        string script = $$"""
+            $ErrorActionPreference = 'Stop'
+            $repository = '{{PowerShellLiteral(publicRepository)}}'
+            $scripts = Join-Path $repository 'scripts'
+            $packageRoot = Join-Path $repository 'artifacts\stable-package'
+            New-Item -ItemType Directory -Path $scripts -Force | Out-Null
+            New-Item -ItemType Directory -Path $packageRoot -Force | Out-Null
+            Copy-Item `
+                -LiteralPath '{{PowerShellLiteral(Script("Test-AgenTallyStableReleaseArtifact.ps1"))}}' `
+                -Destination (Join-Path $scripts 'Test-AgenTallyStableReleaseArtifact.ps1')
+            [System.IO.File]::WriteAllText((Join-Path $repository 'AgenTally.sln'), '')
+            [System.IO.File]::WriteAllText((Join-Path $repository '.agentally-root'), '')
+            [System.IO.File]::WriteAllText((Join-Path $repository '.agentally-public'), '')
+            [System.IO.File]::WriteAllText((Join-Path $repository '.gitignore'), "/artifacts/`r`n")
+
+            & git -C $repository init -b main | Out-Null
+            if ($LASTEXITCODE -ne 0) { throw 'git init failed.' }
+            & git -C $repository config user.name 'AgenTally Test' | Out-Null
+            & git -C $repository config user.email 'agentally-test@example.invalid' | Out-Null
+            & git -C $repository remote add origin 'https://github.com/syoosch/AgenTally.git' | Out-Null
+            & git -C $repository add -- `.agentally-public `.agentally-root `.gitignore AgenTally.sln scripts | Out-Null
+            & git -C $repository commit -m 'test: create public fixture' | Out-Null
+            if ($LASTEXITCODE -ne 0) { throw 'git commit failed.' }
+            $commit = (& git -C $repository rev-parse HEAD).Trim()
+            $shortCommit = (& git -C $repository rev-parse --short=12 HEAD).Trim()
+
+            $version = '1.2.3'
+            $baseName = "AgenTally-$version-win-x64-setup"
+            $installerName = "$baseName.exe"
+            $installerPath = Join-Path $packageRoot $installerName
+            $bytes = New-Object byte[] 1024
+            $bytes[0] = [byte] [char] 'M'
+            $bytes[1] = [byte] [char] 'Z'
+            [System.IO.File]::WriteAllBytes($installerPath, $bytes)
+            $stream = [System.IO.File]::OpenRead($installerPath)
+            $algorithm = [System.Security.Cryptography.SHA256]::Create()
+            try {
+                $hash = ([System.BitConverter]::ToString(
+                    $algorithm.ComputeHash($stream))).Replace('-', '')
+            }
+            finally {
+                $algorithm.Dispose()
+                $stream.Dispose()
+            }
+            $report = [ordered]@{
+                schemaVersion = 1
+                product = 'AgenTally'
+                channel = 'Stable'
+                version = $version
+                commit = $shortCommit
+                releaseCandidate = $true
+                architecture = 'win-x64'
+                selfContained = $true
+                uiAndCoreSingleFile = $true
+                installer = $installerName
+                sha256 = $hash
+                bytes = $bytes.Length
+                signed = $false
+                innoSetupCompilerMajorVersion = 7
+                innoSetupCompilerSigner = 'CN=Pyrsys B.V.'
+            }
+            $reportPath = Join-Path $packageRoot "$baseName.json"
+            $report | ConvertTo-Json | Set-Content -LiteralPath $reportPath -Encoding UTF8
+            "$hash  $installerName" |
+                Set-Content `
+                    -LiteralPath (Join-Path $packageRoot "$baseName.sha256") `
+                    -Encoding ASCII
+
+            $verifier = Join-Path $scripts 'Test-AgenTallyStableReleaseArtifact.ps1'
+            function Get-AuthenticodeSignature {
+                [pscustomobject]@{
+                    Status = [System.Management.Automation.SignatureStatus]::NotSigned
+                }
+            }
+            & $verifier -Version $version -ExpectedCommit $commit
+
+            $report.releaseCandidate = $false
+            $report | ConvertTo-Json | Set-Content -LiteralPath $reportPath -Encoding UTF8
+            $rejected = $false
+            try {
+                & $verifier -Version $version -ExpectedCommit $commit
+            }
+            catch {
+                if ($_.Exception.Message -notlike '*not a formal self-contained release candidate*') {
+                    throw
+                }
+                $rejected = $true
+            }
+            if (-not $rejected) { throw 'The non-candidate artifact was accepted.' }
+            Write-Output 'formal artifact accepted; non-candidate rejected'
+            """;
+
+        PowerShellResult result;
+        try
+        {
+            result = RunPowerShell(directory, script);
+        }
+        finally
+        {
+            ClearReadOnlyFileAttributes(publicRepository);
+        }
+
+        Assert.AreEqual(0, result.ExitCode, result.StandardError);
+        Assert.Contains(
+            "formal artifact accepted; non-candidate rejected",
+            result.StandardOutput,
+            StringComparison.Ordinal);
     }
 
     [TestMethod]
@@ -241,6 +371,126 @@ public sealed class StablePackageSafetyTests
         Assert.Contains("InstallInspectionCompleted := False", installer, StringComparison.Ordinal);
         Assert.Contains("Parameters: \"{code:GetPostInstallParameters}\"", installer, StringComparison.Ordinal);
         Assert.DoesNotContain("skipifsilent unchecked", installer, StringComparison.Ordinal);
+    }
+
+    [TestMethod]
+    public void StableUpgradeVersion_ComparesBinaryAndRegistryEvidenceAndFailsClosed()
+    {
+        using var directory = new TestTempDirectory();
+        string script = UpgradeVersionFixture(directory) + """
+            function Check-Version([string] $Incoming, [bool] $Blocked) {
+                $rejected = $false
+                try {
+                    Assert-AgenTallyStableUpgradeVersion -Paths $paths `
+                        -IncomingVersion $Incoming -InstallMode upgrade
+                }
+                catch { $rejected = $true }
+                if ($rejected -ne $Blocked) { throw "Unexpected result for $Incoming." }
+            }
+            Check-Version '0.9.99' $true
+            Check-Version '0.10.0' $false
+            Check-Version '0.11.0' $false
+            Check-Version '1.0.0' $false
+            foreach ($invalid in @('', '0.10', '0.10.0.0', '0.10.0-beta', '65536.0.0')) {
+                Check-Version $invalid $true
+            }
+            # Missing uninstall metadata still uses both actual PE file versions.
+            $script:registeredVersion = '0.9.0'
+            Check-Version '0.9.0' $true
+            $script:registeredVersion = '0.11.0'
+            Check-Version '0.10.0' $true
+            Check-Version '0.11.0' $false
+            $script:registeredVersion = 'broken-version'
+            Check-Version '1.0.0' $true
+            $script:registeredVersion = $null
+
+            # A partially replaced Core cannot be hidden by the older UI.
+            Add-Type -TypeDefinition @'
+            using System.Reflection;
+            [assembly: AssemblyFileVersion("0.12.0.0")]
+            public sealed class NewerCoreFixture {}
+            '@ -OutputAssembly (Join-Path $paths.InstallRoot 'newer.dll')
+            Copy-Item -LiteralPath (Join-Path $paths.InstallRoot 'newer.dll') `
+                -Destination (Join-Path $paths.InstallRoot 'AgenTally.Core.exe') -Force
+            Check-Version '0.11.0' $true
+            Check-Version '0.12.0' $false
+            [IO.File]::WriteAllText((Join-Path $paths.InstallRoot 'AgenTally.Core.exe'), 'no version')
+            Check-Version '1.0.0' $true
+
+            Assert-AgenTallyStableUpgradeVersion -Paths ([pscustomobject]@{}) `
+                -IncomingVersion '0.1.0' -InstallMode first
+            'version cases passed'
+            """;
+
+        PowerShellResult result = RunPowerShell(directory, script);
+
+        Assert.AreEqual(0, result.ExitCode, result.StandardError);
+        Assert.Contains("version cases passed", result.StandardOutput, StringComparison.Ordinal);
+    }
+
+    [TestMethod]
+    public void StableUpgradeVersion_InstallEntryRejectsBeforeShutdownOrWrites()
+    {
+        using var directory = new TestTempDirectory();
+        string script = UpgradeVersionFixture(directory) + $$"""
+            # Load the real entry-point functions, without executing its top-level
+            # invocation against this machine's installed Stable application.
+            $tokens = $null
+            $parseErrors = $null
+            $entry = [Management.Automation.Language.Parser]::ParseFile(
+                '{{PowerShellLiteral(Package("Invoke-AgenTallyStableMaintenance.ps1"))}}',
+                [ref] $tokens, [ref] $parseErrors)
+            if ($parseErrors.Count -ne 0) { throw 'Maintenance parse failed.' }
+            foreach ($statement in $entry.EndBlock.Statements) {
+                if ($statement -is [Management.Automation.Language.FunctionDefinitionAst]) {
+                    . ([scriptblock]::Create($statement.Extent.Text))
+                }
+            }
+            function Get-AgenTallyStablePaths { return $script:paths }
+            function Stop-AgenTallyStableGracefully { $script:shutdowns++ }
+            $script:shutdowns = 0
+            $InstallRoot = $paths.InstallRoot
+            $IncomingVersion = '0.9.99'
+            $StatePath = Join-Path $paths.TempRoot 'install-state.txt'
+            $DesktopShortcutRequested = $false
+            $StopTimeoutSeconds = 1
+            $data = Join-Path $paths.DataRoot 'agentally.db'
+            New-Item -ItemType Directory -Path $paths.DataRoot -Force | Out-Null
+            [IO.File]::WriteAllText($data, 'existing-ledger-must-remain')
+            $protected = @($data, (Join-Path $InstallRoot 'AgenTally.UI.exe'),
+                (Join-Path $InstallRoot 'AgenTally.Core.exe'))
+            function Fingerprint([string] $Path) {
+                $algorithm = [Security.Cryptography.SHA256]::Create()
+                try { [Convert]::ToBase64String($algorithm.ComputeHash([IO.File]::ReadAllBytes($Path))) }
+                finally { $algorithm.Dispose() }
+            }
+            $before = @($protected | ForEach-Object { Fingerprint $_ })
+            foreach ($Mode in @('InspectInstall', 'PrepareInstall')) {
+                $rejected = $false
+                try { Invoke-AgenTallyStableMaintenance }
+                catch { $rejected = $_.Exception.Message -like '*downgrade refused*' }
+                if (-not $rejected) { throw "Downgrade reached $Mode." }
+            }
+            if ($shutdowns -ne 0 -or (Test-Path -LiteralPath $StatePath)) {
+                throw 'Rejected downgrade stopped the application or wrote install state.'
+            }
+            $after = @($protected | ForEach-Object { Fingerprint $_ })
+            if (($before -join ',') -ne ($after -join ',')) { throw 'Existing files changed.' }
+            $Mode = 'PrepareInstall'
+            $IncomingVersion = '0.10.0'
+            Invoke-AgenTallyStableMaintenance
+            if ($shutdowns -ne 1) { throw 'Same-version repair did not reach normal preparation.' }
+            'entry guard passed'
+            """;
+
+        PowerShellResult result = RunPowerShell(directory, script);
+
+        Assert.AreEqual(0, result.ExitCode, result.StandardError);
+        Assert.Contains("entry guard passed", result.StandardOutput, StringComparison.Ordinal);
+        Assert.Contains(
+            "-IncomingVersion ' + AddQuotes('{#MyAppVersion}')",
+            File.ReadAllText(Package("AgenTally.iss")),
+            StringComparison.Ordinal);
     }
 
     [TestMethod]
@@ -686,8 +936,67 @@ public sealed class StablePackageSafetyTests
             """;
     }
 
+    private static string UpgradeVersionFixture(TestTempDirectory directory) =>
+        $$"""
+        $ErrorActionPreference = 'Stop'
+        . '{{PowerShellLiteral(Package("StableMaintenance.ps1"))}}'
+        $root = '{{PowerShellLiteral(directory.File("program"))}}'
+        New-Item -ItemType Directory -Path $root -Force | Out-Null
+        Add-Type -TypeDefinition @'
+        using System.Reflection;
+        [assembly: AssemblyFileVersion("0.10.0.0")]
+        public sealed class InstalledVersionFixture {}
+        '@ -OutputAssembly (Join-Path $root 'fixture.dll')
+        foreach ($name in @('AgenTally.UI.exe', 'AgenTally.Core.exe')) {
+            Copy-Item -LiteralPath (Join-Path $root 'fixture.dll') -Destination (Join-Path $root $name)
+        }
+        Copy-Item -LiteralPath '{{PowerShellLiteral(Package("AgenTally.InstallIdentity.json"))}}' -Destination $root
+        $stable = '{{PowerShellLiteral(directory.File("stable"))}}'
+        $script:paths = [pscustomobject]@{
+            InstallRoot = $root
+            DefaultInstallRoot = $root
+            StableRoot = $stable
+            DataRoot = Join-Path $stable 'data'
+            RuntimeRoot = Join-Path $stable 'runtime'
+            LogRoot = Join-Path $stable 'logs'
+            TempRoot = Join-Path $stable 'temp'
+            InnoUninstallRegistryPath = Join-Path $stable 'missing-inno-record'
+            UninstallRegistryPath = Join-Path $stable 'missing-legacy-record'
+            InstallRecordRegistryPath = Join-Path $stable 'missing-location-record'
+            DesktopShortcutPath = Join-Path $stable 'desktop.lnk'
+            InnoStartMenuShortcutPath = Join-Path $stable 'menu.lnk'
+        }
+        $script:registeredVersion = $null
+        function Get-AgenTallyStableRegistryValue {
+            param([string] $RegistryPath, [string] $ValueName)
+            if ($ValueName -eq 'DisplayVersion') { return $script:registeredVersion }
+            throw 'Unexpected registry read in isolated version fixture.'
+        }
+
+        """;
+
     private static string PowerShellLiteral(string value) =>
         value.Replace("'", "''", StringComparison.Ordinal);
+
+    private static void ClearReadOnlyFileAttributes(string root)
+    {
+        if (!Directory.Exists(root))
+        {
+            return;
+        }
+
+        foreach (string path in Directory.EnumerateFiles(
+                     root,
+                     "*",
+                     SearchOption.AllDirectories))
+        {
+            FileAttributes attributes = File.GetAttributes(path);
+            if ((attributes & FileAttributes.ReadOnly) != 0)
+            {
+                File.SetAttributes(path, attributes & ~FileAttributes.ReadOnly);
+            }
+        }
+    }
 
     private static PowerShellResult RunPowerShell(
         TestTempDirectory directory,

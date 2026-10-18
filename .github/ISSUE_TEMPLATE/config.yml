@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Support and FAQ / 使用帮助与常见问题
+    url: https://github.com/syoosch/AgenTally/blob/main/SUPPORT.md
+    about: Start here for installation, data, compatibility, pricing, tray, or uninstall questions. / 相关问题请先查看这里。
+  - name: Report a vulnerability privately / 私密报告安全漏洞
+    url: https://github.com/syoosch/AgenTally/security/advisories/new
+    about: Use GitHub private reporting and do not disclose security details publicly. / 请勿公开披露安全漏洞细节。

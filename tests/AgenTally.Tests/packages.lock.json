@@ -123,6 +123,11 @@
           "SQLitePCLRaw.core": "2.1.12"
         }
       },
+      "ZstdSharp.Port": {
+        "type": "Transitive",
+        "resolved": "0.8.8",
+        "contentHash": "UIDFkA5DC3en3tOJ3Mof11yBx9kUQLsaeo/oFdvN6Bbkr9E9+VCqfIadHci8cu+I51K2Sl7XYWVl2R/mA75NBQ=="
+      },
       "agentally.benchmarkobserver": {
         "type": "Project",
         "dependencies": {
@@ -133,7 +138,8 @@
         "type": "Project",
         "dependencies": {
           "AgenTally.Domain": "[1.0.0, )",
-          "AgenTally.Storage": "[1.0.0, )"
+          "AgenTally.Storage": "[1.0.0, )",
+          "ZstdSharp.Port": "[0.8.8, )"
         }
       },
       "agentally.domain": {

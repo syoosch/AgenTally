@@ -50,7 +50,7 @@ public sealed class ClaudeCodeSourceResolver : IClaudeCodeSourceResolver
             instanceId,
             "claude-code",
             SourceKind.Jsonl,
-            "Claude Code CLI (Windows)",
+            "Claude Code (Windows)",
             normalizedHome);
         var entities = new List<SourceEntityDescriptor>();
         var diagnostics = new List<CollectorDiagnostic>();
@@ -128,10 +128,7 @@ public sealed class ClaudeCodeSourceResolver : IClaudeCodeSourceResolver
                         continue;
                     }
 
-                    if (!string.Equals(
-                            Path.GetExtension(path),
-                            ".jsonl",
-                            StringComparison.OrdinalIgnoreCase))
+                    if (!IsVerifiedTranscriptPath(projectsRoot, path))
                     {
                         continue;
                     }
@@ -195,4 +192,49 @@ public sealed class ClaudeCodeSourceResolver : IClaudeCodeSourceResolver
         exception is IOException
             or UnauthorizedAccessException
             or SecurityException;
+
+    private static bool IsVerifiedTranscriptPath(
+        string projectsRoot,
+        string path)
+    {
+        if (!string.Equals(
+                Path.GetExtension(path),
+                ".jsonl",
+                StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        string relative = Path.GetRelativePath(projectsRoot, path);
+        string[] parts = relative.Split(
+            [Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar],
+            StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length == 2)
+        {
+            return !string.IsNullOrWhiteSpace(parts[0]) &&
+                IsSessionTranscriptName(parts[1]);
+        }
+
+        return parts.Length == 4 &&
+            !string.IsNullOrWhiteSpace(parts[0]) &&
+            IsSessionIdentity(parts[1]) &&
+            string.Equals(
+                parts[2],
+                "subagents",
+                StringComparison.OrdinalIgnoreCase) &&
+            !string.IsNullOrWhiteSpace(
+                Path.GetFileNameWithoutExtension(parts[3]));
+    }
+
+    private static bool IsSessionTranscriptName(string fileName) =>
+        string.Equals(
+            Path.GetExtension(fileName),
+            ".jsonl",
+            StringComparison.OrdinalIgnoreCase) &&
+        IsSessionIdentity(Path.GetFileNameWithoutExtension(fileName));
+
+    private static bool IsSessionIdentity(string value) =>
+        value is { Length: > 0 and <= 1024 } &&
+        !string.IsNullOrWhiteSpace(value) &&
+        !value.Any(char.IsControl);
 }

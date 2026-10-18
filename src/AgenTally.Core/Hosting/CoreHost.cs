@@ -4,6 +4,7 @@ using AgenTally.Core.Collectors.Codex;
 using AgenTally.Core.Collectors.GeminiCli;
 using AgenTally.Core.Collectors.KimiCode;
 using AgenTally.Core.Collectors.OpenCode;
+using AgenTally.Core.Collectors.DeepSeekHarness;
 using AgenTally.Core.Collectors.Qoder;
 using AgenTally.Core.Collectors.QwenCode;
 using AgenTally.Core.Collectors.WorkBuddy;
@@ -74,7 +75,7 @@ public sealed class CoreHost
         {
             await _output.WriteLineAsync($"参数错误：{error}");
             await _output.WriteLineAsync(
-                "用法：AgenTally.Core [--check|--once|--rescan-codex|--clear-statistics|--create-backup|--restore-backup] [--codex-home <path>] [--claude-home <path>] [--claude-desktop-root <path>] [--kimi-home <path>] [--kimi-desktop-home <path>] [--qwen-home <path>] [--qoder-root <path>] [--qoder-cn-root <path>] [--qoder-cli-home <path>] [--zcode-home <path>] [--workbuddy-home <path>] [--gemini-home <path>] [--opencode-home <path>] [--database <path>]");
+                "用法：AgenTally.Core [--check|--once|--rescan-codex|--clear-statistics|--create-backup|--restore-backup] [--codex-home <path>] [--claude-home <path>] [--claude-desktop-root <path>] [--kimi-home <path>] [--kimi-desktop-home <path>] [--qwen-home <path>] [--qoder-root <path>] [--qoder-cn-root <path>] [--qoder-cli-home <path>] [--zcode-home <path>] [--workbuddy-home <path>] [--gemini-home <path>] [--opencode-home <path>] [--deepseek-harness-home <path>] [--database <path>]");
             return CoreExitCodes.InvalidArguments;
         }
 
@@ -91,15 +92,17 @@ public sealed class CoreHost
         var sourceLeaseNames = new List<string>
         {
             AgenTallyRuntimeProfile.CreateSourceLeaseName(options.CodexHome),
-            AgenTallyRuntimeProfile.CreateSourceLeaseName(options.ClaudeHome),
             AgenTallyRuntimeProfile.CreateSourceLeaseName(options.KimiHome),
             AgenTallyRuntimeProfile.CreateSourceLeaseName(options.QwenHome),
             AgenTallyRuntimeProfile.CreateSourceLeaseName(options.QoderCliHome),
             AgenTallyRuntimeProfile.CreateSourceLeaseName(options.ZcodeHome),
             AgenTallyRuntimeProfile.CreateSourceLeaseName(options.WorkBuddyHome),
             AgenTallyRuntimeProfile.CreateSourceLeaseName(options.GeminiHome),
-            AgenTallyRuntimeProfile.CreateSourceLeaseName(options.OpenCodeHome)
+            AgenTallyRuntimeProfile.CreateSourceLeaseName(options.OpenCodeHome),
+            AgenTallyRuntimeProfile.CreateSourceLeaseName(options.DeepSeekHarnessHome)
         };
+        sourceLeaseNames.AddRange(options.ClaudeHomes.Select(
+            AgenTallyRuntimeProfile.CreateSourceLeaseName));
         if (options.ClaudeDesktopRoot is not null)
         {
             sourceLeaseNames.Add(AgenTallyRuntimeProfile.CreateSourceLeaseName(
@@ -187,9 +190,6 @@ public sealed class CoreHost
                 new SqliteUsageWriter(connections),
                 writeGate);
             using var collector = new CodexCollector(options.CodexHome, _timeProvider);
-            var claudeCollector = new ClaudeCodeCollector(
-                options.ClaudeHome,
-                _timeProvider);
             var kimiCollector = new KimiCodeCollector(
                 options.KimiHome,
                 _timeProvider);
@@ -211,18 +211,23 @@ public sealed class CoreHost
             var openCodeCollector = new OpenCodeCollector(
                 options.OpenCodeHome,
                 _timeProvider);
+            var deepSeekHarnessCollector = new DeepSeekHarnessCollector(
+                options.DeepSeekHarnessHome,
+                _timeProvider);
             var collectors = new List<IAgentCollector>
             {
                 collector,
-                claudeCollector,
                 kimiCollector,
                 qwenCollector,
                 qoderCliCollector,
                 zcodeCollector,
                 workBuddyCollector,
                 geminiCollector,
-                openCodeCollector
+                openCodeCollector,
+                deepSeekHarnessCollector
             };
+            collectors.AddRange(options.ClaudeHomes.Select(home =>
+                (IAgentCollector)new ClaudeCodeCollector(home, _timeProvider)));
             if (options.ClaudeDesktopRoot is not null)
             {
                 collectors.Add(new ClaudeCodeDesktopCollector(
@@ -681,7 +686,8 @@ public sealed class CoreHost
     {
         string sessions = Path.Combine(options.CodexHome, "sessions");
         string archived = Path.Combine(options.CodexHome, "archived_sessions");
-        string claudeProjects = Path.Combine(options.ClaudeHome, "projects");
+        int availableClaudeRoots = options.ClaudeHomes.Count(home =>
+            Directory.Exists(Path.Combine(home, "projects")));
         string kimiSessions = Path.Combine(options.KimiHome, "sessions");
         string? kimiDesktopSessions = options.KimiDesktopHome is null
             ? null
@@ -702,7 +708,7 @@ public sealed class CoreHost
         await _output.WriteLineAsync(
             $"Codex archived_sessions：{(Directory.Exists(archived) ? "存在" : "不存在")}");
         await _output.WriteLineAsync(
-            $"Claude Code CLI projects：{(Directory.Exists(claudeProjects) ? "存在" : "不存在")}");
+            $"Claude Code roots：{availableClaudeRoots}/{options.ClaudeHomes.Count} 可用");
         await _output.WriteLineAsync(
             $"Claude Desktop Code local-agent：{(options.ClaudeDesktopRoot is not null && Directory.Exists(options.ClaudeDesktopRoot) ? "存在" : "不存在")}");
         await _output.WriteLineAsync(
@@ -717,6 +723,8 @@ public sealed class CoreHost
             $"Gemini CLI tmp：{(Directory.Exists(geminiTemp) ? "存在" : "不存在")}");
         await _output.WriteLineAsync(
             $"OpenCode data：{(Directory.Exists(options.OpenCodeHome) ? "存在" : "不存在")}");
+        await _output.WriteLineAsync(
+            $"DeepSeek Harness sessions：{(Directory.Exists(Path.Combine(options.DeepSeekHarnessHome, "sessions")) ? "存在" : "不存在")}");
         return 0;
     }
 
@@ -771,6 +779,7 @@ public sealed class CoreHost
         int ignored = 0;
         int failures = 0;
         int compatibilityFailures = 0;
+        var diagnosticCounts = new Dictionary<string, int>(StringComparer.Ordinal);
 
         foreach (SourceEntityDescriptor entity in probe.Entities)
         {
@@ -792,11 +801,17 @@ public sealed class CoreHost
             ignored += result.IgnoredCount;
             failures += result.FailureCount;
             compatibilityFailures += result.CompatibilityFailureCount;
+            foreach ((string code, int count) in result.DiagnosticCounts)
+            {
+                diagnosticCounts[code] =
+                    diagnosticCounts.GetValueOrDefault(code) + count;
+            }
         }
 
         await _output.WriteLineAsync($"已发现来源实体：{probe.Entities.Count}");
         await _output.WriteLineAsync($"已应用事件：{applied}");
         await _output.WriteLineAsync($"已忽略重复事件：{ignored}");
+        await WriteDiagnosticSummaryAsync(diagnosticCounts);
         if (failures > 0)
         {
             await _output.WriteLineAsync($"同步失败来源：{failures}");
@@ -835,6 +850,7 @@ public sealed class CoreHost
         int applied = 0;
         int ignored = 0;
         int compatibilityFailures = 0;
+        var diagnosticCounts = new Dictionary<string, int>(StringComparer.Ordinal);
         while (true)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -846,13 +862,23 @@ public sealed class CoreHost
             ignored += result.IgnoredCount;
             compatibilityFailures += result.Diagnostics.Count(
                 IsMaintenanceBlockingDiagnostic);
+            foreach (IGrouping<string, CollectorDiagnostic> group in
+                     result.Diagnostics.GroupBy(
+                         static value => value.Code,
+                         StringComparer.Ordinal))
+            {
+                diagnosticCounts[group.Key] =
+                    diagnosticCounts.GetValueOrDefault(group.Key) +
+                    group.Count();
+            }
             if (!result.Succeeded)
             {
                 return new EntitySyncSummary(
                     applied,
                     ignored,
                     1,
-                    compatibilityFailures);
+                    compatibilityFailures,
+                    diagnosticCounts);
             }
 
             bool batchLimitReached = result.Diagnostics.Any(static value =>
@@ -866,7 +892,8 @@ public sealed class CoreHost
                     applied,
                     ignored,
                     0,
-                    compatibilityFailures);
+                    compatibilityFailures,
+                    diagnosticCounts);
             }
 
             StoredCursor? nextCursor = await writer.GetCursorAsync(
@@ -881,7 +908,8 @@ public sealed class CoreHost
                     applied,
                     ignored,
                     1,
-                    compatibilityFailures);
+                    compatibilityFailures,
+                    diagnosticCounts);
             }
 
             cursor = nextCursor;
@@ -959,8 +987,8 @@ public sealed class CoreHost
             var primaryPriceLedger = new SqlitePriceLedger(
                 new SqliteConnectionFactory(storageOptions));
             var stagingPriceLedger = new SqlitePriceLedger(stagingConnections);
-            await stagingPriceLedger.ReplaceCustomPricesAsync(
-                await primaryPriceLedger.GetCustomPricesAsync(cancellationToken),
+            await stagingPriceLedger.ReplaceOverridePeriodsAsync(
+                await primaryPriceLedger.GetOverridePeriodsAsync(cancellationToken),
                 cancellationToken);
             foreach ((IAgentCollector collector, SourceProbeResult probe) in probes)
             {
@@ -1063,8 +1091,8 @@ public sealed class CoreHost
             var primaryPriceLedger = new SqlitePriceLedger(
                 new SqliteConnectionFactory(storageOptions));
             var stagingPriceLedger = new SqlitePriceLedger(stagingConnections);
-            await stagingPriceLedger.ReplaceCustomPricesAsync(
-                await primaryPriceLedger.GetCustomPricesAsync(cancellationToken),
+            await stagingPriceLedger.ReplaceOverridePeriodsAsync(
+                await primaryPriceLedger.GetOverridePeriodsAsync(cancellationToken),
                 cancellationToken);
             foreach ((IAgentCollector collector, SourceProbeResult probe) in probes)
             {
@@ -1355,7 +1383,7 @@ public sealed class CoreHost
             await _output.WriteLineAsync(
                 "后台仅监视本地 Codex、Claude Code CLI、Claude Desktop Code local-Agent、" +
                 "Kimi Code CLI、Kimi Work Desktop、WorkBuddy JSONL、ZCode SQLite、" +
-                "Qwen Code CLI、Qoder/Qoder CN Desktop、Qoder CLI、Gemini CLI 与 OpenCode，" +
+                "Qwen Code CLI、Qoder/Qoder CN Desktop、Qoder CLI、Gemini CLI、OpenCode 与 DeepSeek Harness，" +
                 "不联网、不修改 Agent 配置。");
 
             Task cancelled = Task.Delay(Timeout.InfiniteTimeSpan, shutdown.Token);
@@ -1581,7 +1609,7 @@ public sealed class CoreHost
         bool createBackup = false;
         bool restoreBackup = false;
         string? codexHome = null;
-        string? claudeHome = null;
+        var claudeHomes = new List<string>();
         string? claudeDesktopRoot = null;
         string? kimiHome = null;
         string? kimiDesktopHome = null;
@@ -1593,6 +1621,7 @@ public sealed class CoreHost
         string? workBuddyHome = null;
         string? geminiHome = null;
         string? openCodeHome = null;
+        string? deepSeekHarnessHome = null;
         string? databasePath = null;
         for (int index = 0; index < args.Length; index++)
         {
@@ -1668,11 +1697,13 @@ public sealed class CoreHost
 
             if (string.Equals(argument, "--claude-home", StringComparison.OrdinalIgnoreCase))
             {
-                if (claudeHome is not null || !TryReadValue(args, ref index, out claudeHome))
+                if (!TryReadValue(args, ref index, out string? claudeHome))
                 {
-                    error = "--claude-home 需要一个且只能提供一个路径。";
+                    error = "--claude-home 每次需要一个路径，可重复提供。";
                     return false;
                 }
+
+                claudeHomes.Add(claudeHome!);
 
                 continue;
             }
@@ -1842,6 +1873,17 @@ public sealed class CoreHost
                 continue;
             }
 
+            if (string.Equals(argument, "--deepseek-harness-home", StringComparison.OrdinalIgnoreCase))
+            {
+                if (deepSeekHarnessHome is not null ||
+                    !TryReadValue(args, ref index, out deepSeekHarnessHome))
+                {
+                    error = "--deepseek-harness-home 需要一个且只能提供一个路径。";
+                    return false;
+                }
+                continue;
+            }
+
             if (string.Equals(argument, "--database", StringComparison.OrdinalIgnoreCase))
             {
                 if (databasePath is not null || !TryReadValue(args, ref index, out databasePath))
@@ -1893,32 +1935,57 @@ public sealed class CoreHost
             }
 
             string normalizedHome = CodexSourceIdentity.NormalizePath(selectedHome);
-            string selectedClaudeHome;
-            if (claudeHome is not null)
+            var selectedClaudeHomes = new List<string>();
+            if (claudeHomes.Count > 0)
             {
-                selectedClaudeHome = claudeHome;
+                selectedClaudeHomes.AddRange(claudeHomes);
             }
             else
             {
                 string userProfile = Environment.GetFolderPath(
                     Environment.SpecialFolder.UserProfile);
-                string? configuredClaudeHome = Environment.GetEnvironmentVariable(
-                    "CLAUDE_CONFIG_DIR");
+                selectedClaudeHomes.Add(Path.Combine(
+                    Path.GetDirectoryName(normalizedHome) ?? normalizedHome,
+                    ".claude"));
                 bool usesDefaultCodexHome = !string.IsNullOrWhiteSpace(userProfile) &&
                     string.Equals(
                         normalizedHome,
                         CodexSourceIdentity.NormalizePath(
                             Path.Combine(userProfile, ".codex")),
                         StringComparison.OrdinalIgnoreCase);
-                selectedClaudeHome = usesDefaultCodexHome &&
-                    !string.IsNullOrWhiteSpace(configuredClaudeHome)
-                        ? configuredClaudeHome.Trim()
-                        : Path.Combine(
-                            Path.GetDirectoryName(normalizedHome) ?? normalizedHome,
-                            ".claude");
+                string? configuredClaudeHome = Environment.GetEnvironmentVariable(
+                    "CLAUDE_CONFIG_DIR");
+                if (usesDefaultCodexHome &&
+                    !string.IsNullOrWhiteSpace(configuredClaudeHome))
+                {
+                    selectedClaudeHomes.Add(configuredClaudeHome.Trim());
+                }
+
+                if (_runtimeProfile is not null)
+                {
+                    selectedClaudeHomes.AddRange(
+                        new ClaudeCodeSourceConfigurationStore(_runtimeProfile)
+                            .ReadAdditionalRoots());
+                }
             }
-            string normalizedClaudeHome = ClaudeCodeSourceIdentity.NormalizePath(
-                selectedClaudeHome);
+
+            string[] normalizedClaudeHomes = selectedClaudeHomes
+                .Select(ClaudeCodeSourceIdentity.NormalizePath)
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .OrderBy(static value => value, StringComparer.OrdinalIgnoreCase)
+                .ToArray();
+            if (normalizedClaudeHomes.Length == 0)
+            {
+                error = "至少需要一个 Claude Code 数据目录。";
+                return false;
+            }
+
+            if (normalizedClaudeHomes.Length >
+                ClaudeCodeSourceConfigurationStore.MaxAdditionalRoots + 2)
+            {
+                error = "Claude Code 数据目录数量超过安全上限。";
+                return false;
+            }
             string? normalizedClaudeDesktopRoot = claudeDesktopRoot is not null
                 ? ClaudeCodeSourceIdentity.NormalizePath(claudeDesktopRoot)
                 : codexHome is null
@@ -1998,13 +2065,23 @@ public sealed class CoreHost
                     ".local",
                     "share",
                     "opencode"));
+            string? configuredDeepSeekHome = string.Equals(normalizedHome,
+                CodexSourceIdentity.NormalizePath(Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".codex")),
+                StringComparison.OrdinalIgnoreCase)
+                ? Environment.GetEnvironmentVariable("DSH_HOME") : null;
+            string normalizedDeepSeekHarnessHome = DeepSeekHarnessSourceIdentity.NormalizePath(
+                deepSeekHarnessHome ?? (!string.IsNullOrWhiteSpace(configuredDeepSeekHome)
+                    ? configuredDeepSeekHome : null) ??
+                Path.Combine(profileParent, ".dsh"));
             string selectedDatabase = Path.GetFullPath(
                 databasePath ?? _defaultStorageOptions.DatabasePath);
             if (ContainsReparsePoint(normalizedHome) ||
                 ContainsReparsePoint(Path.Combine(normalizedHome, "sessions")) ||
                 ContainsReparsePoint(Path.Combine(normalizedHome, "archived_sessions")) ||
-                ContainsReparsePoint(normalizedClaudeHome) ||
-                ContainsReparsePoint(Path.Combine(normalizedClaudeHome, "projects")) ||
+                normalizedClaudeHomes.Any(value =>
+                    ContainsReparsePoint(value) ||
+                    ContainsReparsePoint(Path.Combine(value, "projects"))) ||
                 (normalizedClaudeDesktopRoot is not null &&
                  ContainsReparsePoint(normalizedClaudeDesktopRoot)) ||
                 ContainsReparsePoint(normalizedKimiHome) ||
@@ -2037,6 +2114,8 @@ public sealed class CoreHost
                 ContainsReparsePoint(normalizedGeminiHome) ||
                 ContainsReparsePoint(Path.Combine(normalizedGeminiHome, "tmp")) ||
                 ContainsReparsePoint(normalizedOpenCodeHome) ||
+                ContainsReparsePoint(normalizedDeepSeekHarnessHome) ||
+                ContainsReparsePoint(Path.Combine(normalizedDeepSeekHarnessHome, "sessions")) ||
                 ContainsReparsePoint(Path.Combine(
                     normalizedOpenCodeHome,
                     "storage",
@@ -2053,9 +2132,9 @@ public sealed class CoreHost
                 IsWithinOrEqual(
                     selectedDatabase,
                     Path.Combine(normalizedHome, "archived_sessions")) ||
-                IsWithinOrEqual(
+                normalizedClaudeHomes.Any(value => IsWithinOrEqual(
                     selectedDatabase,
-                    Path.Combine(normalizedClaudeHome, "projects")) ||
+                    Path.Combine(value, "projects"))) ||
                 (normalizedClaudeDesktopRoot is not null &&
                  IsWithinOrEqual(selectedDatabase, normalizedClaudeDesktopRoot)) ||
                 IsWithinOrEqual(
@@ -2084,14 +2163,15 @@ public sealed class CoreHost
                 IsWithinOrEqual(
                     selectedDatabase,
                     Path.Combine(normalizedGeminiHome, "tmp")) ||
-                IsWithinOrEqual(selectedDatabase, normalizedOpenCodeHome))
+                IsWithinOrEqual(selectedDatabase, normalizedOpenCodeHome) ||
+                IsWithinOrEqual(selectedDatabase, normalizedDeepSeekHarnessHome))
             {
                 error =
                     "数据库不能位于 Codex 原始日志目录、Claude Code CLI projects、" +
                     "Claude Desktop Code local-Agent、Kimi Code CLI sessions、" +
                     "Kimi Work Desktop sessions、Qwen Code projects、Qoder/Qoder CN Desktop 数据库、" +
                     "Qoder CLI projects、ZCode usage database、WorkBuddy projects、" +
-                    "Gemini CLI tmp 或 OpenCode data 目录中。";
+                    "Gemini CLI tmp、OpenCode data 或 DeepSeek Harness 数据目录中。";
                 return false;
             }
 
@@ -2103,7 +2183,7 @@ public sealed class CoreHost
                 createBackup,
                 restoreBackup,
                 normalizedHome,
-                normalizedClaudeHome,
+                normalizedClaudeHomes,
                 normalizedClaudeDesktopRoot,
                 normalizedKimiHome,
                 normalizedKimiDesktopHome,
@@ -2115,6 +2195,7 @@ public sealed class CoreHost
                 normalizedWorkBuddyHome,
                 normalizedGeminiHome,
                 normalizedOpenCodeHome,
+                normalizedDeepSeekHarnessHome,
                 selectedDatabase);
             return true;
         }
@@ -2209,10 +2290,30 @@ public sealed class CoreHost
         CollectorDiagnostic diagnostic) =>
         diagnostic.Code.Contains(".invalid_", StringComparison.Ordinal) ||
         diagnostic.Code.Contains(".unsupported_", StringComparison.Ordinal) ||
+        diagnostic.Code is "jsonl.line_too_long" or
+            "jsonl.incomplete_line_too_long" or "jsonl.first_line_too_long" or
+            "deepseek-harness.incomplete_frame" ||
         string.Equals(
             diagnostic.Code,
             "codex.missing_thread_identity",
             StringComparison.Ordinal);
+
+    private async Task WriteDiagnosticSummaryAsync(
+        IReadOnlyDictionary<string, int> diagnosticCounts)
+    {
+        if (diagnosticCounts.Count == 0)
+        {
+            await _output.WriteLineAsync("诊断代码：无可用代码。");
+            return;
+        }
+
+        string summary = string.Join(
+            ", ",
+            diagnosticCounts
+                .OrderBy(static value => value.Key, StringComparer.Ordinal)
+                .Select(static value => $"{value.Key}={value.Value}"));
+        await _output.WriteLineAsync($"诊断代码：{summary}");
+    }
 
     private static void DeleteStagingDatabaseFiles(string stagingDatabasePath)
     {
@@ -2239,7 +2340,8 @@ public sealed class CoreHost
         int AppliedCount,
         int IgnoredCount,
         int FailureCount,
-        int CompatibilityFailureCount);
+        int CompatibilityFailureCount,
+        IReadOnlyDictionary<string, int> DiagnosticCounts);
 
     private sealed record CoreOptions(
         bool Check,
@@ -2249,7 +2351,7 @@ public sealed class CoreHost
         bool CreateBackup,
         bool RestoreBackup,
         string CodexHome,
-        string ClaudeHome,
+        IReadOnlyList<string> ClaudeHomes,
         string? ClaudeDesktopRoot,
         string KimiHome,
         string? KimiDesktopHome,
@@ -2261,5 +2363,6 @@ public sealed class CoreHost
         string WorkBuddyHome,
         string GeminiHome,
         string OpenCodeHome,
+        string DeepSeekHarnessHome,
         string DatabasePath);
 }

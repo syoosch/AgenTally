@@ -1,90 +1,280 @@
 {
-  "schemaVersion": 1,
-  "catalogVersion": "official-api-usd-2026-08-10-r1",
+  "schemaVersion": 3,
+  "catalogVersion": "official-api-usd-2026-10-18-r3",
   "currency": "USD",
   "unit": "per_million_tokens",
   "rules": [
     {
-      "ruleId": "openai/gpt-5.6-sol",
+      "ruleId": "openai/gpt-6.1-sol",
       "provider": "openai",
-      "officialSource": "https://developers.openai.com/api/docs/models/compare",
-      "verifiedOn": "2026-08-02",
-      "models": ["gpt-5.6-sol", "gpt-5.6"],
-      "inputUsdPerMillion": 5,
-      "cachedInputUsdPerMillion": 0.5,
-      "cacheWriteUsdPerMillion": 6.25,
-      "outputUsdPerMillion": 30,
+      "officialSource": "https://developers.openai.com/api/docs/models/gpt-6.1-sol",
+      "verifiedOn": "2026-10-06",
+      "models": [
+        "gpt-6.1-sol"
+      ],
+      "inputUsdPerMillion": 2,
+      "cachedInputUsdPerMillion": 0.1,
+      "cacheWriteUsdPerMillion": 2.5,
+      "outputUsdPerMillion": 10,
       "longContextThresholdTokens": 272000,
       "longContextInputMultiplier": 2,
       "longContextOutputMultiplier": 1.5
+    },
+    {
+      "ruleId": "openai/gpt-6-astra",
+      "provider": "openai",
+      "officialSource": "https://developers.openai.com/api/docs/models/gpt-6-astra",
+      "verifiedOn": "2026-10-06",
+      "models": [
+        "gpt-6-astra"
+      ],
+      "inputUsdPerMillion": 10,
+      "cachedInputUsdPerMillion": 1,
+      "cacheWriteUsdPerMillion": 12.5,
+      "outputUsdPerMillion": 50,
+      "longContextThresholdTokens": 272000,
+      "longContextInputMultiplier": 2,
+      "longContextOutputMultiplier": 1.5
+    },
+    {
+      "ruleId": "openai/gpt-6-sol",
+      "provider": "openai",
+      "officialSource": "https://developers.openai.com/api/docs/models/gpt-6-sol",
+      "verifiedOn": "2026-10-06",
+      "models": [
+        "gpt-6-sol"
+      ],
+      "inputUsdPerMillion": 2,
+      "cachedInputUsdPerMillion": 0.2,
+      "cacheWriteUsdPerMillion": 2.5,
+      "outputUsdPerMillion": 10,
+      "longContextThresholdTokens": 272000,
+      "longContextInputMultiplier": 2,
+      "longContextOutputMultiplier": 1.5
+    },
+    {
+      "ruleId": "openai/gpt-6-luna",
+      "provider": "openai",
+      "officialSource": "https://developers.openai.com/api/docs/models/gpt-6-luna",
+      "verifiedOn": "2026-10-06",
+      "models": [
+        "gpt-6-luna"
+      ],
+      "inputUsdPerMillion": 0.1,
+      "cachedInputUsdPerMillion": 0.01,
+      "cacheWriteUsdPerMillion": 0.125,
+      "outputUsdPerMillion": 0.5,
+      "longContextThresholdTokens": 272000,
+      "longContextInputMultiplier": 2,
+      "longContextOutputMultiplier": 1.5
+    },
+    {
+      "ruleId": "openai/gpt-5.6-sol",
+      "provider": "openai",
+      "officialSource": "https://developers.openai.com/api/docs/models/gpt-5.6-sol",
+      "verifiedOn": "2026-10-18",
+      "models": [
+        "gpt-5.6-sol",
+        "gpt-5.6"
+      ],
+      "inputUsdPerMillion": 4,
+      "cachedInputUsdPerMillion": 0.4,
+      "cacheWriteUsdPerMillion": 5,
+      "outputUsdPerMillion": 20,
+      "longContextThresholdTokens": 272000,
+      "longContextInputMultiplier": 2,
+      "longContextOutputMultiplier": 1.5,
+      "effectiveFromUtc": "2026-08-21T00:00:00Z",
+      "effectiveDateSource": "https://developers.openai.com/api/docs/changelog",
+      "effectiveFromBasis": "official-date-at-utc-midnight",
+      "historyNote": "Official announcement gives a date, not a time. No automatic end is inferred for Sol's at-least-through-November promotion."
     },
     {
       "ruleId": "openai/gpt-5.6-terra",
       "provider": "openai",
-      "officialSource": "https://developers.openai.com/api/docs/models/compare",
-      "verifiedOn": "2026-08-02",
-      "models": ["gpt-5.6-terra"],
-      "inputUsdPerMillion": 2.5,
-      "cachedInputUsdPerMillion": 0.25,
-      "cacheWriteUsdPerMillion": 3.125,
-      "outputUsdPerMillion": 15,
+      "officialSource": "https://developers.openai.com/api/docs/models/gpt-5.6-terra",
+      "verifiedOn": "2026-10-18",
+      "models": [
+        "gpt-5.6-terra"
+      ],
+      "inputUsdPerMillion": 2,
+      "cachedInputUsdPerMillion": 0.2,
+      "cacheWriteUsdPerMillion": 2.5,
+      "outputUsdPerMillion": 12,
       "longContextThresholdTokens": 272000,
       "longContextInputMultiplier": 2,
-      "longContextOutputMultiplier": 1.5
+      "longContextOutputMultiplier": 1.5,
+      "effectiveFromUtc": "2026-07-30T00:00:00Z",
+      "effectiveDateSource": "https://developers.openai.com/api/docs/changelog",
+      "effectiveFromBasis": "official-date-at-utc-midnight",
+      "historyNote": "Official announcement gives a date, not a time. No automatic end is inferred for Sol's at-least-through-November promotion."
     },
     {
       "ruleId": "openai/gpt-5.6-luna",
       "provider": "openai",
-      "officialSource": "https://developers.openai.com/api/docs/models/compare",
-      "verifiedOn": "2026-08-02",
-      "models": ["gpt-5.6-luna"],
-      "inputUsdPerMillion": 1,
-      "cachedInputUsdPerMillion": 0.1,
-      "cacheWriteUsdPerMillion": 1.25,
-      "outputUsdPerMillion": 6,
+      "officialSource": "https://developers.openai.com/api/docs/models/gpt-5.6-luna",
+      "verifiedOn": "2026-10-18",
+      "models": [
+        "gpt-5.6-luna"
+      ],
+      "inputUsdPerMillion": 0.2,
+      "cachedInputUsdPerMillion": 0.02,
+      "cacheWriteUsdPerMillion": 0.25,
+      "outputUsdPerMillion": 1.2,
       "longContextThresholdTokens": 272000,
       "longContextInputMultiplier": 2,
-      "longContextOutputMultiplier": 1.5
+      "longContextOutputMultiplier": 1.5,
+      "effectiveFromUtc": "2026-07-30T00:00:00Z",
+      "effectiveDateSource": "https://developers.openai.com/api/docs/changelog",
+      "effectiveFromBasis": "official-date-at-utc-midnight",
+      "historyNote": "Official announcement gives a date, not a time. No automatic end is inferred for Sol's at-least-through-November promotion."
     },
     {
       "ruleId": "openai/gpt-5.3-codex",
       "provider": "openai",
       "officialSource": "https://developers.openai.com/api/docs/models/gpt-5.3-codex",
       "verifiedOn": "2026-08-02",
-      "models": ["gpt-5.3-codex"],
+      "models": [
+        "gpt-5.3-codex"
+      ],
       "inputUsdPerMillion": 1.75,
       "cachedInputUsdPerMillion": 0.175,
       "cacheWriteUsdPerMillion": null,
       "outputUsdPerMillion": 14
     },
     {
-      "ruleId": "deepseek/deepseek-v4-flash",
+      "ruleId": "deepseek/deepseek-flash",
       "provider": "deepseek",
       "officialSource": "https://api-docs.deepseek.com/quick_start/pricing/",
-      "verifiedOn": "2026-08-02",
-      "models": ["deepseek-v4-flash"],
-      "inputUsdPerMillion": 0.14,
-      "cachedInputUsdPerMillion": 0.0028,
-      "cacheWriteUsdPerMillion": 0.14,
-      "outputUsdPerMillion": 0.28
+      "verifiedOn": "2026-10-18",
+      "models": [
+        "deepseek-flash"
+      ],
+      "inputUsdPerMillion": 0.15,
+      "cachedInputUsdPerMillion": 0.003,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.6,
+      "peakOffPeak": {
+        "schedule": "deepseek-beijing-weekday-v1",
+        "peakMultiplier": 2,
+        "holidayCalendars": [
+          {
+            "year": 2026,
+            "officialSource": "https://www.beijing.gov.cn/cs/gncs/zcwj/202603/t20260327_4568275.html",
+            "verifiedOn": "2026-10-18",
+            "days": [
+              "2026-01-01",
+              "2026-01-02",
+              "2026-01-03",
+              "2026-02-15",
+              "2026-02-16",
+              "2026-02-17",
+              "2026-02-18",
+              "2026-02-19",
+              "2026-02-20",
+              "2026-02-21",
+              "2026-02-22",
+              "2026-02-23",
+              "2026-04-04",
+              "2026-04-05",
+              "2026-04-06",
+              "2026-05-01",
+              "2026-05-02",
+              "2026-05-03",
+              "2026-05-04",
+              "2026-05-05",
+              "2026-06-19",
+              "2026-06-20",
+              "2026-06-21",
+              "2026-09-25",
+              "2026-09-26",
+              "2026-09-27",
+              "2026-10-01",
+              "2026-10-02",
+              "2026-10-03",
+              "2026-10-04",
+              "2026-10-05",
+              "2026-10-06",
+              "2026-10-07"
+            ]
+          }
+        ]
+      },
+      "effectiveFromUtc": "2026-09-10T04:00:00Z",
+      "effectiveDateSource": "https://api-docs.deepseek.com/news/news260910/"
     },
     {
       "ruleId": "deepseek/deepseek-v4-pro",
       "provider": "deepseek",
       "officialSource": "https://api-docs.deepseek.com/quick_start/pricing/",
-      "verifiedOn": "2026-08-02",
-      "models": ["deepseek-v4-pro"],
-      "inputUsdPerMillion": 0.435,
-      "cachedInputUsdPerMillion": 0.003625,
-      "cacheWriteUsdPerMillion": 0.435,
-      "outputUsdPerMillion": 0.87
+      "verifiedOn": "2026-10-18",
+      "models": [
+        "deepseek-v4-pro"
+      ],
+      "inputUsdPerMillion": 0.66,
+      "cachedInputUsdPerMillion": 0.022,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 1.98,
+      "peakOffPeak": {
+        "schedule": "deepseek-beijing-weekday-v1",
+        "peakMultiplier": 2,
+        "holidayCalendars": [
+          {
+            "year": 2026,
+            "officialSource": "https://www.beijing.gov.cn/cs/gncs/zcwj/202603/t20260327_4568275.html",
+            "verifiedOn": "2026-10-18",
+            "days": [
+              "2026-01-01",
+              "2026-01-02",
+              "2026-01-03",
+              "2026-02-15",
+              "2026-02-16",
+              "2026-02-17",
+              "2026-02-18",
+              "2026-02-19",
+              "2026-02-20",
+              "2026-02-21",
+              "2026-02-22",
+              "2026-02-23",
+              "2026-04-04",
+              "2026-04-05",
+              "2026-04-06",
+              "2026-05-01",
+              "2026-05-02",
+              "2026-05-03",
+              "2026-05-04",
+              "2026-05-05",
+              "2026-06-19",
+              "2026-06-20",
+              "2026-06-21",
+              "2026-09-25",
+              "2026-09-26",
+              "2026-09-27",
+              "2026-10-01",
+              "2026-10-02",
+              "2026-10-03",
+              "2026-10-04",
+              "2026-10-05",
+              "2026-10-06",
+              "2026-10-07"
+            ]
+          }
+        ]
+      },
+      "effectiveFromUtc": "2026-08-22T16:00:00Z",
+      "effectiveDateSource": "https://web.archive.org/web/20260822141620/https://api-docs.deepseek.com/quick_start/pricing/",
+      "effectiveFromBasis": "official-utc-instant",
+      "historyNote": "Pro service retirement was cancelled. Its current rate is retained; the explicit weekend exemption begins Beijing 2026-08-23. Holiday exemption is confirmed before the first applicable holiday by the 2026-09-24 official-page capture."
     },
     {
       "ruleId": "anthropic/claude-fable-mythos-5",
       "provider": "anthropic",
       "officialSource": "https://platform.claude.com/docs/en/about-claude/pricing",
       "verifiedOn": "2026-08-02",
-      "models": ["claude-fable-5", "claude-mythos-5"],
+      "models": [
+        "claude-fable-5",
+        "claude-mythos-5"
+      ],
       "inputUsdPerMillion": 10,
       "cachedInputUsdPerMillion": 1,
       "cacheWriteUsdPerMillion": null,
@@ -99,7 +289,6 @@
         "claude-opus-5",
         "claude-opus-4-8",
         "claude-opus-4-7",
-        "claude-opus-4-6",
         "claude-opus-4-5",
         "claude-opus-4-5-20251101"
       ],
@@ -129,7 +318,6 @@
       "officialSource": "https://platform.claude.com/docs/en/about-claude/pricing",
       "verifiedOn": "2026-08-02",
       "models": [
-        "claude-sonnet-4-6",
         "claude-sonnet-4-5",
         "claude-sonnet-4-5-20250929",
         "claude-sonnet-4-20250514"
@@ -144,7 +332,10 @@
       "provider": "anthropic",
       "officialSource": "https://platform.claude.com/docs/en/about-claude/pricing",
       "verifiedOn": "2026-08-02",
-      "models": ["claude-haiku-4-5", "claude-haiku-4-5-20251001"],
+      "models": [
+        "claude-haiku-4-5",
+        "claude-haiku-4-5-20251001"
+      ],
       "inputUsdPerMillion": 1,
       "cachedInputUsdPerMillion": 0.1,
       "cacheWriteUsdPerMillion": null,
@@ -155,11 +346,2007 @@
       "provider": "anthropic",
       "officialSource": "https://platform.claude.com/docs/en/about-claude/pricing",
       "verifiedOn": "2026-08-02",
-      "models": ["claude-3-5-haiku-20241022"],
+      "models": [
+        "claude-3-5-haiku-20241022"
+      ],
       "inputUsdPerMillion": 0.8,
       "cachedInputUsdPerMillion": 0.08,
       "cacheWriteUsdPerMillion": null,
       "outputUsdPerMillion": 4
+    },
+    {
+      "ruleId": "deepseek/deepseek-v4-flash-20260816",
+      "provider": "deepseek",
+      "officialSource": "https://api-docs.deepseek.com/quick_start/pricing/",
+      "verifiedOn": "2026-10-18",
+      "models": [
+        "deepseek-v4-flash"
+      ],
+      "inputUsdPerMillion": 0.22,
+      "cachedInputUsdPerMillion": 0.007,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.66,
+      "effectiveDateSource": "https://web.archive.org/web/20260822141620/https://api-docs.deepseek.com/quick_start/pricing/",
+      "peakOffPeak": {
+        "schedule": "deepseek-utc-daily-v1",
+        "peakMultiplier": 2,
+        "holidayCalendars": []
+      },
+      "effectiveFromUtc": "2026-08-16T16:00:00Z",
+      "effectiveUntilUtc": "2026-08-22T16:00:00Z",
+      "effectiveFromBasis": "official-utc-instant",
+      "effectiveUntilBasis": "official-utc-instant"
+    },
+    {
+      "ruleId": "deepseek/deepseek-v4-flash-20260910",
+      "provider": "deepseek",
+      "officialSource": "https://api-docs.deepseek.com/quick_start/pricing/",
+      "verifiedOn": "2026-10-18",
+      "models": [
+        "deepseek-v4-flash"
+      ],
+      "inputUsdPerMillion": 0.15,
+      "cachedInputUsdPerMillion": 0.003,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.6,
+      "peakOffPeak": {
+        "schedule": "deepseek-beijing-weekday-v1",
+        "peakMultiplier": 2,
+        "holidayCalendars": [
+          {
+            "year": 2026,
+            "officialSource": "https://www.beijing.gov.cn/cs/gncs/zcwj/202603/t20260327_4568275.html",
+            "verifiedOn": "2026-10-18",
+            "days": [
+              "2026-01-01",
+              "2026-01-02",
+              "2026-01-03",
+              "2026-02-15",
+              "2026-02-16",
+              "2026-02-17",
+              "2026-02-18",
+              "2026-02-19",
+              "2026-02-20",
+              "2026-02-21",
+              "2026-02-22",
+              "2026-02-23",
+              "2026-04-04",
+              "2026-04-05",
+              "2026-04-06",
+              "2026-05-01",
+              "2026-05-02",
+              "2026-05-03",
+              "2026-05-04",
+              "2026-05-05",
+              "2026-06-19",
+              "2026-06-20",
+              "2026-06-21",
+              "2026-09-25",
+              "2026-09-26",
+              "2026-09-27",
+              "2026-10-01",
+              "2026-10-02",
+              "2026-10-03",
+              "2026-10-04",
+              "2026-10-05",
+              "2026-10-06",
+              "2026-10-07"
+            ]
+          }
+        ]
+      },
+      "effectiveFromUtc": "2026-09-10T04:00:00Z",
+      "effectiveDateSource": "https://api-docs.deepseek.com/news/news260910/"
+    },
+    {
+      "ruleId": "openai/gpt-5.6-sol-pre-reduction",
+      "provider": "openai",
+      "officialSource": "https://openai.com/index/gpt-5-6/",
+      "verifiedOn": "2026-10-18",
+      "models": [
+        "gpt-5.6-sol",
+        "gpt-5.6"
+      ],
+      "inputUsdPerMillion": 5,
+      "cachedInputUsdPerMillion": 0.5,
+      "cacheWriteUsdPerMillion": 6.25,
+      "outputUsdPerMillion": 30,
+      "effectiveUntilUtc": "2026-08-21T00:00:00Z",
+      "effectiveDateSource": "https://developers.openai.com/api/docs/changelog",
+      "effectiveUntilBasis": "official-date-at-utc-midnight",
+      "historyNote": "Unbounded baseline: use the official pre-change rates for all earlier calls, as requested by the user; this is not a model release date.",
+      "longContextThresholdTokens": 272000,
+      "longContextInputMultiplier": 2,
+      "longContextOutputMultiplier": 1.5
+    },
+    {
+      "ruleId": "openai/gpt-5.6-terra-pre-reduction",
+      "provider": "openai",
+      "officialSource": "https://openai.com/index/gpt-5-6/",
+      "verifiedOn": "2026-10-18",
+      "models": [
+        "gpt-5.6-terra"
+      ],
+      "inputUsdPerMillion": 2.5,
+      "cachedInputUsdPerMillion": 0.25,
+      "cacheWriteUsdPerMillion": 3.125,
+      "outputUsdPerMillion": 15,
+      "effectiveUntilUtc": "2026-07-30T00:00:00Z",
+      "effectiveDateSource": "https://developers.openai.com/api/docs/changelog",
+      "effectiveUntilBasis": "official-date-at-utc-midnight",
+      "historyNote": "Unbounded baseline: use the official pre-change rates for all earlier calls, as requested by the user; this is not a model release date.",
+      "longContextThresholdTokens": 272000,
+      "longContextInputMultiplier": 2,
+      "longContextOutputMultiplier": 1.5
+    },
+    {
+      "ruleId": "openai/gpt-5.6-luna-pre-reduction",
+      "provider": "openai",
+      "officialSource": "https://openai.com/index/gpt-5-6/",
+      "verifiedOn": "2026-10-18",
+      "models": [
+        "gpt-5.6-luna"
+      ],
+      "inputUsdPerMillion": 1,
+      "cachedInputUsdPerMillion": 0.1,
+      "cacheWriteUsdPerMillion": 1.25,
+      "outputUsdPerMillion": 6,
+      "effectiveUntilUtc": "2026-07-30T00:00:00Z",
+      "effectiveDateSource": "https://developers.openai.com/api/docs/changelog",
+      "effectiveUntilBasis": "official-date-at-utc-midnight",
+      "historyNote": "Unbounded baseline: use the official pre-change rates for all earlier calls, as requested by the user; this is not a model release date.",
+      "longContextThresholdTokens": 272000,
+      "longContextInputMultiplier": 2,
+      "longContextOutputMultiplier": 1.5
+    },
+    {
+      "ruleId": "openai/o3-before-20250610",
+      "provider": "openai",
+      "officialSource": "https://developers.openai.com/cookbook/examples/partners/model_selection_guide/model_selection_guide",
+      "verifiedOn": "2026-10-18",
+      "models": [
+        "o3",
+        "o3-2025-04-16"
+      ],
+      "inputUsdPerMillion": 10,
+      "cachedInputUsdPerMillion": 2.5,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 40,
+      "effectiveUntilUtc": "2025-06-10T00:00:00Z",
+      "effectiveDateSource": "https://developers.openai.com/api/docs/changelog",
+      "effectiveUntilBasis": "official-date-at-utc-midnight",
+      "historyNote": "Unbounded baseline: use the official pre-change rates for all earlier calls, as requested by the user; this is not a model release date. The official cookbook records the old input/output rates; the old cached rate follows the official 80% price reduction and the new $0.50 cached rate."
+    },
+    {
+      "ruleId": "openai/o3-20250610",
+      "provider": "openai",
+      "officialSource": "https://developers.openai.com/api/docs/models/o3",
+      "verifiedOn": "2026-10-18",
+      "models": [
+        "o3",
+        "o3-2025-04-16"
+      ],
+      "inputUsdPerMillion": 2,
+      "cachedInputUsdPerMillion": 0.5,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 8,
+      "effectiveFromUtc": "2025-06-10T00:00:00Z",
+      "effectiveDateSource": "https://developers.openai.com/api/docs/changelog",
+      "effectiveFromBasis": "official-date-at-utc-midnight"
+    },
+    {
+      "ruleId": "anthropic/claude-opus-4-6-long-context-before-20260313",
+      "provider": "anthropic",
+      "officialSource": "https://web.archive.org/web/20260218161737/https://platform.claude.com/docs/en/about-claude/pricing",
+      "verifiedOn": "2026-10-18",
+      "models": [
+        "claude-opus-4-6",
+        "claude-opus-4-6-20260205"
+      ],
+      "inputUsdPerMillion": 5,
+      "cachedInputUsdPerMillion": 0.5,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 25,
+      "effectiveUntilUtc": "2026-03-13T00:00:00Z",
+      "effectiveDateSource": "https://claude.com/blog/1m-context-ga",
+      "effectiveUntilBasis": "official-date-at-utc-midnight",
+      "historyNote": "Unbounded baseline: use the official pre-change rates for all earlier calls, as requested by the user; this is not a model release date. Cache-write TTL distinctions remain unsupported and are not guessed.",
+      "longContextThresholdTokens": 200000,
+      "longContextInputMultiplier": 2,
+      "longContextOutputMultiplier": 1.5
+    },
+    {
+      "ruleId": "anthropic/claude-opus-4-6-20260313",
+      "provider": "anthropic",
+      "officialSource": "https://claude.com/blog/1m-context-ga",
+      "verifiedOn": "2026-10-18",
+      "models": [
+        "claude-opus-4-6",
+        "claude-opus-4-6-20260205"
+      ],
+      "inputUsdPerMillion": 5,
+      "cachedInputUsdPerMillion": 0.5,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 25,
+      "effectiveFromUtc": "2026-03-13T00:00:00Z",
+      "effectiveDateSource": "https://claude.com/blog/1m-context-ga",
+      "effectiveFromBasis": "official-date-at-utc-midnight",
+      "historyNote": "The 1M context premium is removed. Cache-write TTL distinctions remain unsupported."
+    },
+    {
+      "ruleId": "anthropic/claude-sonnet-4-6-long-context-before-20260313",
+      "provider": "anthropic",
+      "officialSource": "https://web.archive.org/web/20260218161737/https://platform.claude.com/docs/en/about-claude/pricing",
+      "verifiedOn": "2026-10-18",
+      "models": [
+        "claude-sonnet-4-6"
+      ],
+      "inputUsdPerMillion": 3,
+      "cachedInputUsdPerMillion": 0.3,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 15,
+      "effectiveUntilUtc": "2026-03-13T00:00:00Z",
+      "effectiveDateSource": "https://claude.com/blog/1m-context-ga",
+      "effectiveUntilBasis": "official-date-at-utc-midnight",
+      "historyNote": "Unbounded baseline: use the official pre-change rates for all earlier calls, as requested by the user; this is not a model release date. Cache-write TTL distinctions remain unsupported and are not guessed.",
+      "longContextThresholdTokens": 200000,
+      "longContextInputMultiplier": 2,
+      "longContextOutputMultiplier": 1.5
+    },
+    {
+      "ruleId": "anthropic/claude-sonnet-4-6-20260313",
+      "provider": "anthropic",
+      "officialSource": "https://claude.com/blog/1m-context-ga",
+      "verifiedOn": "2026-10-18",
+      "models": [
+        "claude-sonnet-4-6"
+      ],
+      "inputUsdPerMillion": 3,
+      "cachedInputUsdPerMillion": 0.3,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 15,
+      "effectiveFromUtc": "2026-03-13T00:00:00Z",
+      "effectiveDateSource": "https://claude.com/blog/1m-context-ga",
+      "effectiveFromBasis": "official-date-at-utc-midnight",
+      "historyNote": "The 1M context premium is removed. Cache-write TTL distinctions remain unsupported."
+    },
+    {
+      "ruleId": "deepseek/deepseek-v4-flash-before-cache-cut",
+      "provider": "deepseek",
+      "officialSource": "https://web.archive.org/web/20260424030643/https://api-docs.deepseek.com/quick_start/pricing/",
+      "verifiedOn": "2026-10-18",
+      "models": [
+        "deepseek-v4-flash"
+      ],
+      "inputUsdPerMillion": 0.14,
+      "cachedInputUsdPerMillion": 0.028,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.28,
+      "effectiveUntilUtc": "2026-04-26T16:35:11Z",
+      "effectiveDateSource": "https://x.com/deepseek_ai/status/2048440764368347611",
+      "effectiveUntilBasis": "official-immediate-announcement",
+      "historyNote": "Unbounded baseline: use the official pre-change rates for all earlier calls, as requested by the user; this is not a model release date."
+    },
+    {
+      "ruleId": "deepseek/deepseek-v4-flash-cache-cut",
+      "provider": "deepseek",
+      "officialSource": "https://x.com/deepseek_ai/status/2048440764368347611",
+      "verifiedOn": "2026-10-18",
+      "models": [
+        "deepseek-v4-flash"
+      ],
+      "inputUsdPerMillion": 0.14,
+      "cachedInputUsdPerMillion": 0.0028,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.28,
+      "effectiveFromUtc": "2026-04-26T16:35:11Z",
+      "effectiveUntilUtc": "2026-08-16T16:00:00Z",
+      "effectiveDateSource": "https://api-docs.deepseek.com/news/news260813/",
+      "effectiveFromBasis": "official-utc-instant",
+      "effectiveUntilBasis": "official-utc-instant",
+      "historyNote": "Start is the official effective-immediately announcement timestamp; no cache-write fee is invented."
+    },
+    {
+      "ruleId": "deepseek/deepseek-v4-flash-weekends-20260823",
+      "provider": "deepseek",
+      "officialSource": "https://api-docs.deepseek.com/news/news260813/",
+      "verifiedOn": "2026-10-18",
+      "models": [
+        "deepseek-v4-flash"
+      ],
+      "inputUsdPerMillion": 0.22,
+      "cachedInputUsdPerMillion": 0.007,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.66,
+      "effectiveFromUtc": "2026-08-22T16:00:00Z",
+      "effectiveUntilUtc": "2026-09-10T04:00:00Z",
+      "effectiveDateSource": "https://web.archive.org/web/20260822141620/https://api-docs.deepseek.com/quick_start/pricing/",
+      "effectiveFromBasis": "official-utc-instant",
+      "effectiveUntilBasis": "official-utc-instant",
+      "historyNote": "Weekend exemption is explicit at Beijing 2026-08-23 00:00. Holiday policy is corroborated before the first applicable 2026 holiday by the 2026-09-24 official-page capture.",
+      "peakOffPeak": {
+        "schedule": "deepseek-beijing-weekday-v1",
+        "peakMultiplier": 2,
+        "holidayCalendars": [
+          {
+            "year": 2026,
+            "officialSource": "https://www.beijing.gov.cn/cs/gncs/zcwj/202603/t20260327_4568275.html",
+            "verifiedOn": "2026-10-18",
+            "days": [
+              "2026-01-01",
+              "2026-01-02",
+              "2026-01-03",
+              "2026-02-15",
+              "2026-02-16",
+              "2026-02-17",
+              "2026-02-18",
+              "2026-02-19",
+              "2026-02-20",
+              "2026-02-21",
+              "2026-02-22",
+              "2026-02-23",
+              "2026-04-04",
+              "2026-04-05",
+              "2026-04-06",
+              "2026-05-01",
+              "2026-05-02",
+              "2026-05-03",
+              "2026-05-04",
+              "2026-05-05",
+              "2026-06-19",
+              "2026-06-20",
+              "2026-06-21",
+              "2026-09-25",
+              "2026-09-26",
+              "2026-09-27",
+              "2026-10-01",
+              "2026-10-02",
+              "2026-10-03",
+              "2026-10-04",
+              "2026-10-05",
+              "2026-10-06",
+              "2026-10-07"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "ruleId": "deepseek/deepseek-v4-pro-before-promotion",
+      "provider": "deepseek",
+      "officialSource": "https://web.archive.org/web/20260424030643/https://api-docs.deepseek.com/quick_start/pricing/",
+      "verifiedOn": "2026-10-18",
+      "models": [
+        "deepseek-v4-pro"
+      ],
+      "inputUsdPerMillion": 1.74,
+      "cachedInputUsdPerMillion": 0.145,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 3.48,
+      "effectiveUntilUtc": "2026-04-25T00:00:00Z",
+      "effectiveDateSource": "https://x.com/deepseek_ai/status/2048062777357750316",
+      "effectiveUntilBasis": "official-publication-date-at-utc-midnight",
+      "historyNote": "Unbounded baseline: use the official pre-change rates for all earlier calls, as requested by the user; this is not a model release date."
+    },
+    {
+      "ruleId": "deepseek/deepseek-v4-pro-promotion",
+      "provider": "deepseek",
+      "officialSource": "https://web.archive.org/web/20260425165822/https://api-docs.deepseek.com/quick_start/pricing",
+      "verifiedOn": "2026-10-18",
+      "models": [
+        "deepseek-v4-pro"
+      ],
+      "inputUsdPerMillion": 0.435,
+      "cachedInputUsdPerMillion": 0.03625,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.87,
+      "effectiveFromUtc": "2026-04-25T00:00:00Z",
+      "effectiveUntilUtc": "2026-04-26T16:35:11Z",
+      "effectiveDateSource": "https://x.com/deepseek_ai/status/2048062777357750316",
+      "effectiveFromBasis": "official-publication-date-at-utc-midnight",
+      "effectiveUntilBasis": "official-immediate-announcement",
+      "historyNote": "Promotion is confirmed in the April 25 official announcement and rate-card capture; the announcement does not identify a separate activation time."
+    },
+    {
+      "ruleId": "deepseek/deepseek-v4-pro-cache-cut",
+      "provider": "deepseek",
+      "officialSource": "https://x.com/deepseek_ai/status/2048440764368347611",
+      "verifiedOn": "2026-10-18",
+      "models": [
+        "deepseek-v4-pro"
+      ],
+      "inputUsdPerMillion": 0.435,
+      "cachedInputUsdPerMillion": 0.003625,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.87,
+      "effectiveFromUtc": "2026-04-26T16:35:11Z",
+      "effectiveUntilUtc": "2026-08-16T16:00:00Z",
+      "effectiveDateSource": "https://api-docs.deepseek.com/news/news260813/",
+      "effectiveFromBasis": "official-utc-instant",
+      "effectiveUntilBasis": "official-utc-instant",
+      "historyNote": "Official immediate cache reduction. The promotion was extended and made permanent; do not manufacture May 5/May 31 price rises."
+    },
+    {
+      "ruleId": "deepseek/deepseek-v4-pro-20260816",
+      "provider": "deepseek",
+      "officialSource": "https://api-docs.deepseek.com/news/news260813/",
+      "verifiedOn": "2026-10-18",
+      "models": [
+        "deepseek-v4-pro"
+      ],
+      "inputUsdPerMillion": 0.66,
+      "cachedInputUsdPerMillion": 0.022,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 1.98,
+      "effectiveFromUtc": "2026-08-16T16:00:00Z",
+      "effectiveUntilUtc": "2026-08-22T16:00:00Z",
+      "effectiveDateSource": "https://web.archive.org/web/20260822141620/https://api-docs.deepseek.com/quick_start/pricing/",
+      "effectiveFromBasis": "official-utc-instant",
+      "effectiveUntilBasis": "official-utc-instant",
+      "peakOffPeak": {
+        "schedule": "deepseek-utc-daily-v1",
+        "peakMultiplier": 2,
+        "holidayCalendars": []
+      }
+    },
+    {
+      "ruleId": "deepseek/deepseek-chat-before-20250208",
+      "provider": "deepseek",
+      "officialSource": "https://web.archive.org/web/20250208152216/https://api-docs.deepseek.com/quick_start/pricing",
+      "verifiedOn": "2026-10-18",
+      "models": [
+        "deepseek-chat"
+      ],
+      "inputUsdPerMillion": 0.14,
+      "cachedInputUsdPerMillion": 0.014,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.28,
+      "effectiveUntilUtc": "2025-02-08T16:00:00Z",
+      "effectiveDateSource": "https://web.archive.org/web/20250208152216/https://api-docs.deepseek.com/quick_start/pricing",
+      "effectiveUntilBasis": "official-utc-instant",
+      "historyNote": "Unbounded baseline: use the official pre-change rates for all earlier calls, as requested by the user; this is not a model release date."
+    },
+    {
+      "ruleId": "deepseek/deepseek-chat-20250208",
+      "provider": "deepseek",
+      "officialSource": "https://web.archive.org/web/20250208152216/https://api-docs.deepseek.com/quick_start/pricing",
+      "verifiedOn": "2026-10-18",
+      "models": [
+        "deepseek-chat"
+      ],
+      "inputUsdPerMillion": 0.27,
+      "cachedInputUsdPerMillion": 0.07,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 1.1,
+      "effectiveFromUtc": "2025-02-08T16:00:00Z",
+      "effectiveUntilUtc": "2025-02-26T16:30:00Z",
+      "effectiveDateSource": "https://x.com/deepseek_ai/status/1894710448676884671",
+      "effectiveFromBasis": "official-utc-instant",
+      "effectiveUntilBasis": "official-utc-instant"
+    },
+    {
+      "ruleId": "deepseek/deepseek-chat-night-20250226",
+      "provider": "deepseek",
+      "officialSource": "https://web.archive.org/web/20250226111135/https://api-docs.deepseek.com/quick_start/pricing",
+      "verifiedOn": "2026-10-18",
+      "models": [
+        "deepseek-chat"
+      ],
+      "inputUsdPerMillion": 0.135,
+      "cachedInputUsdPerMillion": 0.035,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.55,
+      "effectiveFromUtc": "2025-02-26T16:30:00Z",
+      "effectiveUntilUtc": "2025-09-05T16:00:00Z",
+      "effectiveDateSource": "https://api-docs.deepseek.com/news/news250821/",
+      "effectiveFromBasis": "official-utc-instant",
+      "effectiveUntilBasis": "official-utc-instant",
+      "peakOffPeak": {
+        "schedule": "deepseek-utc-night-2025-v1",
+        "peakMultiplier": 1,
+        "holidayCalendars": [],
+        "peakRates": {
+          "inputUsdPerMillion": 0.27,
+          "cachedInputUsdPerMillion": 0.07,
+          "cacheWriteUsdPerMillion": null,
+          "outputUsdPerMillion": 1.1
+        }
+      }
+    },
+    {
+      "ruleId": "deepseek/deepseek-v3-before-20250208",
+      "provider": "deepseek",
+      "officialSource": "https://web.archive.org/web/20250208152216/https://api-docs.deepseek.com/quick_start/pricing",
+      "verifiedOn": "2026-10-18",
+      "models": [
+        "deepseek-v3"
+      ],
+      "inputUsdPerMillion": 0.14,
+      "cachedInputUsdPerMillion": 0.014,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.28,
+      "effectiveUntilUtc": "2025-02-08T16:00:00Z",
+      "effectiveDateSource": "https://web.archive.org/web/20250208152216/https://api-docs.deepseek.com/quick_start/pricing",
+      "effectiveUntilBasis": "official-utc-instant",
+      "historyNote": "Unbounded baseline: use the official pre-change rates for all earlier calls, as requested by the user; this is not a model release date."
+    },
+    {
+      "ruleId": "deepseek/deepseek-v3-20250208",
+      "provider": "deepseek",
+      "officialSource": "https://web.archive.org/web/20250208152216/https://api-docs.deepseek.com/quick_start/pricing",
+      "verifiedOn": "2026-10-18",
+      "models": [
+        "deepseek-v3"
+      ],
+      "inputUsdPerMillion": 0.27,
+      "cachedInputUsdPerMillion": 0.07,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 1.1,
+      "effectiveFromUtc": "2025-02-08T16:00:00Z",
+      "effectiveUntilUtc": "2025-02-26T16:30:00Z",
+      "effectiveDateSource": "https://x.com/deepseek_ai/status/1894710448676884671",
+      "effectiveFromBasis": "official-utc-instant",
+      "effectiveUntilBasis": "official-utc-instant"
+    },
+    {
+      "ruleId": "deepseek/deepseek-v3-night-20250226",
+      "provider": "deepseek",
+      "officialSource": "https://web.archive.org/web/20250226111135/https://api-docs.deepseek.com/quick_start/pricing",
+      "verifiedOn": "2026-10-18",
+      "models": [
+        "deepseek-v3"
+      ],
+      "inputUsdPerMillion": 0.135,
+      "cachedInputUsdPerMillion": 0.035,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.55,
+      "effectiveFromUtc": "2025-02-26T16:30:00Z",
+      "effectiveUntilUtc": "2025-09-05T16:00:00Z",
+      "effectiveDateSource": "https://api-docs.deepseek.com/news/news250821/",
+      "effectiveFromBasis": "official-utc-instant",
+      "effectiveUntilBasis": "official-utc-instant",
+      "peakOffPeak": {
+        "schedule": "deepseek-utc-night-2025-v1",
+        "peakMultiplier": 1,
+        "holidayCalendars": [],
+        "peakRates": {
+          "inputUsdPerMillion": 0.27,
+          "cachedInputUsdPerMillion": 0.07,
+          "cacheWriteUsdPerMillion": null,
+          "outputUsdPerMillion": 1.1
+        }
+      }
+    },
+    {
+      "ruleId": "deepseek/deepseek-v3-after-discount",
+      "provider": "deepseek",
+      "officialSource": "https://web.archive.org/web/20250226111135/https://api-docs.deepseek.com/quick_start/pricing",
+      "verifiedOn": "2026-10-18",
+      "models": [
+        "deepseek-v3"
+      ],
+      "inputUsdPerMillion": 0.27,
+      "cachedInputUsdPerMillion": 0.07,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 1.1,
+      "effectiveFromUtc": "2025-09-05T16:00:00Z",
+      "effectiveDateSource": "https://api-docs.deepseek.com/news/news250821/",
+      "effectiveFromBasis": "official-utc-instant",
+      "historyNote": "Pinned V3 identity retains its published standard rate; do not silently turn it into a rolling API alias."
+    },
+    {
+      "ruleId": "deepseek/deepseek-reasoner-before-night-discount",
+      "provider": "deepseek",
+      "officialSource": "https://web.archive.org/web/20250208152216/https://api-docs.deepseek.com/quick_start/pricing",
+      "verifiedOn": "2026-10-18",
+      "models": [
+        "deepseek-reasoner"
+      ],
+      "inputUsdPerMillion": 0.55,
+      "cachedInputUsdPerMillion": 0.14,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 2.19,
+      "effectiveUntilUtc": "2025-02-26T16:30:00Z",
+      "effectiveDateSource": "https://x.com/deepseek_ai/status/1894710448676884671",
+      "effectiveUntilBasis": "official-utc-instant",
+      "historyNote": "Unbounded baseline: use the official pre-change rates for all earlier calls, as requested by the user; this is not a model release date."
+    },
+    {
+      "ruleId": "deepseek/deepseek-reasoner-night-20250226",
+      "provider": "deepseek",
+      "officialSource": "https://web.archive.org/web/20250226111135/https://api-docs.deepseek.com/quick_start/pricing",
+      "verifiedOn": "2026-10-18",
+      "models": [
+        "deepseek-reasoner"
+      ],
+      "inputUsdPerMillion": 0.135,
+      "cachedInputUsdPerMillion": 0.035,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.55,
+      "effectiveFromUtc": "2025-02-26T16:30:00Z",
+      "effectiveUntilUtc": "2025-09-05T16:00:00Z",
+      "effectiveDateSource": "https://api-docs.deepseek.com/news/news250821/",
+      "effectiveFromBasis": "official-utc-instant",
+      "effectiveUntilBasis": "official-utc-instant",
+      "historyNote": "Use the published rounded rates, not a computed 75% multiplier.",
+      "peakOffPeak": {
+        "schedule": "deepseek-utc-night-2025-v1",
+        "peakMultiplier": 1,
+        "holidayCalendars": [],
+        "peakRates": {
+          "inputUsdPerMillion": 0.55,
+          "cachedInputUsdPerMillion": 0.14,
+          "cacheWriteUsdPerMillion": null,
+          "outputUsdPerMillion": 2.19
+        }
+      }
+    },
+    {
+      "ruleId": "deepseek/deepseek-r1-before-night-discount",
+      "provider": "deepseek",
+      "officialSource": "https://web.archive.org/web/20250208152216/https://api-docs.deepseek.com/quick_start/pricing",
+      "verifiedOn": "2026-10-18",
+      "models": [
+        "deepseek-r1"
+      ],
+      "inputUsdPerMillion": 0.55,
+      "cachedInputUsdPerMillion": 0.14,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 2.19,
+      "effectiveUntilUtc": "2025-02-26T16:30:00Z",
+      "effectiveDateSource": "https://x.com/deepseek_ai/status/1894710448676884671",
+      "effectiveUntilBasis": "official-utc-instant",
+      "historyNote": "Unbounded baseline: use the official pre-change rates for all earlier calls, as requested by the user; this is not a model release date."
+    },
+    {
+      "ruleId": "deepseek/deepseek-r1-night-20250226",
+      "provider": "deepseek",
+      "officialSource": "https://web.archive.org/web/20250226111135/https://api-docs.deepseek.com/quick_start/pricing",
+      "verifiedOn": "2026-10-18",
+      "models": [
+        "deepseek-r1"
+      ],
+      "inputUsdPerMillion": 0.135,
+      "cachedInputUsdPerMillion": 0.035,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.55,
+      "effectiveFromUtc": "2025-02-26T16:30:00Z",
+      "effectiveUntilUtc": "2025-09-05T16:00:00Z",
+      "effectiveDateSource": "https://api-docs.deepseek.com/news/news250821/",
+      "effectiveFromBasis": "official-utc-instant",
+      "effectiveUntilBasis": "official-utc-instant",
+      "historyNote": "Use the published rounded rates, not a computed 75% multiplier.",
+      "peakOffPeak": {
+        "schedule": "deepseek-utc-night-2025-v1",
+        "peakMultiplier": 1,
+        "holidayCalendars": [],
+        "peakRates": {
+          "inputUsdPerMillion": 0.55,
+          "cachedInputUsdPerMillion": 0.14,
+          "cacheWriteUsdPerMillion": null,
+          "outputUsdPerMillion": 2.19
+        }
+      }
+    },
+    {
+      "ruleId": "deepseek/deepseek-r1-after-discount",
+      "provider": "deepseek",
+      "officialSource": "https://web.archive.org/web/20250226111135/https://api-docs.deepseek.com/quick_start/pricing",
+      "verifiedOn": "2026-10-18",
+      "models": [
+        "deepseek-r1"
+      ],
+      "inputUsdPerMillion": 0.55,
+      "cachedInputUsdPerMillion": 0.14,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 2.19,
+      "effectiveFromUtc": "2025-09-05T16:00:00Z",
+      "effectiveDateSource": "https://api-docs.deepseek.com/news/news250821/",
+      "effectiveFromBasis": "official-utc-instant",
+      "historyNote": "Pinned R1 identity retains its standard rate, not the V3.1 alias rate."
+    },
+    {
+      "ruleId": "deepseek/deepseek-chat-v31",
+      "provider": "deepseek",
+      "officialSource": "https://api-docs.deepseek.com/news/news250821/",
+      "verifiedOn": "2026-10-18",
+      "models": [
+        "deepseek-chat"
+      ],
+      "inputUsdPerMillion": 0.56,
+      "cachedInputUsdPerMillion": 0.07,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 1.68,
+      "effectiveFromUtc": "2025-09-05T16:00:00Z",
+      "effectiveUntilUtc": "2025-09-29T10:00:00Z",
+      "effectiveDateSource": "https://api-docs.deepseek.com/news/news250929/",
+      "effectiveFromBasis": "official-utc-instant",
+      "effectiveUntilBasis": "official-utc-instant"
+    },
+    {
+      "ruleId": "deepseek/deepseek-chat-v32",
+      "provider": "deepseek",
+      "officialSource": "https://api-docs.deepseek.com/news/news250929/",
+      "verifiedOn": "2026-10-18",
+      "models": [
+        "deepseek-chat"
+      ],
+      "inputUsdPerMillion": 0.28,
+      "cachedInputUsdPerMillion": 0.028,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.42,
+      "effectiveFromUtc": "2025-09-29T10:00:00Z",
+      "effectiveUntilUtc": "2026-04-24T00:00:00Z",
+      "effectiveDateSource": "https://api-docs.deepseek.com/news/news260424/",
+      "effectiveFromBasis": "official-utc-instant",
+      "effectiveUntilBasis": "official-date-at-utc-midnight"
+    },
+    {
+      "ruleId": "deepseek/deepseek-chat-v4",
+      "provider": "deepseek",
+      "officialSource": "https://web.archive.org/web/20260424030643/https://api-docs.deepseek.com/quick_start/pricing/",
+      "verifiedOn": "2026-10-18",
+      "models": [
+        "deepseek-chat"
+      ],
+      "inputUsdPerMillion": 0.14,
+      "cachedInputUsdPerMillion": 0.028,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.28,
+      "effectiveFromUtc": "2026-04-24T00:00:00Z",
+      "effectiveUntilUtc": "2026-04-26T16:35:11Z",
+      "effectiveDateSource": "https://api-docs.deepseek.com/news/news260424/",
+      "effectiveFromBasis": "official-date-at-utc-midnight",
+      "effectiveUntilBasis": "official-immediate-announcement"
+    },
+    {
+      "ruleId": "deepseek/deepseek-chat-v4-cache-cut",
+      "provider": "deepseek",
+      "officialSource": "https://x.com/deepseek_ai/status/2048440764368347611",
+      "verifiedOn": "2026-10-18",
+      "models": [
+        "deepseek-chat"
+      ],
+      "inputUsdPerMillion": 0.14,
+      "cachedInputUsdPerMillion": 0.0028,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.28,
+      "effectiveFromUtc": "2026-04-26T16:35:11Z",
+      "effectiveUntilUtc": "2026-07-24T16:00:00Z",
+      "effectiveDateSource": "https://api-docs.deepseek.com/news/news260424/",
+      "effectiveFromBasis": "official-utc-instant",
+      "effectiveUntilBasis": "official-utc-instant",
+      "historyNote": "Legacy API aliases are explicitly retired after July 24 15:59 UTC; later calls do not borrow a current-model price."
+    },
+    {
+      "ruleId": "deepseek/deepseek-reasoner-v31",
+      "provider": "deepseek",
+      "officialSource": "https://api-docs.deepseek.com/news/news250821/",
+      "verifiedOn": "2026-10-18",
+      "models": [
+        "deepseek-reasoner"
+      ],
+      "inputUsdPerMillion": 0.56,
+      "cachedInputUsdPerMillion": 0.07,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 1.68,
+      "effectiveFromUtc": "2025-09-05T16:00:00Z",
+      "effectiveUntilUtc": "2025-09-29T10:00:00Z",
+      "effectiveDateSource": "https://api-docs.deepseek.com/news/news250929/",
+      "effectiveFromBasis": "official-utc-instant",
+      "effectiveUntilBasis": "official-utc-instant"
+    },
+    {
+      "ruleId": "deepseek/deepseek-reasoner-v32",
+      "provider": "deepseek",
+      "officialSource": "https://api-docs.deepseek.com/news/news250929/",
+      "verifiedOn": "2026-10-18",
+      "models": [
+        "deepseek-reasoner"
+      ],
+      "inputUsdPerMillion": 0.28,
+      "cachedInputUsdPerMillion": 0.028,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.42,
+      "effectiveFromUtc": "2025-09-29T10:00:00Z",
+      "effectiveUntilUtc": "2026-04-24T00:00:00Z",
+      "effectiveDateSource": "https://api-docs.deepseek.com/news/news260424/",
+      "effectiveFromBasis": "official-utc-instant",
+      "effectiveUntilBasis": "official-date-at-utc-midnight"
+    },
+    {
+      "ruleId": "deepseek/deepseek-reasoner-v4",
+      "provider": "deepseek",
+      "officialSource": "https://web.archive.org/web/20260424030643/https://api-docs.deepseek.com/quick_start/pricing/",
+      "verifiedOn": "2026-10-18",
+      "models": [
+        "deepseek-reasoner"
+      ],
+      "inputUsdPerMillion": 0.14,
+      "cachedInputUsdPerMillion": 0.028,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.28,
+      "effectiveFromUtc": "2026-04-24T00:00:00Z",
+      "effectiveUntilUtc": "2026-04-26T16:35:11Z",
+      "effectiveDateSource": "https://api-docs.deepseek.com/news/news260424/",
+      "effectiveFromBasis": "official-date-at-utc-midnight",
+      "effectiveUntilBasis": "official-immediate-announcement"
+    },
+    {
+      "ruleId": "deepseek/deepseek-reasoner-v4-cache-cut",
+      "provider": "deepseek",
+      "officialSource": "https://x.com/deepseek_ai/status/2048440764368347611",
+      "verifiedOn": "2026-10-18",
+      "models": [
+        "deepseek-reasoner"
+      ],
+      "inputUsdPerMillion": 0.14,
+      "cachedInputUsdPerMillion": 0.0028,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.28,
+      "effectiveFromUtc": "2026-04-26T16:35:11Z",
+      "effectiveUntilUtc": "2026-07-24T16:00:00Z",
+      "effectiveDateSource": "https://api-docs.deepseek.com/news/news260424/",
+      "effectiveFromBasis": "official-utc-instant",
+      "effectiveUntilBasis": "official-utc-instant",
+      "historyNote": "Legacy API aliases are explicitly retired after July 24 15:59 UTC; later calls do not borrow a current-model price."
+    },
+    {
+      "ruleId": "deepseek/deepseek-v3.2-published",
+      "provider": "deepseek",
+      "officialSource": "https://api-docs.deepseek.com/news/news250929/",
+      "verifiedOn": "2026-10-18",
+      "models": [
+        "deepseek-v3.2"
+      ],
+      "inputUsdPerMillion": 0.28,
+      "cachedInputUsdPerMillion": 0.028,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.42,
+      "historyNote": "Earliest verified V3.2-family rate retained as the baseline; separate rolling aliases keep their own histories."
+    },
+    {
+      "ruleId": "mistral/codestral-2405-before-20240917",
+      "provider": "mistral",
+      "officialSource": "https://mistral.ai/news/september-24-release/",
+      "verifiedOn": "2026-10-18",
+      "models": [
+        "codestral-2405"
+      ],
+      "inputUsdPerMillion": 1,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 3,
+      "effectiveUntilUtc": "2024-09-17T00:00:00Z",
+      "effectiveDateSource": "https://mistral.ai/news/september-24-release/",
+      "effectiveUntilBasis": "official-date-at-utc-midnight",
+      "historyNote": "Unbounded baseline: use the official pre-change rates for all earlier calls, as requested by the user; this is not a model release date."
+    },
+    {
+      "ruleId": "mistral/codestral-2405-20240917",
+      "provider": "mistral",
+      "officialSource": "https://mistral.ai/news/september-24-release/",
+      "verifiedOn": "2026-10-18",
+      "models": [
+        "codestral-2405"
+      ],
+      "inputUsdPerMillion": 0.2,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.6,
+      "effectiveFromUtc": "2024-09-17T00:00:00Z",
+      "effectiveDateSource": "https://mistral.ai/news/september-24-release/",
+      "effectiveFromBasis": "official-date-at-utc-midnight"
+    },
+    {
+      "ruleId": "mistral/mistral-large-2407-before-20240917",
+      "provider": "mistral",
+      "officialSource": "https://mistral.ai/news/september-24-release/",
+      "verifiedOn": "2026-10-18",
+      "models": [
+        "mistral-large-2407"
+      ],
+      "inputUsdPerMillion": 3,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 9,
+      "effectiveUntilUtc": "2024-09-17T00:00:00Z",
+      "effectiveDateSource": "https://mistral.ai/news/september-24-release/",
+      "effectiveUntilBasis": "official-date-at-utc-midnight",
+      "historyNote": "Unbounded baseline: use the official pre-change rates for all earlier calls, as requested by the user; this is not a model release date."
+    },
+    {
+      "ruleId": "mistral/mistral-large-2407-20240917",
+      "provider": "mistral",
+      "officialSource": "https://mistral.ai/news/september-24-release/",
+      "verifiedOn": "2026-10-18",
+      "models": [
+        "mistral-large-2407"
+      ],
+      "inputUsdPerMillion": 2,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 6,
+      "effectiveFromUtc": "2024-09-17T00:00:00Z",
+      "effectiveDateSource": "https://mistral.ai/news/september-24-release/",
+      "effectiveFromBasis": "official-date-at-utc-midnight"
+    },
+    {
+      "ruleId": "mistral/mistral-nemo-before-20240917",
+      "provider": "mistral",
+      "officialSource": "https://mistral.ai/news/september-24-release/",
+      "verifiedOn": "2026-10-18",
+      "models": [
+        "mistral-nemo",
+        "open-mistral-nemo",
+        "open-mistral-nemo-2407"
+      ],
+      "inputUsdPerMillion": 0.3,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.3,
+      "effectiveUntilUtc": "2024-09-17T00:00:00Z",
+      "effectiveDateSource": "https://mistral.ai/news/september-24-release/",
+      "effectiveUntilBasis": "official-date-at-utc-midnight",
+      "historyNote": "Unbounded baseline: use the official pre-change rates for all earlier calls, as requested by the user; this is not a model release date."
+    },
+    {
+      "ruleId": "mistral/mistral-nemo-20240917",
+      "provider": "mistral",
+      "officialSource": "https://mistral.ai/news/september-24-release/",
+      "verifiedOn": "2026-10-18",
+      "models": [
+        "mistral-nemo",
+        "open-mistral-nemo",
+        "open-mistral-nemo-2407"
+      ],
+      "inputUsdPerMillion": 0.15,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.15,
+      "effectiveFromUtc": "2024-09-17T00:00:00Z",
+      "effectiveDateSource": "https://mistral.ai/news/september-24-release/",
+      "effectiveFromBasis": "official-date-at-utc-midnight"
+    },
+    {
+      "ruleId": "moonshot/kimi-k2-turbo-launch-discount",
+      "provider": "moonshot",
+      "officialSource": "https://forum.moonshot.ai/t/kimi-k2-high-speed-model-released/25",
+      "verifiedOn": "2026-10-18",
+      "models": [
+        "kimi-k2-turbo-preview"
+      ],
+      "inputUsdPerMillion": 1.2,
+      "cachedInputUsdPerMillion": 0.3,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 5,
+      "effectiveUntilUtc": "2025-09-01T00:00:00Z",
+      "effectiveDateSource": "https://forum.moonshot.ai/t/kimi-k2-high-speed-model-released/25",
+      "effectiveUntilBasis": "official-date-at-utc-midnight",
+      "historyNote": "Unbounded baseline: use the official pre-change rates for all earlier calls, as requested by the user; this is not a model release date."
+    },
+    {
+      "ruleId": "moonshot/kimi-k2-turbo-standard-september",
+      "provider": "moonshot",
+      "officialSource": "https://forum.moonshot.ai/t/kimi-k2-high-speed-model-released/25",
+      "verifiedOn": "2026-10-18",
+      "models": [
+        "kimi-k2-turbo-preview"
+      ],
+      "inputUsdPerMillion": 2.4,
+      "cachedInputUsdPerMillion": 0.6,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 10,
+      "effectiveFromUtc": "2025-09-01T00:00:00Z",
+      "effectiveUntilUtc": "2025-09-16T00:00:00Z",
+      "effectiveDateSource": "https://forum.moonshot.ai/t/kimi-k2-high-speed-model-released/25",
+      "effectiveFromBasis": "official-date-at-utc-midnight",
+      "effectiveUntilBasis": "official-date-at-utc-midnight",
+      "historyNote": "Official dates have no time; the September 16-October 15 discount ends at the beginning of October 16."
+    },
+    {
+      "ruleId": "moonshot/kimi-k2-turbo-autumn-discount",
+      "provider": "moonshot",
+      "officialSource": "https://forum.moonshot.ai/t/kimi-k2-turbo-promotion-is-back/86",
+      "verifiedOn": "2026-10-18",
+      "models": [
+        "kimi-k2-turbo-preview"
+      ],
+      "inputUsdPerMillion": 1.2,
+      "cachedInputUsdPerMillion": 0.3,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 5,
+      "effectiveFromUtc": "2025-09-16T00:00:00Z",
+      "effectiveUntilUtc": "2025-10-16T00:00:00Z",
+      "effectiveDateSource": "https://forum.moonshot.ai/t/kimi-k2-turbo-promotion-is-back/86",
+      "effectiveFromBasis": "official-date-at-utc-midnight",
+      "effectiveUntilBasis": "official-date-at-utc-midnight",
+      "historyNote": "Official dates have no time; the September 16-October 15 discount ends at the beginning of October 16."
+    },
+    {
+      "ruleId": "moonshot/kimi-k2-turbo-standard-october",
+      "provider": "moonshot",
+      "officialSource": "https://platform.kimi.ai/blog/posts/changelog",
+      "verifiedOn": "2026-10-18",
+      "models": [
+        "kimi-k2-turbo-preview"
+      ],
+      "inputUsdPerMillion": 2.4,
+      "cachedInputUsdPerMillion": 0.6,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 10,
+      "effectiveFromUtc": "2025-10-16T00:00:00Z",
+      "effectiveUntilUtc": "2025-11-06T00:00:00Z",
+      "effectiveDateSource": "https://platform.kimi.ai/blog/posts/changelog",
+      "effectiveFromBasis": "official-date-at-utc-midnight",
+      "effectiveUntilBasis": "official-date-at-utc-midnight",
+      "historyNote": "Official dates have no time; the September 16-October 15 discount ends at the beginning of October 16."
+    },
+    {
+      "ruleId": "moonshot/kimi-k2-turbo-20251106",
+      "provider": "moonshot",
+      "officialSource": "https://forum.moonshot.ai/t/an-update-on-new-k2-models-and-new-pricing/104",
+      "verifiedOn": "2026-10-18",
+      "models": [
+        "kimi-k2-turbo-preview"
+      ],
+      "inputUsdPerMillion": 1.15,
+      "cachedInputUsdPerMillion": 0.15,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 8,
+      "effectiveFromUtc": "2025-11-06T00:00:00Z",
+      "effectiveDateSource": "https://forum.moonshot.ai/t/an-update-on-new-k2-models-and-new-pricing/104",
+      "effectiveFromBasis": "official-date-at-utc-midnight"
+    },
+    {
+      "ruleId": "minimax/m2-free-preview",
+      "provider": "minimax",
+      "officialSource": "https://www.minimax.io/news/minimax-m2",
+      "verifiedOn": "2026-10-18",
+      "models": [
+        "minimax-m2"
+      ],
+      "inputUsdPerMillion": 0,
+      "cachedInputUsdPerMillion": 0,
+      "cacheWriteUsdPerMillion": 0,
+      "outputUsdPerMillion": 0,
+      "effectiveUntilUtc": "2025-11-07T00:00:00Z",
+      "effectiveDateSource": "https://www.minimax.io/news/minimax-m2",
+      "effectiveUntilBasis": "official-utc-instant",
+      "historyNote": "Unbounded baseline: use the official pre-change rates for all earlier calls, as requested by the user; this is not a model release date."
+    },
+    {
+      "ruleId": "minimax/m2-paid-20251107",
+      "provider": "minimax",
+      "officialSource": "https://www.minimax.io/news/minimax-m2",
+      "verifiedOn": "2026-10-18",
+      "models": [
+        "minimax-m2"
+      ],
+      "inputUsdPerMillion": 0.3,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 1.2,
+      "effectiveFromUtc": "2025-11-07T00:00:00Z",
+      "effectiveDateSource": "https://www.minimax.io/news/minimax-m2",
+      "effectiveFromBasis": "official-utc-instant",
+      "historyNote": "The official free trial ends at 00:00 UTC. No undocumented cache fee is invented."
+    },
+    {
+      "ruleId": "mistral/devstral-2-free",
+      "provider": "mistral",
+      "officialSource": "https://mistral.ai/news/devstral-2-vibe-cli/",
+      "verifiedOn": "2026-10-18",
+      "models": [
+        "devstral-2512"
+      ],
+      "inputUsdPerMillion": 0,
+      "cachedInputUsdPerMillion": 0,
+      "cacheWriteUsdPerMillion": 0,
+      "outputUsdPerMillion": 0,
+      "effectiveUntilUtc": "2026-01-27T00:00:00Z",
+      "effectiveDateSource": "https://docs.mistral.ai/resources/changelogs",
+      "effectiveUntilBasis": "official-date-at-utc-midnight",
+      "historyNote": "Unbounded baseline: use the official pre-change rates for all earlier calls, as requested by the user; this is not a model release date."
+    },
+    {
+      "ruleId": "mistral/devstral-2-paid",
+      "provider": "mistral",
+      "officialSource": "https://mistral.ai/news/devstral-2-vibe-cli/",
+      "verifiedOn": "2026-10-18",
+      "models": [
+        "devstral-2512"
+      ],
+      "inputUsdPerMillion": 0.4,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 2,
+      "effectiveFromUtc": "2026-01-27T00:00:00Z",
+      "effectiveDateSource": "https://docs.mistral.ai/resources/changelogs",
+      "effectiveFromBasis": "official-date-at-utc-midnight"
+    },
+    {
+      "ruleId": "mistral/mistral-large-latest-before-20240917",
+      "provider": "mistral",
+      "officialSource": "https://mistral.ai/news/september-24-release/",
+      "verifiedOn": "2026-10-18",
+      "models": [
+        "mistral-large-latest"
+      ],
+      "inputUsdPerMillion": 3,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 9,
+      "effectiveUntilUtc": "2024-09-17T00:00:00Z",
+      "effectiveDateSource": "https://mistral.ai/news/september-24-release/",
+      "effectiveUntilBasis": "official-date-at-utc-midnight",
+      "historyNote": "Unbounded baseline: use the official pre-change rates for all earlier calls, as requested by the user; this is not a model release date."
+    },
+    {
+      "ruleId": "mistral/mistral-large-latest-large2",
+      "provider": "mistral",
+      "officialSource": "https://mistral.ai/news/september-24-release/",
+      "verifiedOn": "2026-10-18",
+      "models": [
+        "mistral-large-latest"
+      ],
+      "inputUsdPerMillion": 2,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 6,
+      "effectiveFromUtc": "2024-09-17T00:00:00Z",
+      "effectiveUntilUtc": "2025-12-02T00:00:00Z",
+      "effectiveDateSource": "https://mistral.ai/news/mistral-3/",
+      "effectiveFromBasis": "official-date-at-utc-midnight",
+      "effectiveUntilBasis": "official-date-at-utc-midnight"
+    },
+    {
+      "ruleId": "mistral/mistral-large-latest-large3",
+      "provider": "mistral",
+      "officialSource": "https://mistral.ai/news/mistral-3/",
+      "verifiedOn": "2026-10-18",
+      "models": [
+        "mistral-large-latest"
+      ],
+      "inputUsdPerMillion": 0.5,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 1.5,
+      "effectiveFromUtc": "2025-12-02T00:00:00Z",
+      "effectiveDateSource": "https://mistral.ai/news/mistral-3/",
+      "effectiveFromBasis": "official-date-at-utc-midnight"
+    },
+    {
+      "ruleId": "xiaomi/v2-flash-free",
+      "provider": "xiaomi",
+      "officialSource": "https://mimo.mi.com/docs/en-US/news/previous-news/billing",
+      "verifiedOn": "2026-10-18",
+      "models": [
+        "mimo-v2-flash"
+      ],
+      "inputUsdPerMillion": 0,
+      "cachedInputUsdPerMillion": 0,
+      "cacheWriteUsdPerMillion": 0,
+      "outputUsdPerMillion": 0,
+      "effectiveUntilUtc": "2026-01-26T08:00:00Z",
+      "effectiveDateSource": "https://mimo.mi.com/docs/en-US/news/previous-news/billing",
+      "effectiveUntilBasis": "official-utc-instant",
+      "historyNote": "Unbounded baseline: use the official pre-change rates for all earlier calls, as requested by the user; this is not a model release date."
+    },
+    {
+      "ruleId": "xiaomi/v2-flash-paid",
+      "provider": "xiaomi",
+      "officialSource": "https://mimo.mi.com/docs/en-US/news/previous-news/billing",
+      "verifiedOn": "2026-10-18",
+      "models": [
+        "mimo-v2-flash"
+      ],
+      "inputUsdPerMillion": 0.1,
+      "cachedInputUsdPerMillion": 0.01,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.3,
+      "effectiveFromUtc": "2026-01-26T08:00:00Z",
+      "effectiveUntilUtc": "2026-06-17T16:00:00Z",
+      "effectiveDateSource": "https://mimo.mi.com/docs/en-US/updates/deprecate",
+      "effectiveFromBasis": "official-utc-instant",
+      "effectiveUntilBasis": "official-utc-instant"
+    },
+    {
+      "ruleId": "xiaomi/v2-flash-rerouted",
+      "provider": "xiaomi",
+      "officialSource": "https://mimo.mi.com/docs/en-US/price/pay-as-you-go",
+      "verifiedOn": "2026-10-18",
+      "models": [
+        "mimo-v2-flash"
+      ],
+      "inputUsdPerMillion": 0.14,
+      "cachedInputUsdPerMillion": 0.0028,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.28,
+      "effectiveFromUtc": "2026-06-17T16:00:00Z",
+      "effectiveUntilUtc": "2026-06-29T16:00:00Z",
+      "effectiveDateSource": "https://mimo.mi.com/docs/en-US/updates/deprecate",
+      "effectiveFromBasis": "official-utc-instant",
+      "effectiveUntilBasis": "official-utc-instant"
+    },
+    {
+      "ruleId": "xiaomi/v2-pro-original",
+      "provider": "xiaomi",
+      "officialSource": "https://mimo.mi.com/docs/en-US/news/previous-news/v2-pro-release",
+      "verifiedOn": "2026-10-18",
+      "models": [
+        "mimo-v2-pro"
+      ],
+      "inputUsdPerMillion": 1,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 3,
+      "effectiveUntilUtc": "2026-05-31T16:00:00Z",
+      "effectiveDateSource": "https://mimo.mi.com/docs/en-US/updates/deprecate",
+      "effectiveUntilBasis": "official-utc-instant",
+      "historyNote": "Unbounded baseline: use the official pre-change rates for all earlier calls, as requested by the user; this is not a model release date. The original release does not publish a cached-input fee; retain it as unknown rather than deriving it from a later model.",
+      "longContextThresholdTokens": 256000,
+      "longContextInputMultiplier": 2,
+      "longContextOutputMultiplier": 2
+    },
+    {
+      "ruleId": "xiaomi/v2-pro-rerouted",
+      "provider": "xiaomi",
+      "officialSource": "https://mimo.mi.com/docs/en-US/price/pay-as-you-go",
+      "verifiedOn": "2026-10-18",
+      "models": [
+        "mimo-v2-pro"
+      ],
+      "inputUsdPerMillion": 0.435,
+      "cachedInputUsdPerMillion": 0.0036,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.87,
+      "effectiveFromUtc": "2026-05-31T16:00:00Z",
+      "effectiveUntilUtc": "2026-06-29T16:00:00Z",
+      "effectiveDateSource": "https://mimo.mi.com/docs/en-US/updates/deprecate",
+      "effectiveFromBasis": "official-utc-instant",
+      "effectiveUntilBasis": "official-utc-instant"
+    },
+    {
+      "ruleId": "xiaomi/v2-omni-original",
+      "provider": "xiaomi",
+      "officialSource": "https://mimo.mi.com/docs/en-US/news/previous-news/v2-omni-release",
+      "verifiedOn": "2026-10-18",
+      "models": [
+        "mimo-v2-omni"
+      ],
+      "inputUsdPerMillion": 0.4,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 2,
+      "effectiveUntilUtc": "2026-05-31T16:00:00Z",
+      "effectiveDateSource": "https://mimo.mi.com/docs/en-US/updates/deprecate",
+      "effectiveUntilBasis": "official-utc-instant",
+      "historyNote": "Unbounded baseline: use the official pre-change rates for all earlier calls, as requested by the user; this is not a model release date. The original release does not publish a cached-input fee; retain it as unknown rather than deriving it from a later model."
+    },
+    {
+      "ruleId": "xiaomi/v2-omni-rerouted",
+      "provider": "xiaomi",
+      "officialSource": "https://mimo.mi.com/docs/en-US/price/pay-as-you-go",
+      "verifiedOn": "2026-10-18",
+      "models": [
+        "mimo-v2-omni"
+      ],
+      "inputUsdPerMillion": 0.14,
+      "cachedInputUsdPerMillion": 0.0028,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.28,
+      "effectiveFromUtc": "2026-05-31T16:00:00Z",
+      "effectiveUntilUtc": "2026-06-29T16:00:00Z",
+      "effectiveDateSource": "https://mimo.mi.com/docs/en-US/updates/deprecate",
+      "effectiveFromBasis": "official-utc-instant",
+      "effectiveUntilBasis": "official-utc-instant"
+    },
+    {
+      "ruleId": "xiaomi/v25-before-cut",
+      "provider": "xiaomi",
+      "officialSource": "https://mimo.mi.com/docs/en-US/news/latest/v2.5-price-update",
+      "verifiedOn": "2026-10-18",
+      "models": [
+        "mimo-v2.5"
+      ],
+      "inputUsdPerMillion": 0.4,
+      "cachedInputUsdPerMillion": 0.08,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 2,
+      "effectiveUntilUtc": "2026-05-26T16:00:00Z",
+      "effectiveDateSource": "https://mimo.mi.com/docs/en-US/news/latest/v2.5-price-update",
+      "effectiveUntilBasis": "official-utc-instant",
+      "historyNote": "Unbounded baseline: use the official pre-change rates for all earlier calls, as requested by the user; this is not a model release date. The written effective time (May 27 00:00 Beijing) takes precedence over the inconsistent PDT label on the English rate image.",
+      "longContextThresholdTokens": 256000,
+      "longContextInputMultiplier": 2,
+      "longContextOutputMultiplier": 2
+    },
+    {
+      "ruleId": "xiaomi/v25-after-cut",
+      "provider": "xiaomi",
+      "officialSource": "https://mimo.mi.com/docs/en-US/price/pay-as-you-go",
+      "verifiedOn": "2026-10-18",
+      "models": [
+        "mimo-v2.5"
+      ],
+      "inputUsdPerMillion": 0.14,
+      "cachedInputUsdPerMillion": 0.0028,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.28,
+      "effectiveFromUtc": "2026-05-26T16:00:00Z",
+      "effectiveUntilUtc": "2026-10-21T02:00:00Z",
+      "effectiveDateSource": "https://mimo.mi.com/docs/en-US/updates/deprecate",
+      "effectiveFromBasis": "official-utc-instant",
+      "effectiveUntilBasis": "official-utc-instant",
+      "historyNote": "Rates remain identical when rerouted to V2.6 in October; the official table and prose disagree on that same-day routing time, which has no price effect."
+    },
+    {
+      "ruleId": "xiaomi/v25-pro-before-cut",
+      "provider": "xiaomi",
+      "officialSource": "https://mimo.mi.com/docs/en-US/news/latest/v2.5-price-update",
+      "verifiedOn": "2026-10-18",
+      "models": [
+        "mimo-v2.5-pro"
+      ],
+      "inputUsdPerMillion": 1,
+      "cachedInputUsdPerMillion": 0.2,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 3,
+      "effectiveUntilUtc": "2026-05-26T16:00:00Z",
+      "effectiveDateSource": "https://mimo.mi.com/docs/en-US/news/latest/v2.5-price-update",
+      "effectiveUntilBasis": "official-utc-instant",
+      "historyNote": "Unbounded baseline: use the official pre-change rates for all earlier calls, as requested by the user; this is not a model release date. The written effective time (May 27 00:00 Beijing) takes precedence over the inconsistent PDT label on the English rate image.",
+      "longContextThresholdTokens": 256000,
+      "longContextInputMultiplier": 2,
+      "longContextOutputMultiplier": 2
+    },
+    {
+      "ruleId": "xiaomi/v25-pro-after-cut",
+      "provider": "xiaomi",
+      "officialSource": "https://mimo.mi.com/docs/en-US/price/pay-as-you-go",
+      "verifiedOn": "2026-10-18",
+      "models": [
+        "mimo-v2.5-pro"
+      ],
+      "inputUsdPerMillion": 0.435,
+      "cachedInputUsdPerMillion": 0.0036,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 0.87,
+      "effectiveFromUtc": "2026-05-26T16:00:00Z",
+      "effectiveUntilUtc": "2026-10-21T02:00:00Z",
+      "effectiveDateSource": "https://mimo.mi.com/docs/en-US/updates/deprecate",
+      "effectiveFromBasis": "official-utc-instant",
+      "effectiveUntilBasis": "official-utc-instant",
+      "historyNote": "Rates remain identical when rerouted to V2.6 in October; the official table and prose disagree on that same-day routing time, which has no price effect."
+    },
+    {
+      "ruleId": "google/gemini-36-introductory",
+      "provider": "google",
+      "officialSource": "https://ai.google.dev/gemini-api/docs/pricing",
+      "verifiedOn": "2026-10-18",
+      "models": [
+        "gemini-3.6-flash"
+      ],
+      "inputUsdPerMillion": 0.75,
+      "cachedInputUsdPerMillion": 0.075,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 3.75,
+      "effectiveUntilUtc": "2027-01-01T00:00:00Z",
+      "effectiveDateSource": "https://ai.google.dev/gemini-api/docs/pricing",
+      "effectiveUntilBasis": "official-date-at-utc-midnight",
+      "historyNote": "Unbounded baseline: use the official pre-change rates for all earlier calls, as requested by the user; this is not a model release date."
+    },
+    {
+      "ruleId": "google/gemini-36-published-2027",
+      "provider": "google",
+      "officialSource": "https://ai.google.dev/gemini-api/docs/pricing",
+      "verifiedOn": "2026-10-18",
+      "models": [
+        "gemini-3.6-flash"
+      ],
+      "inputUsdPerMillion": 1.5,
+      "cachedInputUsdPerMillion": 0.15,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 7.5,
+      "effectiveFromUtc": "2027-01-01T00:00:00Z",
+      "effectiveDateSource": "https://ai.google.dev/gemini-api/docs/pricing",
+      "effectiveFromBasis": "official-date-at-utc-midnight",
+      "historyNote": "Officially scheduled future standard prices; the introductory period is explicitly through December 31, 2026."
+    },
+    {
+      "ruleId": "alibaba/qwen35-plus-before-cut",
+      "provider": "alibaba",
+      "officialSource": "https://www.alibabacloud.com/help/en/model-studio/model-pricing",
+      "verifiedOn": "2026-10-18",
+      "models": [
+        "qwen3.5-plus"
+      ],
+      "inputUsdPerMillion": 0.4,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 2.4,
+      "effectiveUntilUtc": "2026-02-22T16:00:00Z",
+      "effectiveDateSource": "https://www.alibabacloud.com/en/notice/model_studio_price_reduction_for_qwen35plus_and_snapshot_models_6bf",
+      "effectiveUntilBasis": "official-utc-instant",
+      "historyNote": "Unbounded baseline: use the official pre-change rates for all earlier calls, as requested by the user; this is not a model release date. International/Singapore-US Global USD rates only. Above 256K, input/output change from $1.20/$7.20 to $0.50/$3.00; cache and other regional fees are not inferred.",
+      "longContextThresholdTokens": 256000,
+      "longContextInputMultiplier": 3,
+      "longContextOutputMultiplier": 3
+    },
+    {
+      "ruleId": "alibaba/qwen35-plus-after-cut",
+      "provider": "alibaba",
+      "officialSource": "https://www.alibabacloud.com/help/en/model-studio/model-pricing",
+      "verifiedOn": "2026-10-18",
+      "models": [
+        "qwen3.5-plus"
+      ],
+      "inputUsdPerMillion": 0.4,
+      "cachedInputUsdPerMillion": null,
+      "cacheWriteUsdPerMillion": null,
+      "outputUsdPerMillion": 2.4,
+      "effectiveFromUtc": "2026-02-22T16:00:00Z",
+      "effectiveDateSource": "https://www.alibabacloud.com/en/notice/model_studio_price_reduction_for_qwen35plus_and_snapshot_models_6bf",
+      "effectiveFromBasis": "official-utc-instant",
+      "historyNote": " International/Singapore-US Global USD rates only. Above 256K, input/output change from $1.20/$7.20 to $0.50/$3.00; cache and other regional fees are not inferred.",
+      "longContextThresholdTokens": 256000,
+      "longContextInputMultiplier": 1.25,
+      "longContextOutputMultiplier": 1.25
     }
-  ]
+  ],
+  "historyPolicy": {
+    "earlierCalls": "Use the earliest verified pre-change rates as an unbounded baseline.",
+    "dateOnly": "An official effective date without a time is represented at 00:00 UTC and explicitly labelled; it is not an official timestamp.",
+    "publicationDate": "Where an already-active price is first announced without a separate start, use its labelled official publication date at 00:00 UTC; do not claim an exact activation time.",
+    "preserveFrozenEvents": true
+  },
+  "historyReview": {
+    "verifiedOn": "2026-10-18",
+    "scope": "Existing exact offline price keys; standard direct-provider USD token rates. This review does not assert that all historical prices are publicly recoverable.",
+    "datedModels": [
+      "claude-opus-4-6",
+      "claude-opus-4-6-20260205",
+      "claude-sonnet-4-6",
+      "codestral-2405",
+      "deepseek-chat",
+      "deepseek-flash",
+      "deepseek-r1",
+      "deepseek-reasoner",
+      "deepseek-v3",
+      "deepseek-v4-flash",
+      "deepseek-v4-pro",
+      "devstral-2512",
+      "gemini-3.6-flash",
+      "gpt-5.6",
+      "gpt-5.6-luna",
+      "gpt-5.6-sol",
+      "gpt-5.6-terra",
+      "kimi-k2-turbo-preview",
+      "mimo-v2-flash",
+      "mimo-v2-omni",
+      "mimo-v2-pro",
+      "mimo-v2.5",
+      "mimo-v2.5-pro",
+      "minimax-m2",
+      "mistral-large-2407",
+      "mistral-large-latest",
+      "mistral-nemo",
+      "o3",
+      "o3-2025-04-16",
+      "open-mistral-nemo",
+      "open-mistral-nemo-2407",
+      "qwen3.5-plus"
+    ],
+    "retainedUndatedBaselineModels": [
+      "chatgpt-4o-latest",
+      "claude-3-5-haiku-20241022",
+      "claude-3-7-sonnet-20250219",
+      "claude-3-haiku-20240307",
+      "claude-3-opus-20240229",
+      "claude-4-opus-20250514",
+      "claude-fable-5",
+      "claude-haiku-4-5",
+      "claude-haiku-4-5-20251001",
+      "claude-mythos-5",
+      "claude-opus-4-1",
+      "claude-opus-4-1-20250805",
+      "claude-opus-4-20250514",
+      "claude-opus-4-5",
+      "claude-opus-4-5-20251101",
+      "claude-opus-4-7",
+      "claude-opus-4-7-20260416",
+      "claude-opus-4-8",
+      "claude-opus-5",
+      "claude-sonnet-4-20250514",
+      "claude-sonnet-4-5",
+      "claude-sonnet-4-5-20250929",
+      "claude-sonnet-5",
+      "codestral-2508",
+      "codestral-latest",
+      "codestral-mamba-latest",
+      "command",
+      "command-a-03-2025",
+      "command-a-plus-05-2026",
+      "command-a-reasoning-08-2025",
+      "command-a-translate-08-2025",
+      "command-a-vision-07-2025",
+      "command-nightly",
+      "command-r-08-2024",
+      "command-r-plus-08-2024",
+      "command-r7b-12-2024",
+      "command-r7b-arabic-02-2025",
+      "deep-research-max-preview-04-2026",
+      "deep-research-preview-04-2026",
+      "deepseek-coder",
+      "deepseek-v3.2",
+      "devstral-latest",
+      "devstral-medium-2507",
+      "devstral-medium-latest",
+      "devstral-small-2505",
+      "devstral-small-2507",
+      "devstral-small-latest",
+      "fugu-ultra",
+      "gemini-2.0-flash",
+      "gemini-2.0-flash-001",
+      "gemini-2.0-flash-lite",
+      "gemini-2.0-flash-lite-001",
+      "gemini-2.5-computer-use-preview-10-2025",
+      "gemini-2.5-flash",
+      "gemini-2.5-flash-image",
+      "gemini-2.5-flash-lite",
+      "gemini-2.5-flash-lite-preview-06-17",
+      "gemini-2.5-flash-lite-preview-09-2025",
+      "gemini-2.5-flash-native-audio-latest",
+      "gemini-2.5-flash-native-audio-preview-09-2025",
+      "gemini-2.5-flash-native-audio-preview-12-2025",
+      "gemini-2.5-flash-preview-09-2025",
+      "gemini-2.5-pro",
+      "gemini-3-flash-preview",
+      "gemini-3-pro-image",
+      "gemini-3-pro-image-preview",
+      "gemini-3-pro-preview",
+      "gemini-3.1-flash-image",
+      "gemini-3.1-flash-image-preview",
+      "gemini-3.1-flash-lite",
+      "gemini-3.1-flash-lite-image",
+      "gemini-3.1-flash-lite-preview",
+      "gemini-3.1-flash-live-preview",
+      "gemini-3.1-flash-tts-preview",
+      "gemini-3.1-pro-preview",
+      "gemini-3.1-pro-preview-customtools",
+      "gemini-3.5-flash",
+      "gemini-3.5-flash-lite",
+      "gemini-3.5-live-translate-preview",
+      "gemini-embedding-001",
+      "gemini-embedding-2",
+      "gemini-exp-1114",
+      "gemini-exp-1206",
+      "gemini-flash-latest",
+      "gemini-flash-lite-latest",
+      "gemini-gemma-2-27b-it",
+      "gemini-gemma-2-9b-it",
+      "gemini-omni-flash-preview",
+      "gemini-robotics-er-1.5-preview",
+      "gemini-robotics-er-1.6-preview",
+      "gemini-robotics-er-2-preview",
+      "glm-4-32b-0414-128k",
+      "glm-4.5",
+      "glm-4.5-air",
+      "glm-4.5-airx",
+      "glm-4.5-flash",
+      "glm-4.5-x",
+      "glm-4.5v",
+      "glm-4.6",
+      "glm-4.6v",
+      "glm-4.7",
+      "glm-4.7-flash",
+      "glm-4.7-flashx",
+      "glm-5",
+      "glm-5-code",
+      "glm-5.1",
+      "glm-5.2",
+      "glm-5v-turbo",
+      "gpt-3.5-turbo",
+      "gpt-3.5-turbo-0125",
+      "gpt-3.5-turbo-1106",
+      "gpt-3.5-turbo-16k",
+      "gpt-4",
+      "gpt-4-0125-preview",
+      "gpt-4-0314",
+      "gpt-4-0613",
+      "gpt-4-1106-preview",
+      "gpt-4-turbo",
+      "gpt-4-turbo-2024-04-09",
+      "gpt-4-turbo-preview",
+      "gpt-4.1",
+      "gpt-4.1-2025-04-14",
+      "gpt-4.1-mini",
+      "gpt-4.1-mini-2025-04-14",
+      "gpt-4.1-nano",
+      "gpt-4.1-nano-2025-04-14",
+      "gpt-4o",
+      "gpt-4o-2024-05-13",
+      "gpt-4o-2024-08-06",
+      "gpt-4o-2024-11-20",
+      "gpt-4o-audio-preview",
+      "gpt-4o-audio-preview-2024-12-17",
+      "gpt-4o-audio-preview-2025-06-03",
+      "gpt-4o-mini",
+      "gpt-4o-mini-2024-07-18",
+      "gpt-4o-mini-audio-preview",
+      "gpt-4o-mini-audio-preview-2024-12-17",
+      "gpt-4o-mini-search-preview",
+      "gpt-4o-mini-search-preview-2025-03-11",
+      "gpt-4o-search-preview",
+      "gpt-4o-search-preview-2025-03-11",
+      "gpt-5",
+      "gpt-5-2025-08-07",
+      "gpt-5-chat",
+      "gpt-5-chat-latest",
+      "gpt-5-codex",
+      "gpt-5-mini",
+      "gpt-5-mini-2025-08-07",
+      "gpt-5-nano",
+      "gpt-5-nano-2025-08-07",
+      "gpt-5-pro",
+      "gpt-5-pro-2025-10-06",
+      "gpt-5-search-api",
+      "gpt-5-search-api-2025-10-14",
+      "gpt-5.1",
+      "gpt-5.1-2025-11-13",
+      "gpt-5.1-chat-latest",
+      "gpt-5.1-codex",
+      "gpt-5.1-codex-max",
+      "gpt-5.1-codex-mini",
+      "gpt-5.2",
+      "gpt-5.2-2025-12-11",
+      "gpt-5.2-chat-latest",
+      "gpt-5.2-codex",
+      "gpt-5.2-pro",
+      "gpt-5.2-pro-2025-12-11",
+      "gpt-5.3-chat-latest",
+      "gpt-5.3-codex",
+      "gpt-5.4",
+      "gpt-5.4-mini",
+      "gpt-5.4-mini-2026-03-17",
+      "gpt-5.4-nano",
+      "gpt-5.4-nano-2026-03-17",
+      "gpt-5.4-pro",
+      "gpt-5.5",
+      "gpt-5.5-pro",
+      "gpt-6-astra",
+      "gpt-6-luna",
+      "gpt-6-sol",
+      "gpt-6.1-sol",
+      "gpt-audio",
+      "gpt-audio-1.5",
+      "gpt-audio-2025-08-28",
+      "gpt-audio-mini",
+      "gpt-audio-mini-2025-10-06",
+      "gpt-audio-mini-2025-12-15",
+      "gpt-image-2",
+      "gpt-realtime-2.1",
+      "grok-2",
+      "grok-2-1212",
+      "grok-2-latest",
+      "grok-2-vision",
+      "grok-2-vision-1212",
+      "grok-2-vision-latest",
+      "grok-3",
+      "grok-3-beta",
+      "grok-3-fast-beta",
+      "grok-3-fast-latest",
+      "grok-3-latest",
+      "grok-3-mini",
+      "grok-3-mini-beta",
+      "grok-3-mini-fast",
+      "grok-3-mini-fast-beta",
+      "grok-3-mini-fast-latest",
+      "grok-3-mini-latest",
+      "grok-4",
+      "grok-4-0709",
+      "grok-4-latest",
+      "grok-4.20-0309-non-reasoning",
+      "grok-4.20-0309-reasoning",
+      "grok-4.20-beta-0309-non-reasoning",
+      "grok-4.20-beta-0309-reasoning",
+      "grok-4.20-multi-agent-beta-0309",
+      "grok-4.3",
+      "grok-4.5",
+      "grok-beta",
+      "grok-build-0.1",
+      "grok-code-fast",
+      "grok-code-fast-1",
+      "grok-code-fast-1-0825",
+      "grok-vision-beta",
+      "j2-light",
+      "j2-mid",
+      "j2-ultra",
+      "jamba-1.5",
+      "jamba-1.5-large",
+      "jamba-1.5-large@001",
+      "jamba-1.5-mini",
+      "jamba-1.5-mini@001",
+      "jamba-large-1.6",
+      "jamba-large-1.7",
+      "jamba-mini-1.6",
+      "jamba-mini-1.7",
+      "kimi-k2-0711-preview",
+      "kimi-k2-0905-preview",
+      "kimi-k2-thinking",
+      "kimi-k2-thinking-turbo",
+      "kimi-k2.5",
+      "kimi-k2.6",
+      "kimi-k2.7-code",
+      "kimi-k2.7-code-highspeed",
+      "kimi-k3",
+      "kimi-latest",
+      "kimi-latest-128k",
+      "kimi-latest-32k",
+      "kimi-latest-8k",
+      "kimi-thinking-preview",
+      "learnlm-1.5-pro-experimental",
+      "lyria-3-clip-preview",
+      "lyria-3-pro-preview",
+      "magistral-medium-1-2-2509",
+      "magistral-medium-2506",
+      "magistral-medium-2509",
+      "magistral-medium-latest",
+      "magistral-small-1-2-2509",
+      "magistral-small-2506",
+      "magistral-small-latest",
+      "mimo-v2.5-pro-ultraspeed",
+      "minimax-m2.1",
+      "minimax-m2.1-lightning",
+      "minimax-m2.5",
+      "minimax-m2.5-highspeed",
+      "minimax-m2.5-lightning",
+      "minimax-m2.7",
+      "minimax-m2.7-highspeed",
+      "minimax-m3",
+      "ministral-3-14b-2512",
+      "ministral-3-3b-2512",
+      "ministral-3-8b-2512",
+      "ministral-8b-2512",
+      "ministral-8b-latest",
+      "mistral-large-2402",
+      "mistral-large-2411",
+      "mistral-large-2512",
+      "mistral-large-3",
+      "mistral-medium",
+      "mistral-medium-2312",
+      "mistral-medium-2505",
+      "mistral-medium-2508",
+      "mistral-medium-2604",
+      "mistral-medium-3-1-2508",
+      "mistral-medium-3-5",
+      "mistral-medium-latest",
+      "mistral-small",
+      "mistral-small-2506",
+      "mistral-small-2603",
+      "mistral-small-3-2-2506",
+      "mistral-small-latest",
+      "mistral-tiny",
+      "moonshot-v1-128k",
+      "moonshot-v1-128k-0430",
+      "moonshot-v1-128k-vision-preview",
+      "moonshot-v1-32k",
+      "moonshot-v1-32k-0430",
+      "moonshot-v1-32k-vision-preview",
+      "moonshot-v1-8k",
+      "moonshot-v1-8k-0430",
+      "moonshot-v1-8k-vision-preview",
+      "moonshot-v1-auto",
+      "muse-spark-1.1",
+      "muse-spark-1.2",
+      "north-mini-code-1-0",
+      "o1",
+      "o1-2024-12-17",
+      "o1-pro",
+      "o1-pro-2025-03-19",
+      "o3-deep-research",
+      "o3-deep-research-2025-06-26",
+      "o3-mini",
+      "o3-mini-2025-01-31",
+      "o3-pro",
+      "o3-pro-2025-06-10",
+      "o4-mini",
+      "o4-mini-2025-04-16",
+      "o4-mini-deep-research",
+      "o4-mini-deep-research-2025-06-26",
+      "open-mistral-7b",
+      "open-mixtral-8x22b",
+      "open-mixtral-8x7b",
+      "pixtral-12b",
+      "pixtral-12b-2409",
+      "pixtral-large-2411",
+      "pixtral-large-latest",
+      "pplx-70b-chat",
+      "pplx-70b-online",
+      "pplx-7b-chat",
+      "pplx-7b-online",
+      "qwen-coder",
+      "qwen-flash",
+      "qwen-max",
+      "qwen-omni-turbo",
+      "qwen-plus",
+      "qwen-plus-2025-01-25",
+      "qwen-plus-2025-04-28",
+      "qwen-plus-2025-07-14",
+      "qwen-turbo",
+      "qwen-turbo-2024-11-01",
+      "qwen-turbo-2025-04-28",
+      "qwen-turbo-latest",
+      "qwen-vl-max",
+      "qwen-vl-plus",
+      "qwen2-5-vl-72b-instruct",
+      "qwen3-235b-a22b",
+      "qwen3-32b",
+      "qwen3-coder-30b-a3b-instruct",
+      "qwen3-coder-480b-a35b-instruct",
+      "qwen3-coder-flash",
+      "qwen3-coder-plus",
+      "qwen3-max",
+      "qwen3-next-80b-a3b-instruct",
+      "qwen3-next-80b-a3b-thinking",
+      "qwen3-vl-235b-a22b-instruct",
+      "qwen3-vl-235b-a22b-thinking",
+      "qwen3-vl-32b-instruct",
+      "qwen3-vl-32b-thinking",
+      "qwen3-vl-plus",
+      "qwen3.5-122b-a10b",
+      "qwen3.5-27b",
+      "qwen3.5-35b-a3b",
+      "qwen3.5-397b-a17b",
+      "qwen3.6-27b",
+      "qwen3.6-35b-a3b",
+      "qwen3.6-flash",
+      "qwen3.6-max-preview",
+      "qwen3.6-plus",
+      "qwen3.7-max",
+      "qwen3.7-plus",
+      "qwen3.8-max",
+      "qwq-plus",
+      "sonar",
+      "sonar-deep-research",
+      "sonar-medium-chat",
+      "sonar-medium-online",
+      "sonar-pro",
+      "sonar-reasoning",
+      "sonar-reasoning-pro",
+      "sonar-small-chat",
+      "sonar-small-online",
+      "step-3.5-flash",
+      "step-3.5-flash-2603",
+      "step-3.7-flash"
+    ],
+    "baselineMeaning": "A retained undated baseline is an existing estimate, not evidence that this model never changed price. Missing official dates or pre-change rates are not invented.",
+    "remainingEvidenceLimits": [
+      {
+        "models": [
+          "gpt-3.5-turbo",
+          "gpt-4o",
+          "gemini-flash-latest",
+          "gemini-flash-lite-latest",
+          "gemini-3.5-flash"
+        ],
+        "reason": "Snapshot release dates alone do not prove exact rolling-alias billing cutovers. Keep the existing baseline until official old/new rates and alias cutovers can be reconciled."
+      },
+      {
+        "models": [
+          "mistral-medium-latest",
+          "ministral-8b-latest",
+          "codestral-latest",
+          "mistral-small-latest"
+        ],
+        "reason": "Model-generation updates have different prices. Complete old alias cutover/rate evidence is unavailable; current pinned SKUs are not backdated as alias history."
+      },
+      {
+        "models": [
+          "qwen3-max",
+          "qwen3-coder-plus",
+          "qwen-plus",
+          "qwen-turbo",
+          "qwen-flash"
+        ],
+        "reason": "Some official changes depend on three/four context tiers, deployment region, cache type or thinking mode. Source fields and the current two-tier USD estimator cannot uniquely represent all those dimensions; do not insert a guessed flat price."
+      },
+      {
+        "models": [
+          "mimo-v2-pro",
+          "mimo-v2-omni"
+        ],
+        "reason": "Original release notices prove input/output and Pro context tiers, but do not disclose their old cached-input price. Cached input remains partial until that historical fee is evidenced."
+      },
+      {
+        "models": [
+          "mimo-v2.5-pro-ultraspeed"
+        ],
+        "reason": "The official three-times-Pro trial price is confirmed, but its final service stop instant was not announced. Do not infer it from a page update date."
+      }
+    ],
+    "officialSourcesReviewed": {
+      "openai": [
+        "https://developers.openai.com/api/docs/changelog",
+        "https://developers.openai.com/api/docs/pricing",
+        "https://openai.com/index/gpt-5-6/"
+      ],
+      "anthropic": [
+        "https://platform.claude.com/docs/en/about-claude/pricing",
+        "https://claude.com/blog/1m-context-ga",
+        "https://www.anthropic.com/news/claude-sonnet-5"
+      ],
+      "deepseek": [
+        "https://api-docs.deepseek.com/updates/",
+        "https://web.archive.org/web/20250208152216/https://api-docs.deepseek.com/quick_start/pricing",
+        "https://web.archive.org/web/20250226111135/https://api-docs.deepseek.com/quick_start/pricing",
+        "https://web.archive.org/web/20260424030643/https://api-docs.deepseek.com/quick_start/pricing/",
+        "https://x.com/deepseek_ai/status/2048440764368347611",
+        "https://web.archive.org/web/20260822141620/https://api-docs.deepseek.com/quick_start/pricing/",
+        "https://web.archive.org/web/20260924171515/https://api-docs.deepseek.com/quick_start/pricing/",
+        "https://x.com/deepseek_ai/status/2057854261699195173"
+      ],
+      "google": [
+        "https://ai.google.dev/gemini-api/docs/pricing",
+        "https://ai.google.dev/gemini-api/docs/changelog"
+      ],
+      "mistral": [
+        "https://mistral.ai/news/september-24-release/",
+        "https://mistral.ai/news/mistral-3/",
+        "https://docs.mistral.ai/resources/changelogs",
+        "https://docs.mistral.ai/inference/pricing"
+      ],
+      "moonshot": [
+        "https://forum.moonshot.ai/t/kimi-k2-high-speed-model-released/25",
+        "https://forum.moonshot.ai/t/kimi-k2-turbo-promotion-is-back/86",
+        "https://forum.moonshot.ai/t/an-update-on-new-k2-models-and-new-pricing/104",
+        "https://platform.kimi.ai/blog/posts/changelog",
+        "https://platform.kimi.ai/docs/pricing/chat"
+      ],
+      "minimax": [
+        "https://www.minimax.io/news/minimax-m2",
+        "https://platform.minimax.io/docs/guides/pricing-paygo"
+      ],
+      "xiaomi": [
+        "https://mimo.mi.com/docs/en-US/news/previous-news/billing",
+        "https://mimo.mi.com/docs/en-US/news/latest/v2.5-price-update",
+        "https://mimo.mi.com/docs/en-US/updates/deprecate",
+        "https://mimo.mi.com/docs/en-US/price/pay-as-you-go",
+        "https://mimo.mi.com/docs/en-US/news/latest/beta-extended"
+      ],
+      "alibaba": [
+        "https://www.alibabacloud.com/help/en/model-studio/model-pricing",
+        "https://www.alibabacloud.com/en/notice/model_studio_price_reduction_for_qwen35plus_and_snapshot_models_6bf",
+        "https://www.alibabacloud.com/help/en/model-studio/model-release-notes",
+        "https://www.alibabacloud.com/help/en/model-studio/qwen3-coder-plus-price-drop"
+      ],
+      "zai": [
+        "https://docs.z.ai/guides/overview/pricing"
+      ],
+      "cohere": [
+        "https://cohere.com/pricing",
+        "https://docs.cohere.com/v2/changelog"
+      ],
+      "perplexity": [
+        "https://docs.perplexity.ai/docs/getting-started/pricing"
+      ],
+      "ai21": [
+        "https://docs.ai21.com/docs/jamba-foundation-models"
+      ],
+      "meta": [
+        "https://dev.meta.ai/docs/pricing-rate-limits"
+      ],
+      "sakana": [
+        "https://console.sakana.ai/pricing"
+      ],
+      "stepfun": [
+        "https://platform.stepfun.ai/docs/en/guides/pricing/details"
+      ],
+      "xai": [
+        "https://docs.x.ai/developers/pricing",
+        "https://docs.x.ai/developers/release-notes"
+      ]
+    }
+  }
 }

@@ -2,6 +2,7 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using AgenTally.Core.Collectors;
 using AgenTally.Core.Collectors.Codex;
 using AgenTally.Core.Collectors.Jsonl;
@@ -14,6 +15,39 @@ namespace AgenTally.Tests.Core;
 [TestClass]
 public sealed class CodexRolloutParserTests
 {
+    [TestMethod]
+    [DataRow("gpt-6.1-sol")]
+    [DataRow("gpt-6-astra")]
+    [DataRow("gpt-6-sol")]
+    [DataRow("gpt-6-luna")]
+    public void ParseLine_CurrentCodexModelsRetainExactTokenFacts(string model)
+    {
+        IReadOnlyList<CodexParseResult> results = Parse(
+        [
+            """{"timestamp":"2026-10-06T00:00:00Z","type":"session_meta","payload":{"id":"codex-model-fixture","model_provider":"openai"}}""",
+            JsonSerializer.Serialize(new
+            {
+                timestamp = "2026-10-06T00:00:01Z",
+                type = "turn_context",
+                payload = new { turn_id = "model-turn", model = $"openai/{model}" }
+            }),
+            """{"timestamp":"2026-10-06T00:00:02Z","type":"event_msg","payload":{"type":"token_count","info":{"last_token_usage":{"input_tokens":20,"cached_input_tokens":5,"output_tokens":4,"reasoning_output_tokens":2,"total_tokens":24}}}}"""
+        ]);
+        UsageEvent value = Assert.ContainsSingle(results
+            .Where(static result => result.Event is not null)
+            .Select(static result => result.Event!));
+        Assert.AreEqual(model, value.Model.NormalizedModel);
+        Assert.AreEqual($"openai/{model}", value.Model.RawModel);
+        Assert.AreEqual(20L, value.Tokens.InputReported.Value);
+        Assert.AreEqual(15L, value.Tokens.UncachedInput.Value);
+        Assert.AreEqual(5L, value.Tokens.CacheRead.Value);
+        Assert.AreEqual(4L, value.Tokens.Output.Value);
+        Assert.AreEqual(2L, value.Tokens.Reasoning.Value);
+        Assert.AreEqual(24L, value.Tokens.NormalizedTotal.Value);
+        Assert.IsNull(value.Tokens.CacheWrite.Value);
+        Assert.IsTrue(results.All(static result => result.Diagnostic is null));
+    }
+
     [TestMethod]
     public void ParseLine_ConvertsCumulativeSnapshotsToStableDeltas()
     {
@@ -982,6 +1016,296 @@ public sealed class CodexRolloutParserTests
         Assert.AreEqual("codex.invalid_json", result.Diagnostic.Code);
         Assert.DoesNotContain(privateLine, result.Diagnostic.Message);
         Assert.AreEqual(0L, result.Diagnostic.ByteOffset);
+    }
+
+    [TestMethod]
+    public void ParseLine_ClassifiedUserContentIgnoresContextAndRetainsOnlyFirstPreview()
+    {
+        string context = StructuredUserMessage("PRIVATE-AGENTS-CONTEXT",
+            contentKinds: ["agents_md.instructions"]);
+        string heartbeat = StructuredUserMessage("PRIVATE-HEARTBEAT",
+            contentKinds: ["user.heartbeat"]);
+        string first = StructuredUserMessage("  第一行 \n\t 第二行  ");
+        string supplement = StructuredUserMessage("PRIVATE-SUPPLEMENT",
+            messageId: "fixture-user-message-2", inputOrder: 1);
+        string revision = StructuredUserMessage("PRIVATE-REVISED-BODY");
+        const string token = """{"timestamp":"2026-10-07T00:00:03Z","type":"event_msg","payload":{"type":"token_count","info":{"last_token_usage":{"input_tokens":20,"cached_input_tokens":5,"output_tokens":4,"reasoning_output_tokens":2,"total_tokens":24}}}}""";
+        IReadOnlyList<CodexParseResult> results = Parse(
+            [StructuredSession, StructuredTurnStart, context, heartbeat,
+             first, supplement, revision, token]);
+
+        Assert.AreEqual("第一行 第二行", results[6].State.CurrentPromptPreview);
+        Assert.AreEqual(2, results[6].State.CurrentUserMessageCount);
+        Assert.HasCount(2, results[6].State.CurrentStructuredUserMessageHashes!);
+        Assert.IsNull(results[2].TurnMetadata);
+        Assert.IsNull(results[3].TurnMetadata);
+        Assert.IsTrue(results.All(static value => value.Diagnostic is null));
+        string cursor = StructuredCursor(results[6].State).Serialize();
+        foreach (string privateValue in new[]
+        {
+            "PRIVATE-AGENTS-CONTEXT", "PRIVATE-HEARTBEAT", "PRIVATE-SUPPLEMENT",
+            "PRIVATE-REVISED-BODY", "fixture-user-message-1", "fixture-user-message-2"
+        })
+        {
+            Assert.DoesNotContain(privateValue, cursor);
+        }
+        UsageEvent expected = Parse(
+            [StructuredSession, StructuredTurnStart, context, heartbeat, token])[^1].Event!;
+        Assert.AreEqual(expected.Tokens, results[^1].Event!.Tokens);
+        Assert.AreEqual(expected.EventId, results[^1].Event!.EventId);
+        Assert.AreEqual(expected.DedupKey, results[^1].Event!.DedupKey);
+    }
+
+    [TestMethod]
+    public void ParseLine_CrossThreadUserMetadataRestoresSummaryAndDeduplicatesAcrossRestart()
+    {
+        string first = ForwardedUserMessage(new string('甲', 111) + "😀PRIVATE-TAIL");
+        CodexParseState state = Parse(
+            [StructuredSession, StructuredTurnStart, first])[^1].State;
+        Assert.StartsWith("[跨会话消息] ", state.CurrentPromptPreview!, StringComparison.Ordinal);
+        Assert.AreEqual(120, state.CurrentPromptPreview!.EnumerateRunes().Count());
+        Assert.EndsWith("😀", state.CurrentPromptPreview, StringComparison.Ordinal);
+        string cursor = StructuredCursor(state).Serialize();
+        Assert.DoesNotContain("PRIVATE-TAIL", cursor);
+        Assert.DoesNotContain("PRIVATE-TOOL-OUTPUT", cursor);
+        Assert.DoesNotContain("fixture-receiver-message", cursor);
+        state = CodexCursor.DeserializeOrStart(cursor, true, out var diagnostic).State;
+        Assert.IsNull(diagnostic);
+        state = ParseSingle(first, state, 4).State;
+        state = ParseSingle(ForwardedUserMessage("PRIVATE-SUPPLEMENT",
+            messageId: "fixture-receiver-message-2"), state, 5).State;
+        Assert.AreEqual(2, state.CurrentUserMessageCount);
+        Assert.DoesNotContain("PRIVATE-SUPPLEMENT", StructuredCursor(state).Serialize());
+        Assert.AreEqual(120, state.CurrentPromptPreview!.EnumerateRunes().Count());
+        const string token = """{"timestamp":"2026-10-07T00:00:03Z","type":"event_msg","payload":{"type":"token_count","info":{"last_token_usage":{"input_tokens":20,"cached_input_tokens":5,"output_tokens":4,"reasoning_output_tokens":2,"total_tokens":24}}}}""";
+        UsageEvent expected = Parse([StructuredSession, StructuredTurnStart, token])[^1].Event!;
+        UsageEvent actual = ParseSingle(token, state, 6).Event!;
+        Assert.AreEqual(expected.Tokens, actual.Tokens);
+        Assert.AreEqual(expected.EventId, actual.EventId);
+        Assert.AreEqual(expected.DedupKey, actual.DedupKey);
+        CodexParseResult replay = ParseSingle(first,
+            new CodexParseState(ThreadId: "structured-thread",
+                CurrentTurnIdHash: state.CurrentTurnIdHash, IsHistoryReplay: true), 7);
+        Assert.IsNull(replay.TurnMetadata);
+        Assert.AreEqual(0, replay.State.CurrentUserMessageCount);
+    }
+
+    [TestMethod]
+    [DataRow("missing_user_metadata")]
+    [DataRow("wrong_message")]
+    [DataRow("wrong_turn")]
+    [DataRow("other_function")]
+    public void ParseLine_CrossThreadSummaryRequiresExactReceivingEvidence(string defect)
+    {
+        JsonNode message = JsonNode.Parse(ForwardedUserMessage("PRIVATE-REJECTED"))!;
+        switch (defect)
+        {
+            case "missing_user_metadata":
+                message["metadata"]!.AsObject().Remove("sender_user_messages"); break;
+            case "wrong_message":
+                message["metadata"]!["sender_user_messages"]!["receiver_message_id"] = "other-message"; break;
+            case "wrong_turn":
+                message["metadata"]!["sender_user_messages"]!["receiver_turn_id"] = "other-turn"; break;
+            case "other_function":
+                message["payload"]!["name"] = "other-tool"; break;
+        }
+        CodexParseResult result = Parse(
+            [StructuredSession, StructuredTurnStart, message.ToJsonString()])[^1];
+        Assert.IsNull(result.TurnMetadata);
+        Assert.IsNull(result.State.CurrentPromptPreview);
+        Assert.AreEqual(0, result.State.CurrentUserMessageCount);
+    }
+
+    [TestMethod]
+    [DataRow("missing_metadata")]
+    [DataRow("missing_source")]
+    [DataRow("client_authored")]
+    [DataRow("missing_order")]
+    [DataRow("string_order")]
+    [DataRow("negative_order")]
+    [DataRow("wrong_role")]
+    [DataRow("wrong_source_turn")]
+    [DataRow("wrong_message_turn")]
+    [DataRow("missing_message_id")]
+    [DataRow("missing_classification")]
+    [DataRow("classification_count")]
+    [DataRow("wrong_content_type")]
+    [DataRow("wrong_text_type")]
+    public void ParseLine_UnprovedStructuredUserContentDoesNotCreatePrompt(string defect)
+    {
+        JsonNode message = JsonNode.Parse(StructuredUserMessage("PRIVATE-REJECTED"))!;
+        JsonNode metadata = message["metadata"]!;
+        JsonNode identity = metadata["retained_source"]!["id"]!;
+        JsonNode passthrough = message["payload"]!["internal_chat_message_metadata_passthrough"]!;
+        switch (defect)
+        {
+            case "missing_metadata": message.AsObject().Remove("metadata"); break;
+            case "missing_source": metadata.AsObject().Remove("retained_source"); break;
+            case "client_authored": metadata["client_authored"] = true; break;
+            case "missing_order": metadata.AsObject().Remove("user_input_order"); break;
+            case "string_order": metadata["user_input_order"] = "PRIVATE-ORDER"; break;
+            case "negative_order": metadata["user_input_order"] = -1; break;
+            case "wrong_role": identity["role"] = "assistant"; break;
+            case "wrong_source_turn": identity["turn_id"] = "other-turn"; break;
+            case "wrong_message_turn": passthrough["turn_id"] = "other-turn"; break;
+            case "missing_message_id": identity.AsObject().Remove("message_id"); break;
+            case "missing_classification": passthrough.AsObject().Remove("content_item_kinds"); break;
+            case "classification_count": passthrough["content_item_kinds"] = new JsonArray(); break;
+            case "wrong_content_type": message["payload"]!["content"]![0]!["type"] = "output_text"; break;
+            case "wrong_text_type": message["payload"]!["content"]![0]!["text"] = 42; break;
+        }
+        CodexParseResult result = Parse(
+            [StructuredSession, StructuredTurnStart, message.ToJsonString()])[^1];
+        Assert.IsNull(result.Diagnostic);
+        Assert.IsNull(result.TurnMetadata);
+        Assert.AreEqual(0, result.State.CurrentUserMessageCount);
+        Assert.IsNull(result.State.CurrentPromptPreview);
+        Assert.IsNull(result.State.CurrentStructuredUserMessageHashes);
+    }
+
+    [TestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
+    public void ParseLine_LegacyAndStructuredMirrorsUseOneRepresentationPerTurn(bool legacyFirst)
+    {
+        const string legacy = """{"timestamp":"2026-10-07T00:00:02Z","type":"event_msg","payload":{"type":"user_message","message":"第一条用户消息"}}""";
+        string structured = StructuredUserMessage("第一条用户消息");
+        string[] mirrors = legacyFirst ? [legacy, structured] : [structured, legacy];
+        CodexParseState state = Parse(
+            [StructuredSession, StructuredTurnStart, .. mirrors])[^1].State;
+        Assert.AreEqual(1, state.CurrentUserMessageCount);
+        Assert.AreEqual("第一条用户消息", state.CurrentPromptPreview);
+    }
+
+    [TestMethod]
+    public void ParseLine_StructuredMediaStripsAttachmentEnvelopesAndClosingMarkup()
+    {
+        const string path = @"C:\private\attachment-secret.png";
+        string envelope = $"""
+            # Files mentioned by the user:
+            ## attachment-secret.png: {path}
+            ## My request:
+            仅显示实际请求
+            """;
+        string message = StructuredUserMessage(string.Empty,
+            content:
+            [
+                new { type = "input_text", text = envelope },
+                new { type = "input_text", text = $"<image name=secret path=\"{path}\">" },
+                new { type = "input_image", image_url = "PRIVATE-IMAGE-DATA" },
+                new { type = "input_text", text = "</image>" },
+                new { type = "input_audio", input_audio = "PRIVATE-AUDIO-DATA" }
+            ],
+            contentKinds: ["user.text", "user.text", "user.image", "user.text", "user.audio"],
+            complete: false);
+        CodexParseState state = Parse(
+            [StructuredSession, StructuredTurnStart, message])[^1].State;
+        Assert.AreEqual("[图片] [音频] 仅显示实际请求", state.CurrentPromptPreview);
+        string cursor = StructuredCursor(state).Serialize();
+        Assert.DoesNotContain("attachment-secret", cursor);
+        Assert.DoesNotContain("PRIVATE-IMAGE", cursor);
+        Assert.DoesNotContain("PRIVATE-AUDIO", cursor);
+        Assert.DoesNotContain(@"C:\private", cursor);
+        Assert.DoesNotContain("</image>", cursor);
+    }
+
+    [TestMethod]
+    public void ParseLine_StructuredPreviewKeeps120ScalarsAndDeduplicationAcrossCursorRestart()
+    {
+        string first = StructuredUserMessage(new string('甲', 119) + "😀PRIVATE-TAIL");
+        CodexParseState before = Parse(
+            [StructuredSession, StructuredTurnStart, first])[^1].State;
+        CodexCursor restored = CodexCursor.DeserializeOrStart(
+            StructuredCursor(before).Serialize(), hasStoredCursor: true, out var diagnostic);
+        Assert.IsNull(diagnostic);
+        CodexParseState after = ParseSingle(first, restored.State, 20).State;
+        Assert.AreEqual(1, after.CurrentUserMessageCount);
+        Assert.AreEqual(120, after.CurrentPromptPreview!.EnumerateRunes().Count());
+        Assert.EndsWith("😀", after.CurrentPromptPreview, StringComparison.Ordinal);
+        Assert.DoesNotContain("PRIVATE-TAIL", StructuredCursor(after).Serialize());
+        string nextTurn = """{"timestamp":"2026-10-07T00:00:04Z","type":"turn_context","payload":{"turn_id":"next-turn"}}""";
+        CodexParseState next = ParseSingle(nextTurn, after, 21).State;
+        Assert.IsNull(next.CurrentStructuredUserMessageHashes);
+        Assert.AreEqual(0, next.CurrentUserMessageCount);
+        Assert.IsNull(next.CurrentPromptPreview);
+    }
+
+    [TestMethod]
+    public void ParseLine_FirstStructuredSourceRevisionCanFillMissingPreviewWithoutCountingAgain()
+    {
+        CodexParseState state = Parse(
+            [StructuredSession, StructuredTurnStart, StructuredUserMessage("   ")])[^1].State;
+        state = ParseSingle(StructuredUserMessage("PRIVATE-SUPPLEMENT",
+            messageId: "fixture-user-message-2"), state, 4).State;
+        state = ParseSingle(StructuredUserMessage("第一条消息的可用前缀"), state, 5).State;
+        Assert.AreEqual(2, state.CurrentUserMessageCount);
+        Assert.AreEqual("第一条消息的可用前缀", state.CurrentPromptPreview);
+    }
+
+    [TestMethod]
+    [DataRow("replay")]
+    [DataRow("pending_context")]
+    [DataRow("no_turn")]
+    public void ParseLine_StructuredUserContentCannotEscapeReplayOrMissingTurn(string condition)
+    {
+        CodexParseState state = Parse([StructuredSession, StructuredTurnStart])[^1].State;
+        state = condition switch
+        {
+            "replay" => state with { IsHistoryReplay = true },
+            "pending_context" => state with { IsReplayTargetContextPending = true },
+            _ => state with { CurrentTurnIdHash = null }
+        };
+        CodexParseResult result = ParseSingle(StructuredUserMessage("PRIVATE-REPLAY"), state, 3);
+        Assert.IsNull(result.TurnMetadata);
+        Assert.AreEqual(0, result.State.CurrentUserMessageCount);
+        Assert.IsNull(result.State.CurrentPromptPreview);
+    }
+
+    [TestMethod]
+    public void ParseLine_StructuredMessageIdentityCapacityFailsClosed()
+    {
+        CodexParseState state = Parse([StructuredSession, StructuredTurnStart])[^1].State;
+        CodexParseResult? result = null;
+        for (int index = 0; index < 65; index++)
+        {
+            result = ParseSingle(StructuredUserMessage("PRIVATE-SUPPLEMENT",
+                messageId: $"fixture-message-{index}"), state, index + 3);
+            state = result.State;
+        }
+        Assert.AreEqual(64, state.CurrentUserMessageCount);
+        Assert.HasCount(64, state.CurrentStructuredUserMessageHashes!);
+        Assert.AreEqual("codex.prompt_metadata_capacity_exceeded", result!.Diagnostic!.Code);
+        Assert.DoesNotContain("PRIVATE-SUPPLEMENT", result.Diagnostic.Message);
+        StructuredCursor(state).Serialize();
+    }
+
+    [TestMethod]
+    [DataRow("raw_identity")]
+    [DataRow("duplicate")]
+    [DataRow("capacity")]
+    [DataRow("no_turn")]
+    [DataRow("count_mismatch")]
+    public void CodexCursor_RejectsInvalidStructuredUserMessageIdentities(string defect)
+    {
+        CodexParseState state = Parse(
+            [StructuredSession, StructuredTurnStart, StructuredUserMessage("摘要")])[^1].State;
+        Assert.IsNotEmpty(StructuredCursor(state).Serialize());
+        state = defect switch
+        {
+            "raw_identity" => state with { CurrentStructuredUserMessageHashes = ["PRIVATE-RAW-ID"] },
+            "duplicate" => state with { CurrentUserMessageCount = 2,
+                CurrentStructuredUserMessageHashes = [new string('a', 64), new string('a', 64)] },
+            "capacity" => state with { CurrentUserMessageCount = 65,
+                CurrentStructuredUserMessageHashes = Enumerable.Range(0, 65)
+                    .Select(static value => value.ToString("x64")).ToArray() },
+            "no_turn" => state with { CurrentTurnIdHash = null },
+            _ => state with { CurrentUserMessageCount = 0 }
+        };
+        CodexCursor restored = CodexCursor.DeserializeOrStart(
+            SerializeCursorUnchecked(StructuredCursor(state)),
+            hasStoredCursor: true, out var diagnostic);
+        Assert.AreEqual(CodexCursor.Start, restored);
+        Assert.AreEqual("codex.invalid_cursor", diagnostic!.Code);
     }
 
     [TestMethod]
@@ -2019,6 +2343,77 @@ public sealed class CodexRolloutParserTests
             Assert.AreEqual("codex.invalid_cursor", diagnostic.Code);
         }
     }
+
+    private const string StructuredSession = """{"timestamp":"2026-10-07T00:00:00Z","type":"session_meta","payload":{"id":"structured-thread","model_provider":"openai"}}""";
+    private const string StructuredTurnStart = """{"timestamp":"2026-10-07T00:00:01Z","type":"event_msg","payload":{"type":"task_started","turn_id":"structured-turn","root_turn_id":"structured-turn"}}""";
+
+    private static string StructuredUserMessage(
+        string text,
+        string messageId = "fixture-user-message-1",
+        string turnId = "structured-turn",
+        object[]? content = null,
+        string[]? contentKinds = null,
+        int inputOrder = 0,
+        bool complete = true) => JsonSerializer.Serialize(new
+        {
+            timestamp = "2026-10-07T00:00:02Z",
+            type = "response_item",
+            payload = new
+            {
+                type = "message",
+                role = "user",
+                content = content ?? [new { type = "input_text", text }],
+                internal_chat_message_metadata_passthrough = new
+                {
+                    turn_id = turnId,
+                    content_item_kinds = contentKinds ?? ["user.text"]
+                }
+            },
+            metadata = new
+            {
+                retained_source = new
+                {
+                    id = new { message_id = messageId, turn_id = turnId, role = "user" },
+                    complete
+                },
+                client_authored = false,
+                user_input_order = inputOrder
+            }
+        });
+
+    private static CodexCursor StructuredCursor(CodexParseState state) => new(
+        new JsonlCursor(1000, string.Empty, 200, new string('a', 64)), state);
+
+    private static string ForwardedUserMessage(
+        string text,
+        string messageId = "fixture-receiver-message") => JsonSerializer.Serialize(new
+        {
+            timestamp = "2026-10-07T00:00:02Z",
+            type = "response_item",
+            payload = new
+            {
+                type = "function_call_output",
+                id = messageId,
+                name = "send_message_to_thread",
+                @namespace = "codex_app",
+                output = "PRIVATE-TOOL-OUTPUT",
+                internal_chat_message_metadata_passthrough = new
+                {
+                    turn_id = "structured-turn"
+                }
+            },
+            metadata = new
+            {
+                client_authored = false,
+                user_input_order = 0,
+                sender_user_messages = new
+                {
+                    receiver_turn_id = "structured-turn",
+                    receiver_message_id = messageId,
+                    text
+                }
+            }
+        });
 
     private static IReadOnlyList<CodexParseResult> ParseFixture(string fileName) =>
         Parse(File.ReadAllLines(Path.Combine(FixtureDirectory, fileName)));

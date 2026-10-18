@@ -244,6 +244,7 @@ public sealed class CoreRuntimeController : ICoreRuntimeController
     private readonly TimeSpan _statusPollInterval;
     private readonly string _applicationVersion;
     private readonly DataMaintenanceRequestStore _dataRequests;
+    private readonly SemaphoreSlim _maintenanceGate = new(1, 1);
 
     public CoreRuntimeController(
         AgenTallyRuntimeProfile profile,
@@ -415,17 +416,26 @@ public sealed class CoreRuntimeController : ICoreRuntimeController
         string? backupPath,
         CancellationToken cancellationToken)
     {
+        await _maintenanceGate.WaitAsync(cancellationToken);
         try
         {
-            return await RunMaintenanceCoreAsync(
-                operation,
-                backupPath,
-                cancellationToken);
+            try
+            {
+                return await RunMaintenanceCoreAsync(
+                    operation,
+                    backupPath,
+                    cancellationToken);
+            }
+            catch (OperationCanceledException)
+                when (cancellationToken.IsCancellationRequested)
+            {
+                await RecoverAfterCancelledMaintenanceAsync();
+                throw;
+            }
         }
-        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        finally
         {
-            await RecoverAfterCancelledMaintenanceAsync();
-            throw;
+            _maintenanceGate.Release();
         }
     }
 

@@ -26,6 +26,16 @@ public partial class SettingsView : UserControl
         UpdateCategoryColumns(SettingsContentGrid.ActualWidth);
     }
 
+    private void OnPriceEffectiveDateValidationError(object sender,
+        DatePickerDateValidationErrorEventArgs eventArgs)
+    {
+        eventArgs.ThrowException = false;
+        if (DataContext is SettingsViewModel viewModel)
+        {
+            viewModel.PriceEffectiveDate = null;
+        }
+    }
+
     private void OnUnloaded(object sender, RoutedEventArgs eventArgs)
     {
         AttachToViewModel(null);

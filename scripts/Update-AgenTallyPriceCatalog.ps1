@@ -61,13 +61,16 @@ no-op or proposes the next UTC-date rN revision for changed content.
 
 .PARAMETER AllowRateChanges
 Allows changed prices or selected sources during -Apply.
+An existing fallback fee can change only after a dated maintained timeline
+owns that model; an undated upstream snapshot cannot erase historical prices.
 
 .PARAMETER AllowRemovals
 Allows upstream or maintained model-price removals during -Apply.
 
 .PARAMETER AllowMaintainedChanges
 Allows changed maintained rules, including rates, model membership or official
-evidence, and changed price-alias evidence during -Apply. Additive rules and
+evidence, peak/off-peak schedules and holiday calendars, and changed price-alias
+evidence during -Apply. Additive rules and
 aliases do not require this switch.
 
 .PARAMETER AllowAliasRemovals
@@ -78,6 +81,11 @@ Allows reviewed price aliases to change their price target during -Apply.
 
 .PARAMETER Apply
 Replaces the shipped upstream snapshot after all review gates pass.
+
+.PARAMETER MaintainedOnly
+Audits all candidates but applies only the maintained and reviewed-alias
+layers. The shipped upstream fallback snapshot remains byte-for-byte intact.
+Approval gates still apply to every layer selected for publication.
 
 .EXAMPLE
 .\scripts\Update-AgenTallyPriceCatalog.ps1
@@ -116,6 +124,7 @@ param(
     [switch] $AllowMaintainedChanges,
     [switch] $AllowAliasRemovals,
     [switch] $AllowAliasRetargeting,
+    [switch] $MaintainedOnly,
     [switch] $Apply
 )
 
@@ -181,8 +190,11 @@ function Read-JsonDocument {
         throw "JSON file is missing: $Path"
     }
 
-    return Get-Content -Raw -LiteralPath $Path |
-        ConvertFrom-Json -AsHashtable
+    $jsonOptions = @{ AsHashtable = $true }
+    if ((Get-Command ConvertFrom-Json).Parameters.ContainsKey('DateKind')) {
+        $jsonOptions.DateKind = 'String'
+    }
+    return Get-Content -Raw -LiteralPath $Path | ConvertFrom-Json @jsonOptions
 }
 
 function Get-NextCatalogVersion {
@@ -467,7 +479,10 @@ function Get-RateSignature {
         (& $format $Rule.outputUsdPerMillion),
         $threshold,
         (& $format $inputMultiplier),
-        (& $format $outputMultiplier)
+        (& $format $outputMultiplier),
+        $(if ($Rule.Contains('peakOffPeak') -and $null -ne $Rule.peakOffPeak) {
+            $Rule.peakOffPeak | ConvertTo-Json -Depth 12 -Compress
+        } else { '<none>' })
     ) -join '|'
 }
 
@@ -511,7 +526,10 @@ function Get-CatalogContentSignature {
             [string] $rule.source,
             [string] $rule.sourceKey,
             (@($rule.models | Sort-Object) -join ','),
-            (Get-RateSignature $rule)
+            (Get-RateSignature $rule),
+            $(if ($rule.Contains('effectiveFromUtc')) { [string] $rule.effectiveFromUtc } else { '' }),
+            $(if ($rule.Contains('effectiveUntilUtc')) { [string] $rule.effectiveUntilUtc } else { '' }),
+            $(if ($rule.Contains('effectiveDateSource')) { [string] $rule.effectiveDateSource } else { '' })
         ) -join '|')
     }
     return ($parts -join [Environment]::NewLine)
@@ -526,7 +544,12 @@ function Get-RuleMap {
         $null -eq $Catalog.rules) {
         return $result
     }
-    foreach ($rule in @($Catalog.rules)) {
+    foreach ($rule in @($Catalog.rules | Sort-Object {
+                if ($_.Contains('effectiveFromUtc') -and $null -ne $_.effectiveFromUtc) {
+                    [DateTimeOffset]::Parse([string] $_.effectiveFromUtc,
+                        [Globalization.CultureInfo]::InvariantCulture)
+                } else { [DateTimeOffset]::MinValue }
+            })) {
         foreach ($model in @($rule.models)) {
             $result[[string] $model] = $rule
         }
@@ -616,11 +639,153 @@ function Assert-OptionalNonNegativeDecimal {
     }
 }
 
+function Assert-PeakOffPeakSchedule {
+    param(
+        [Parameter(Mandatory)] [System.Collections.IDictionary] $Rule,
+        [Parameter(Mandatory)] [string] $Description
+    )
+
+    $schedule = $Rule.peakOffPeak
+    if (-not ($schedule -is [System.Collections.IDictionary]) -or
+        -not $schedule.Contains('schedule') -or
+        [string] $schedule.schedule -cnotin @('deepseek-beijing-weekday-v1', 'deepseek-utc-daily-v1', 'deepseek-utc-night-2025-v1') -or
+        -not $schedule.Contains('peakMultiplier') -or
+        [decimal] $schedule.peakMultiplier -lt 1 -or
+        [decimal] $schedule.peakMultiplier -gt 100 -or
+        -not $schedule.Contains('holidayCalendars') -or
+        ([string] $schedule.schedule -ceq 'deepseek-beijing-weekday-v1' -and
+            @($schedule.holidayCalendars).Count -eq 0) -or
+        ([string] $schedule.schedule -cne 'deepseek-beijing-weekday-v1' -and
+            @($schedule.holidayCalendars).Count -ne 0)) {
+        throw "$Description has an invalid peak/off-peak schedule."
+    }
+    if ([string] $schedule.schedule -ceq 'deepseek-utc-night-2025-v1') {
+        if ([decimal] $schedule.peakMultiplier -ne 1 -or
+            -not $schedule.Contains('peakRates') -or $null -eq $schedule.peakRates) {
+            throw "$Description requires explicit historical standard prices."
+        }
+        foreach ($field in @('inputUsdPerMillion', 'outputUsdPerMillion')) {
+            if (-not $schedule.peakRates.Contains($field) -or $null -eq $schedule.peakRates[$field]) {
+                throw "$Description is missing a historical standard price."
+            }
+        }
+        foreach ($field in @('inputUsdPerMillion', 'cachedInputUsdPerMillion',
+                'cacheWriteUsdPerMillion', 'outputUsdPerMillion')) {
+            if ($schedule.peakRates.Contains($field) -and $null -ne $schedule.peakRates[$field]) {
+                Assert-OptionalNonNegativeDecimal $schedule.peakRates $field $Description
+                if ([decimal] $schedule.peakRates[$field] -gt 1000000) {
+                    throw "$Description has a historical price exceeding the supported limit."
+                }
+            }
+        }
+    }
+    elseif ([decimal] $schedule.peakMultiplier -le 1 -or
+        ($schedule.Contains('peakRates') -and $null -ne $schedule.peakRates)) {
+        throw "$Description has an invalid peak multiplier or unexpected explicit rates."
+    }
+    foreach ($rateName in @('inputUsdPerMillion', 'cachedInputUsdPerMillion',
+            'cacheWriteUsdPerMillion', 'outputUsdPerMillion')) {
+        if ($null -ne $Rule[$rateName] -and
+            [decimal] $Rule[$rateName] * [decimal] $schedule.peakMultiplier -gt 1000000) {
+            throw "$Description peak rate exceeds the supported limit."
+        }
+    }
+
+    $years = [System.Collections.Generic.HashSet[int]]::new()
+    foreach ($calendar in @($schedule.holidayCalendars)) {
+        if (-not ($calendar -is [System.Collections.IDictionary]) -or
+            -not $calendar.Contains('year') -or
+            [string] $calendar.year -cnotmatch '^[1-9][0-9]{0,3}$' -or
+            -not $years.Add([int] $calendar.year) -or
+            -not $calendar.Contains('days') -or
+            @($calendar.days).Count -eq 0 -or @($calendar.days).Count -gt 366) {
+            throw "$Description has an invalid or duplicate holiday year."
+        }
+        Assert-OfficialEvidence $calendar "$Description holiday calendar"
+        $days = [System.Collections.Generic.HashSet[string]]::new(
+            [System.StringComparer]::Ordinal)
+        foreach ($day in @($calendar.days)) {
+            $parsedDay = [DateTime]::MinValue
+            if (-not [DateTime]::TryParseExact([string] $day, 'yyyy-MM-dd',
+                    [Globalization.CultureInfo]::InvariantCulture,
+                    [Globalization.DateTimeStyles]::None, [ref] $parsedDay) -or
+                $parsedDay.Year -ne [int] $calendar.year -or
+                -not $days.Add([string] $day)) {
+                throw "$Description has an invalid or duplicate holiday date."
+            }
+        }
+    }
+}
+
+function Get-PriceBoundary {
+    param([System.Collections.IDictionary] $Rule, [string] $Name,
+        [DateTimeOffset] $Default)
+    if (-not $Rule.Contains($Name) -or $null -eq $Rule[$Name]) { return $Default }
+    $value = [DateTimeOffset]::MinValue
+    if (-not [DateTimeOffset]::TryParseExact([string] $Rule[$Name],
+            [string[]] @("yyyy-MM-dd'T'HH:mm:ss'Z'", "yyyy-MM-dd'T'HH:mm:ss.FFFFFFF'Z'"),
+            [Globalization.CultureInfo]::InvariantCulture,
+            ([Globalization.DateTimeStyles]::AssumeUniversal -bor
+             [Globalization.DateTimeStyles]::AdjustToUniversal), [ref] $value) -or
+        $value.Ticks % [TimeSpan]::TicksPerMillisecond -ne 0) {
+        throw "Price $Name must be an explicit ISO UTC timestamp at millisecond precision."
+    }
+    return $value
+}
+
+function Assert-PricePeriods {
+    param([System.Collections.IDictionary] $Catalog, [int] $MinimumSchema)
+    $byModel = @{}
+    foreach ($rule in @($Catalog.rules)) {
+        $from = Get-PriceBoundary $rule 'effectiveFromUtc' ([DateTimeOffset]::MinValue)
+        $until = Get-PriceBoundary $rule 'effectiveUntilUtc' ([DateTimeOffset]::MaxValue)
+        $dated = ($rule.Contains('effectiveFromUtc') -and $null -ne $rule.effectiveFromUtc) -or
+                 ($rule.Contains('effectiveUntilUtc') -and $null -ne $rule.effectiveUntilUtc)
+        if ($from -ge $until) { throw 'Price period start must be before its end.' }
+        if ($dated) {
+            $evidence = $null
+            if ([int] $Catalog.schemaVersion -lt $MinimumSchema -or
+                -not $rule.Contains('effectiveDateSource') -or
+                -not [Uri]::TryCreate([string] $rule.effectiveDateSource,
+                    [UriKind]::Absolute, [ref] $evidence) -or $evidence.Scheme -ne 'https') {
+                throw 'Dated prices require the interval schema and official date evidence.'
+            }
+        }
+        foreach ($boundaryName in @('From', 'Until')) {
+            $basisName = 'effective' + $boundaryName + 'Basis'
+            $instantName = 'effective' + $boundaryName + 'Utc'
+            if ($rule.Contains($basisName)) {
+                if (-not $rule.Contains($instantName) -or $null -eq $rule[$instantName] -or
+                    $rule[$basisName] -notin @('official-utc-instant',
+                        'official-immediate-announcement', 'official-date-at-utc-midnight',
+                        'official-publication-date-at-utc-midnight')) {
+                    throw 'Price date precision requires a matching boundary and a recognized basis.'
+                }
+                if ([string] $rule[$basisName] -like '*at-utc-midnight' -and
+                    (Get-PriceBoundary $rule $instantName ([DateTimeOffset]::MinValue)).TimeOfDay -ne [TimeSpan]::Zero) {
+                    throw 'A date-only price boundary must use UTC midnight.'
+                }
+            }
+        }
+        foreach ($model in @($rule.models)) {
+            if (-not $byModel.ContainsKey([string] $model)) { $byModel[[string] $model] = @() }
+            $byModel[[string] $model] += [pscustomobject]@{From=$from;Until=$until;RuleId=$rule.ruleId}
+        }
+    }
+    foreach ($model in $byModel.Keys) {
+        $end = [DateTimeOffset]::MinValue
+        foreach ($period in @($byModel[$model] | Sort-Object From)) {
+            if ($period.From -lt $end) { throw "Overlapping price periods for '$model'." }
+            $end = $period.Until
+        }
+    }
+}
+
 function Assert-MaintainedCatalog {
     param([Parameter(Mandatory)] [System.Collections.IDictionary] $Catalog)
 
     if (-not $Catalog.Contains('schemaVersion') -or
-        [int] $Catalog.schemaVersion -ne 1 -or
+        [int] $Catalog.schemaVersion -notin @(1, 2, 3) -or
         -not $Catalog.Contains('catalogVersion') -or
         -not $Catalog.Contains('currency') -or
         -not [string]::Equals(
@@ -667,8 +832,7 @@ function Assert-MaintainedCatalog {
                 -not [string]::Equals(
                     $model,
                     [string] $modelValue,
-                    [StringComparison]::Ordinal) -or
-                -not $models.Add($model)) {
+                    [StringComparison]::Ordinal)) {
                 throw "$description contains an invalid or duplicate model '$modelValue'."
             }
         }
@@ -676,6 +840,12 @@ function Assert-MaintainedCatalog {
         Assert-OptionalNonNegativeDecimal $rule 'cachedInputUsdPerMillion' $description
         Assert-OptionalNonNegativeDecimal $rule 'cacheWriteUsdPerMillion' $description
         Assert-OptionalNonNegativeDecimal $rule 'outputUsdPerMillion' $description -Required
+        if ($rule.Contains('peakOffPeak') -and $null -ne $rule.peakOffPeak) {
+            if ([int] $Catalog.schemaVersion -lt 2) {
+                throw "$description time-scheduled prices require catalog schema v2."
+            }
+            Assert-PeakOffPeakSchedule $rule $description
+        }
 
         $tierNames = @(
             'longContextThresholdTokens',
@@ -693,6 +863,7 @@ function Assert-MaintainedCatalog {
             }
         }
     }
+    Assert-PricePeriods $Catalog 3
 }
 
 function Assert-ReviewedPriceAliasCatalog {
@@ -739,6 +910,12 @@ function Get-MaintainedCatalogContentSignature {
 
     $parts = [System.Collections.Generic.List[string]]::new()
     $parts.Add("schemaVersion|$($Catalog.schemaVersion)")
+    if ($Catalog.Contains('historyPolicy')) {
+        $parts.Add('historyPolicy|' + ($Catalog.historyPolicy | ConvertTo-Json -Depth 20 -Compress))
+    }
+    if ($Catalog.Contains('historyReview')) {
+        $parts.Add('historyReview|' + ($Catalog.historyReview | ConvertTo-Json -Depth 30 -Compress))
+    }
     $parts.Add("currency|$($Catalog.currency)")
     $parts.Add("unit|$($Catalog.unit)")
     foreach ($rule in @($Catalog.rules | Sort-Object { [string] $_.ruleId })) {
@@ -748,7 +925,13 @@ function Get-MaintainedCatalogContentSignature {
             [string] $rule.officialSource,
             [string] $rule.verifiedOn,
             (@($rule.models | Sort-Object) -join ','),
-            (Get-RateSignature $rule)
+            (Get-RateSignature $rule),
+            $(if ($rule.Contains('effectiveFromUtc')) { [string] $rule.effectiveFromUtc } else { '' }),
+            $(if ($rule.Contains('effectiveUntilUtc')) { [string] $rule.effectiveUntilUtc } else { '' }),
+            $(if ($rule.Contains('effectiveDateSource')) { [string] $rule.effectiveDateSource } else { '' }),
+            $(if ($rule.Contains('effectiveFromBasis')) { [string] $rule.effectiveFromBasis } else { '' }),
+            $(if ($rule.Contains('effectiveUntilBasis')) { [string] $rule.effectiveUntilBasis } else { '' }),
+            $(if ($rule.Contains('historyNote')) { [string] $rule.historyNote } else { '' })
         ) -join '|')
     }
     return $parts -join [Environment]::NewLine
@@ -794,7 +977,35 @@ function Get-RuleDetails {
         longContextOutputMultiplier = if ($Rule.Contains('longContextOutputMultiplier')) {
             $Rule.longContextOutputMultiplier
         } else { $null }
+        peakOffPeak = if ($Rule.Contains('peakOffPeak')) {
+            $Rule.peakOffPeak
+        } else { $null }
+        effectiveFromUtc = if ($Rule.Contains('effectiveFromUtc')) { $Rule.effectiveFromUtc } else { $null }
+        effectiveUntilUtc = if ($Rule.Contains('effectiveUntilUtc')) { $Rule.effectiveUntilUtc } else { $null }
+        effectiveDateSource = if ($Rule.Contains('effectiveDateSource')) { $Rule.effectiveDateSource } else { $null }
+        effectiveFromBasis = if ($Rule.Contains('effectiveFromBasis')) { $Rule.effectiveFromBasis } else { $null }
+        effectiveUntilBasis = if ($Rule.Contains('effectiveUntilBasis')) { $Rule.effectiveUntilBasis } else { $null }
+        historyNote = if ($Rule.Contains('historyNote')) { $Rule.historyNote } else { $null }
     }
+}
+
+function Get-ImmutableRateSignature {
+    param([System.Collections.IDictionary] $Rule)
+    $rates = [ordered] @{}
+    foreach ($name in @('inputUsdPerMillion', 'cachedInputUsdPerMillion',
+            'cacheWriteUsdPerMillion', 'outputUsdPerMillion',
+            'longContextThresholdTokens', 'longContextInputMultiplier',
+            'longContextOutputMultiplier')) {
+        if ($Rule.Contains($name)) { $rates[$name] = $Rule[$name] }
+    }
+    $signature = Get-RateSignature $rates
+    if ($Rule.Contains('peakOffPeak') -and $null -ne $Rule.peakOffPeak) {
+        $signature += "|$($Rule.peakOffPeak.schedule)|$($Rule.peakOffPeak.peakMultiplier)"
+        if ($Rule.peakOffPeak.Contains('peakRates') -and $null -ne $Rule.peakOffPeak.peakRates) {
+            $signature += '|' + (Get-RateSignature $Rule.peakOffPeak.peakRates)
+        }
+    }
+    return $signature
 }
 
 function Get-RuleIdMap {
@@ -1242,7 +1453,13 @@ $availablePriceModels = [System.Collections.Generic.HashSet[string]]::new(
 foreach ($model in $maintainedModels) {
     [void] $availablePriceModels.Add($model)
 }
-foreach ($model in $selectedRules.Keys) {
+$aliasTargetUpstream = if ($MaintainedOnly) {
+    Get-RuleMap $current
+}
+else {
+    $selectedRules
+}
+foreach ($model in $aliasTargetUpstream.Keys) {
     [void] $availablePriceModels.Add($model)
 }
 $reviewedPriceAliasKeys = [System.Collections.Generic.HashSet[string]]::new(
@@ -1435,12 +1652,13 @@ foreach ($model in ($candidateRules.Keys |
 }
 
 $hasAnyChanges =
-    $contentChanged -or
+    ($contentChanged -and -not $MaintainedOnly) -or
     $maintainedContentChanged -or
     $reviewedAliasContentChanged
 $diff = [ordered] @{
     schemaVersion = 1
     hasChanges = $hasAnyChanges
+    applyScope = if ($MaintainedOnly) { 'maintained-and-reviewed-aliases' } else { 'all' }
     upstream = [ordered] @{
         currentCatalogVersion = if ($null -eq $current) { $null } else {
             [string] $current.catalogVersion
@@ -1491,6 +1709,7 @@ $reportLines = [System.Collections.Generic.List[string]]::new()
 $reportLines.Add('# AgenTally complete token price maintenance review')
 $reportLines.Add('')
 $reportLines.Add("- Has changes: ``$($hasAnyChanges.ToString().ToLowerInvariant())``")
+$reportLines.Add("- Apply scope: ``$($diff.applyScope)``")
 $reportLines.Add("- Upstream: ``$(if ($null -eq $current) { '<none>' } else { [string] $current.catalogVersion })`` -> ``$CatalogVersion``")
 $reportLines.Add("- Maintained: ``$($currentMaintained.catalogVersion)`` -> ``$MaintainedCatalogVersion``")
 $reportLines.Add("- Reviewed aliases: ``$($currentReviewedPriceAliases.catalogVersion)`` -> ``$ReviewedPriceAliasCatalogVersion``")
@@ -1628,11 +1847,52 @@ $reportLines.Add("Machine diff: ``$diffPath``")
     [Text.UTF8Encoding]::new($false))
 
 if ($Apply) {
-    if ($null -ne $current -and $rateChanges.Count -gt 0 -and
+    foreach ($change in $maintainedRuleChanges) {
+        if ((Get-ImmutableRateSignature $change.before) -cne
+            (Get-ImmutableRateSignature $change.after)) {
+            throw 'Do not overwrite a historical maintained fee: retain its rule and add a dated successor.'
+        }
+    }
+    foreach ($ruleId in $maintainedRuleAdditions) {
+        $addition = $candidateMaintainedRulesById[$ruleId]
+        $alreadyPriced = @($addition.models | Where-Object {
+            $currentMaintainedRuleMap.Contains([string] $_) }).Count -gt 0
+        $hasStart = $addition.Contains('effectiveFromUtc') -and $null -ne $addition.effectiveFromUtc
+        $hasEnd = $addition.Contains('effectiveUntilUtc') -and $null -ne $addition.effectiveUntilUtc
+        if ($alreadyPriced -and -not $hasStart -and -not $hasEnd) {
+            throw 'A historical predecessor or successor requires an explicit boundary and date evidence.'
+        }
+    }
+    if (-not $MaintainedOnly) {
+        foreach ($change in $rateChanges) {
+            $model = [string] $change.model
+            if ((Get-ImmutableRateSignature $change.before) -cne
+                (Get-ImmutableRateSignature $change.after)) {
+                $datedOwner = @($maintained.rules | Where-Object {
+                    $model -cin @($_.models) -and $_.Contains('effectiveFromUtc') -and
+                    $null -ne $_.effectiveFromUtc }).Count -gt 0
+                if (-not $datedOwner) {
+                    throw "Fallback fee '$model' requires a dated maintained timeline before replacement."
+                }
+            }
+        }
+        if ($null -ne $current) {
+            foreach ($oldPeriod in @($current.rules | Where-Object {
+                ($_.Contains('effectiveFromUtc') -and $null -ne $_.effectiveFromUtc) -or
+                ($_.Contains('effectiveUntilUtc') -and $null -ne $_.effectiveUntilUtc) })) {
+                foreach ($model in @($oldPeriod.models)) {
+                    if (-not $maintainedRuleMap.Contains([string] $model)) {
+                        throw 'A dated fallback history must be retained or owned by a maintained timeline before replacement.'
+                    }
+                }
+            }
+        }
+    }
+    if (-not $MaintainedOnly -and $null -ne $current -and $rateChanges.Count -gt 0 -and
         -not $AllowRateChanges) {
         throw 'Rate/source changes require -AllowRateChanges before -Apply.'
     }
-    if ($removals.Count -gt 0 -and -not $AllowRemovals) {
+    if (-not $MaintainedOnly -and $removals.Count -gt 0 -and -not $AllowRemovals) {
         throw 'Price removals require -AllowRemovals before -Apply.'
     }
     if ($maintainedRuleRemovals.Count -gt 0 -and -not $AllowRemovals) {
@@ -1683,7 +1943,10 @@ if ($Apply) {
         }
     }
     $publishOperations = [System.Collections.Generic.List[object]]::new()
-    if (-not $contentChanged) {
+    if ($MaintainedOnly) {
+        Write-Output 'Upstream price candidate is review-only; no fallback file was replaced.'
+    }
+    elseif (-not $contentChanged) {
         Write-Output 'Upstream price catalog is unchanged; no file was replaced.'
     }
     else {

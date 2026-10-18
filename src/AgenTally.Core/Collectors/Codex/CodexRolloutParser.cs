@@ -35,7 +35,7 @@ public sealed record CodexParseResult(
 // https://github.com/douglasmonsky/codex-usage-tracker/tree/b3765c27f6c3bf6068e1935ea33d0e9decf1e2f6
 public sealed partial class CodexRolloutParser
 {
-    public const string CurrentParserVersion = "codex-canonical-v11";
+    public const string CurrentParserVersion = "codex-canonical-v13";
 
     private const string InvalidJsonCode = "codex.invalid_json";
     private const string InvalidJsonMessage = "Codex log line is not valid JSON.";
@@ -51,8 +51,8 @@ public sealed partial class CodexRolloutParser
         "Codex state metadata contained an invalid value and was cleared.";
     private const string FilesMentionedHeader =
         "# Files mentioned by the user:";
-    private const string UserRequestHeader =
-        "## My request for Codex:";
+    private static readonly string[] UserRequestHeaders =
+        ["## My request for Codex:", "## My request:"];
     public CodexParseResult ParseLine(
         JsonlLine line,
         CodexParseState state,
@@ -146,6 +146,21 @@ public sealed partial class CodexRolloutParser
                 {
                     return ParseTaskComplete(root, payload, state, context);
                 }
+            }
+
+            if (string.Equals(type, "response_item", StringComparison.Ordinal) &&
+                string.Equals(StringProperty(payload, "type"), "message", StringComparison.Ordinal) &&
+                string.Equals(StringProperty(payload, "role"), "user", StringComparison.Ordinal))
+            {
+                return ParseStructuredUserMessage(root, payload, state, context);
+            }
+
+            if (string.Equals(type, "response_item", StringComparison.Ordinal) &&
+                string.Equals(StringProperty(payload, "type"), "function_call_output", StringComparison.Ordinal) &&
+                string.Equals(StringProperty(payload, "namespace"), "codex_app", StringComparison.Ordinal) &&
+                string.Equals(StringProperty(payload, "name"), "send_message_to_thread", StringComparison.Ordinal))
+            {
+                return ParseForwardedUserMessage(root, payload, state, context);
             }
 
             if (string.Equals(type, "response_item", StringComparison.Ordinal) &&
@@ -426,6 +441,7 @@ public sealed partial class CodexRolloutParser
                 CurrentTurnCompletedAtUtc = null,
                 CurrentPromptPreview = null,
                 CurrentUserMessageCount = 0,
+                CurrentStructuredUserMessageHashes = null,
                 PendingToolNames = null,
                 SessionRole = SessionRole.Unknown,
                 AgentPathHash = null,
@@ -457,6 +473,7 @@ public sealed partial class CodexRolloutParser
                 CurrentTurnCompletedAtUtc = null,
                 CurrentPromptPreview = null,
                 CurrentUserMessageCount = 0,
+                CurrentStructuredUserMessageHashes = null,
                 PendingToolNames = null,
                 SessionRole = SessionRole.Unknown,
                 AgentPathHash = null,
@@ -746,6 +763,9 @@ public sealed partial class CodexRolloutParser
             CurrentUserMessageCount = changedTurn
                 ? 0
                 : baseline.CurrentUserMessageCount,
+            CurrentStructuredUserMessageHashes = changedTurn
+                ? null
+                : baseline.CurrentStructuredUserMessageHashes,
             PendingToolNames = changedTurn ? null : baseline.PendingToolNames
         };
     }
@@ -799,6 +819,9 @@ public sealed partial class CodexRolloutParser
             CurrentUserMessageCount = changedTurn
                 ? 0
                 : baseline.CurrentUserMessageCount,
+            CurrentStructuredUserMessageHashes = changedTurn
+                ? null
+                : baseline.CurrentStructuredUserMessageHashes,
             PendingToolNames = changedTurn ? null : baseline.PendingToolNames
         };
         return new CodexParseResult(null, nextState, null)
@@ -813,6 +836,205 @@ public sealed partial class CodexRolloutParser
         };
     }
 
+    private static CodexParseResult ParseStructuredUserMessage(
+        JsonElement root,
+        JsonElement payload,
+        CodexParseState state,
+        CodexEventContext context)
+    {
+        if (state.IsHistoryReplay || state.IsReplayTargetContextPending ||
+            state.ThreadId is null || state.CurrentTurnIdHash is null ||
+            (state.CurrentUserMessageCount > 0 &&
+             state.CurrentStructuredUserMessageHashes is null))
+        {
+            // A turn uses one source representation. Legacy event_msg mirrors
+            // and classified response_item mirrors must not count twice.
+            return new CodexParseResult(null, state, null);
+        }
+
+        JsonElement metadata = ObjectProperty(root, "metadata");
+        JsonElement identity = ObjectProperty(
+            ObjectProperty(metadata, "retained_source"), "id");
+        JsonElement passthrough = ObjectProperty(
+            payload, "internal_chat_message_metadata_passthrough");
+        StateStringRead messageId = ReadStateString(identity, "message_id");
+        StateStringRead sourceTurn = ReadStateString(identity, "turn_id");
+        StateStringRead messageTurn = ReadStateString(passthrough, "turn_id");
+        if (!messageId.IsValid || !sourceTurn.IsValid || !messageTurn.IsValid ||
+            !string.Equals(StringProperty(identity, "role"), "user", StringComparison.Ordinal) ||
+            !string.Equals(sourceTurn.Value, messageTurn.Value, StringComparison.Ordinal) ||
+            !string.Equals(HashSensitiveIdentifier(sourceTurn.Value!),
+                state.CurrentTurnIdHash, StringComparison.Ordinal) ||
+            !metadata.TryGetProperty("client_authored", out JsonElement clientAuthored) ||
+            clientAuthored.ValueKind is not JsonValueKind.False ||
+            !metadata.TryGetProperty("user_input_order", out JsonElement inputOrder) ||
+            inputOrder.ValueKind is not JsonValueKind.Number ||
+            !inputOrder.TryGetInt64(out long order) || order < 0 ||
+            !TryReadStructuredUserContent(payload, passthrough,
+                out string message, out bool hasImages, out bool hasAudio))
+        {
+            return new CodexParseResult(null, state, null);
+        }
+
+        return ApplyStructuredUserMessage(root, payload, state, context,
+            messageId.Value!, message, hasImages, hasAudio);
+    }
+
+    private static CodexParseResult ParseForwardedUserMessage(
+        JsonElement root,
+        JsonElement payload,
+        CodexParseState state,
+        CodexEventContext context)
+    {
+        if (state.IsHistoryReplay || state.IsReplayTargetContextPending ||
+            state.ThreadId is null || state.CurrentTurnIdHash is null ||
+            (state.CurrentUserMessageCount > 0 &&
+             state.CurrentStructuredUserMessageHashes is null))
+        {
+            return new CodexParseResult(null, state, null);
+        }
+
+        JsonElement metadata = ObjectProperty(root, "metadata");
+        JsonElement forwarded = ObjectProperty(metadata, "sender_user_messages");
+        JsonElement passthrough = ObjectProperty(
+            payload, "internal_chat_message_metadata_passthrough");
+        StateStringRead messageId = ReadStateString(forwarded, "receiver_message_id");
+        StateStringRead itemId = ReadStateString(payload, "id");
+        StateStringRead receiverTurn = ReadStateString(forwarded, "receiver_turn_id");
+        StateStringRead messageTurn = ReadStateString(passthrough, "turn_id");
+        string? message = StringProperty(forwarded, "text");
+        if (!messageId.IsValid || !itemId.IsValid ||
+            !receiverTurn.IsValid || !messageTurn.IsValid || message is null ||
+            !string.Equals(messageId.Value, itemId.Value, StringComparison.Ordinal) ||
+            !string.Equals(receiverTurn.Value, messageTurn.Value, StringComparison.Ordinal) ||
+            !string.Equals(HashSensitiveIdentifier(receiverTurn.Value!),
+                state.CurrentTurnIdHash, StringComparison.Ordinal) ||
+            !metadata.TryGetProperty("client_authored", out JsonElement clientAuthored) ||
+            clientAuthored.ValueKind is not JsonValueKind.False ||
+            !metadata.TryGetProperty("user_input_order", out JsonElement inputOrder) ||
+            inputOrder.ValueKind is not JsonValueKind.Number ||
+            !inputOrder.TryGetInt64(out long order) || order < 0)
+        {
+            return new CodexParseResult(null, state, null);
+        }
+
+        // Only the typed receiving-user metadata is eligible. The function's
+        // output, Agent replies and encrypted payloads are never preview input.
+        return ApplyStructuredUserMessage(root, payload, state, context,
+            messageId.Value!, message, hasImages: false, hasAudio: false,
+            previewPrefix: "[跨会话消息] ");
+    }
+
+    private static CodexParseResult ApplyStructuredUserMessage(
+        JsonElement root,
+        JsonElement payload,
+        CodexParseState state,
+        CodexEventContext context,
+        string messageId,
+        string message,
+        bool hasImages,
+        bool hasAudio,
+        string? previewPrefix = null)
+    {
+        string messageHash = HashSensitiveIdentifier(messageId);
+        string[] hashes = state.CurrentStructuredUserMessageHashes ?? [];
+        if (hashes.Contains(messageHash, StringComparer.Ordinal))
+        {
+            // A retained-source revision may fill the first message's missing
+            // preview, but never replaces an existing preview or adds a user.
+            if (state.CurrentPromptPreview is not null ||
+                !string.Equals(hashes[0], messageHash, StringComparison.Ordinal))
+            {
+                return new CodexParseResult(null, state, null);
+            }
+            CodexParseState revised = state with
+            {
+                CurrentPromptPreview = BuildPromptPreview(payload, message,
+                    hasImages, hasAudio, previewPrefix)
+            };
+            return new CodexParseResult(null, revised, null)
+            {
+                TurnMetadata = CreateTurnMetadata(revised, context)
+            };
+        }
+        if (hashes.Length >= CodexCursor.MaxStructuredUserMessages ||
+            state.CurrentUserMessageCount == int.MaxValue)
+        {
+            return new CodexParseResult(null, state, new CollectorDiagnostic(
+                "codex.prompt_metadata_capacity_exceeded",
+                "Codex Prompt message identities exceeded the bounded metadata capacity."));
+        }
+
+        CodexParseState nextState = state with
+        {
+            CurrentTurnStartedAtUtc = state.CurrentTurnStartedAtUtc ??
+                (TryTimestamp(root, out DateTimeOffset timestamp)
+                    ? timestamp : context.ImportedAtUtc.ToUniversalTime()),
+            CurrentPromptPreview = state.CurrentUserMessageCount == 0
+                ? BuildPromptPreview(payload, message, hasImages, hasAudio, previewPrefix)
+                : state.CurrentPromptPreview,
+            CurrentUserMessageCount = state.CurrentUserMessageCount + 1,
+            CurrentStructuredUserMessageHashes = [.. hashes, messageHash]
+        };
+        return new CodexParseResult(null, nextState, null)
+        {
+            TurnMetadata = CreateTurnMetadata(nextState, context)
+        };
+    }
+
+    private static bool TryReadStructuredUserContent(
+        JsonElement payload,
+        JsonElement passthrough,
+        out string message,
+        out bool hasImages,
+        out bool hasAudio)
+    {
+        message = string.Empty;
+        hasImages = false;
+        hasAudio = false;
+        if (passthrough.ValueKind is not JsonValueKind.Object ||
+            !passthrough.TryGetProperty("content_item_kinds", out JsonElement kinds) ||
+            kinds.ValueKind is not JsonValueKind.Array ||
+            !payload.TryGetProperty("content", out JsonElement content) ||
+            content.ValueKind is not JsonValueKind.Array ||
+            content.GetArrayLength() != kinds.GetArrayLength())
+        {
+            return false;
+        }
+
+        var text = new StringBuilder();
+        bool hasUserContent = false;
+        for (int index = 0; index < content.GetArrayLength(); index++)
+        {
+            string? kind = kinds[index].ValueKind is JsonValueKind.String
+                ? kinds[index].GetString() : null;
+            JsonElement item = content[index];
+            string? type = StringProperty(item, "type");
+            switch (kind)
+            {
+                case "user.text":
+                    string? value = StringProperty(item, "text");
+                    if (type != "input_text" || value is null) { return false; }
+                    text.Append(value);
+                    text.Append(' ');
+                    hasUserContent = true;
+                    break;
+                case "user.image":
+                    if (type != "input_image") { return false; }
+                    hasImages = true;
+                    hasUserContent = true;
+                    break;
+                case "user.audio":
+                    if (type != "input_audio") { return false; }
+                    hasAudio = true;
+                    hasUserContent = true;
+                    break;
+            }
+        }
+        message = text.ToString();
+        return hasUserContent;
+    }
+
     private static CodexParseResult ParseUserMessage(
         JsonElement root,
         JsonElement payload,
@@ -822,7 +1044,8 @@ public sealed partial class CodexRolloutParser
         if (state.IsHistoryReplay ||
             state.IsReplayTargetContextPending ||
             state.ThreadId is null ||
-            state.CurrentTurnIdHash is null)
+            state.CurrentTurnIdHash is null ||
+            state.CurrentStructuredUserMessageHashes is not null)
         {
             return new CodexParseResult(null, state, null);
         }
@@ -894,6 +1117,9 @@ public sealed partial class CodexRolloutParser
             CurrentUserMessageCount = changedTurn
                 ? 0
                 : state.CurrentUserMessageCount,
+            CurrentStructuredUserMessageHashes = changedTurn
+                ? null
+                : state.CurrentStructuredUserMessageHashes,
             PendingToolNames = null
         };
         return new CodexParseResult(null, nextState, null)
@@ -1061,11 +1287,22 @@ public sealed partial class CodexRolloutParser
 
     private static string? BuildPromptPreview(JsonElement payload)
     {
-        var source = new StringBuilder(256);
         bool hasImages = HasCollectionValue(payload, "images") ||
             HasCollectionValue(payload, "local_images");
         bool hasAudio = HasCollectionValue(payload, "audio") ||
             HasCollectionValue(payload, "local_audio");
+        return BuildPromptPreview(payload, StringProperty(payload, "message"),
+            hasImages, hasAudio);
+    }
+
+    private static string? BuildPromptPreview(
+        JsonElement payload,
+        string? message,
+        bool hasImages,
+        bool hasAudio,
+        string? previewPrefix = null)
+    {
+        var source = new StringBuilder(256);
         if (hasImages)
         {
             source.Append("[图片] ");
@@ -1076,18 +1313,20 @@ public sealed partial class CodexRolloutParser
             source.Append("[音频] ");
         }
 
-        string? message = StringProperty(payload, "message");
         if (!string.IsNullOrWhiteSpace(message))
         {
-            source.Append(
-                hasImages || hasAudio
-                    ? StripAttachmentEnvelope(payload, message)
-                    : message);
+            source.Append(StripAttachmentEnvelope(payload, message));
         }
 
+        string previewSource = source.ToString();
+        if (previewPrefix is not null && previewSource.EnumerateRunes().Any(
+                static value => !Rune.IsWhiteSpace(value) && !Rune.IsControl(value)))
+        {
+            previewSource = string.Concat(previewPrefix, previewSource);
+        }
         var normalized = new StringBuilder(160);
         bool pendingSpace = false;
-        foreach (Rune value in source.ToString().EnumerateRunes())
+        foreach (Rune value in previewSource.EnumerateRunes())
         {
             if (Rune.IsWhiteSpace(value) || Rune.IsControl(value))
             {
@@ -1133,16 +1372,26 @@ public sealed partial class CodexRolloutParser
             StringComparison.Ordinal);
         if (filesIndex >= 0)
         {
-            int requestIndex = message.IndexOf(
-                UserRequestHeader,
-                filesIndex + FilesMentionedHeader.Length,
-                StringComparison.Ordinal);
+            int requestIndex = -1;
+            string? requestHeader = null;
+            foreach (string header in UserRequestHeaders)
+            {
+                int candidateIndex = message.IndexOf(header,
+                    filesIndex + FilesMentionedHeader.Length,
+                    StringComparison.Ordinal);
+                if (candidateIndex >= 0 &&
+                    (requestIndex < 0 || candidateIndex < requestIndex))
+                {
+                    requestIndex = candidateIndex;
+                    requestHeader = header;
+                }
+            }
             string prefix = message[..filesIndex];
             message = requestIndex >= 0
                 ? string.Concat(
                     prefix,
                     " ",
-                    message[(requestIndex + UserRequestHeader.Length)..])
+                    message[(requestIndex + requestHeader!.Length)..])
                 : prefix;
         }
 
@@ -1654,6 +1903,7 @@ public sealed partial class CodexRolloutParser
             CurrentTurnCompletedAtUtc = null,
             CurrentPromptPreview = null,
             CurrentUserMessageCount = 0,
+            CurrentStructuredUserMessageHashes = null,
             PendingToolNames = null,
             ReplayTarget = null,
             IsReplayTargetContextPending = false,
@@ -1856,6 +2106,7 @@ public sealed partial class CodexRolloutParser
         state.CurrentTurnCompletedAtUtc is not null ||
         state.CurrentPromptPreview is not null ||
         state.CurrentUserMessageCount != 0 ||
+        state.CurrentStructuredUserMessageHashes is not null ||
         state.PendingToolNames is not null ||
         state.SessionRole is not SessionRole.Unknown ||
         state.AgentPathHash is not null ||
@@ -2105,7 +2356,7 @@ public sealed partial class CodexRolloutParser
     private static partial Regex ExplicitTimeZoneRegex();
 
     [GeneratedRegex(
-        "<\\s*(?:image|audio)\\b[^>]*>",
+        "<\\s*/?\\s*(?:image|audio)\\b[^>]*>",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]
     private static partial Regex AttachmentMarkupRegex();
 

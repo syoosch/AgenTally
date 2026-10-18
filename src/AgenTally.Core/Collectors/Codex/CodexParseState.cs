@@ -56,7 +56,8 @@ public sealed record CodexParseState(
     string[]? PendingToolNames = null,
     string? ProjectRepositoryIdentityHash = null,
     CodexReplayTargetState? ReplayTarget = null,
-    bool IsReplayTargetContextPending = false)
+    bool IsReplayTargetContextPending = false,
+    string[]? CurrentStructuredUserMessageHashes = null)
 {
     public ReplayState ReplayState =>
         IsHistoryReplay ? ReplayState.HistoryReplay : ReplayState.Active;

@@ -122,7 +122,7 @@ public sealed class UsageTrendChartTests
 
             Assert.IsTrue(chart.UpdateHover(new Point(54, 60)));
             Assert.AreEqual(start, chart.HoveredBucketStartUtc);
-            Assert.AreEqual(Cursors.None, chart.Cursor);
+            Assert.AreEqual(Cursors.Arrow, chart.Cursor);
             LayoutAndRender(chart, 900, 280);
             Assert.IsFalse(chart.HoverCardBounds.IsEmpty);
             Assert.AreEqual(264, chart.HoverCardBounds.Width, 0.001);
@@ -153,6 +153,81 @@ public sealed class UsageTrendChartTests
                 chart.HoverCardBounds.Bottom <= chart.PlotBounds.Top ||
                 chart.HoverCardBounds.Top >= chart.PlotBounds.Bottom,
                 "允许越出绘图区时，详情卡不应再覆盖矮图表。");
+        });
+    }
+
+    [TestMethod]
+    public async Task MouseHover_UsesCurrentPointerAtRenderAndDoesNotReplayOldInput()
+    {
+        await using var host = new StaDispatcherTestHost();
+        await host.InvokeAsync(() =>
+        {
+            DateTimeOffset start = new(2026, 9, 20, 0, 0, 0, TimeSpan.Zero);
+            Point? pointer = new Point(55, 60);
+            var chart = new UsageTrendChart(() => pointer)
+            {
+                TimeZone = TimeZoneInfo.Utc,
+                Points = Enumerable.Range(0, 30)
+                    .Select(index => new UsageTrendPoint(
+                        start.AddDays(index),
+                        new MetricAggregate(1_000, 1, 0),
+                        new MetricAggregate(200, 1, 0),
+                        new MetricAggregate(100, 1, 0),
+                        new MetricAggregate(700, 1, 0),
+                        new MetricAggregate(0, 1, 0),
+                        RequestCount: 1))
+                    .ToArray()
+            };
+            LayoutAndRender(chart, 900, 280);
+
+            // These routed input events carry an older WPF device position.
+            // The injected reader supplies the current pointer without moving
+            // the real mouse or creating a window on the user's desktop.
+            void Move() => chart.RaiseEvent(new MouseEventArgs(
+                Mouse.PrimaryDevice,
+                Environment.TickCount)
+            {
+                RoutedEvent = Mouse.MouseMoveEvent
+            });
+
+            Move();
+            Assert.AreEqual(start, chart.HoveredBucketStartUtc);
+            pointer = new Point(841, 60);
+            LayoutAndRender(chart, 900, 280);
+            Assert.AreEqual(start.AddDays(29), chart.HoveredBucketStartUtc,
+                "绘制前鼠标已到右端时，不能继续显示左端的旧位置。");
+            Rect rightCard = chart.HoverCardBounds;
+            Assert.IsFalse(rightCard.IsEmpty);
+
+            for (int index = 0; index < 8; index++)
+            {
+                pointer = new Point(index % 2 == 0 ? 55 : 841, 60);
+                Move();
+            }
+
+            // Another stale event must not send the guide/card back left.
+            Move();
+            LayoutAndRender(chart, 900, 280);
+            Assert.AreEqual(start.AddDays(29), chart.HoveredBucketStartUtc);
+            Assert.AreEqual(rightCard, chart.HoverCardBounds);
+            Assert.AreEqual(Cursors.Arrow, chart.Cursor);
+
+            pointer = null;
+            chart.InvalidateVisual();
+            LayoutAndRender(chart, 900, 280);
+            Assert.IsNull(chart.HoveredBucketStartUtc);
+            Assert.IsTrue(chart.HoverCardBounds.IsEmpty);
+
+            pointer = new Point(841, 60);
+            Move();
+            chart.RaiseEvent(new MouseEventArgs(Mouse.PrimaryDevice, Environment.TickCount)
+            {
+                RoutedEvent = Mouse.MouseLeaveEvent
+            });
+            LayoutAndRender(chart, 900, 280);
+            Assert.IsNull(chart.HoveredBucketStartUtc,
+                "离开后重绘不能使旧的悬停详情重新出现。");
+            Assert.IsTrue(chart.HoverCardBounds.IsEmpty);
         });
     }
 

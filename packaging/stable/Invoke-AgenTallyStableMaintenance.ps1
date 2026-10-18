@@ -13,6 +13,8 @@ param(
     [Parameter(Mandatory)]
     [string] $InstallRoot,
 
+    [string] $IncomingVersion,
+
     [string] $StatePath,
 
     [string] $ResultPath,
@@ -113,6 +115,8 @@ function Invoke-AgenTallyStableMaintenance {
 
     if ($Mode -eq 'InspectInstall') {
         $installMode = Assert-AgenTallyStableInstallTarget -Paths $paths
+        Assert-AgenTallyStableUpgradeVersion `
+            -Paths $paths -IncomingVersion $IncomingVersion -InstallMode $installMode
         $shortcuts = Get-AgenTallyShortcutStates -Paths $paths
         Assert-AgenTallyInstallShortcutStates `
             -Shortcuts $shortcuts `
@@ -128,7 +132,9 @@ function Invoke-AgenTallyStableMaintenance {
     }
 
     if ($Mode -eq 'PrepareInstall') {
-        [void] (Assert-AgenTallyStableInstallTarget -Paths $paths)
+        $installMode = Assert-AgenTallyStableInstallTarget -Paths $paths
+        Assert-AgenTallyStableUpgradeVersion `
+            -Paths $paths -IncomingVersion $IncomingVersion -InstallMode $installMode
         $shortcuts = Get-AgenTallyShortcutStates -Paths $paths
         Assert-AgenTallyInstallShortcutStates `
             -Shortcuts $shortcuts `

@@ -5,7 +5,7 @@ namespace AgenTally.Storage.Database;
 
 public static class DatabaseSchemaInfo
 {
-    public const int CurrentVersion = 14;
+    public const int CurrentVersion = 15;
 }
 
 internal static class DatabaseSchema
@@ -762,6 +762,7 @@ internal static class DatabaseSchema
         {
             await ConfigureConnectionAsync(connection, cancellationToken);
             await CreateV14Async(connection, cancellationToken);
+            await MigrateV14ToV15Async(connection, cancellationToken);
             return;
         }
         if (version == 1)
@@ -827,10 +828,66 @@ internal static class DatabaseSchema
         {
             await MigrateV13ToV14Async(connection, cancellationToken);
         }
+        if (version <= 14)
+        {
+            await MigrateV14ToV15Async(connection, cancellationToken);
+        }
 
         await ApplyModelIdentityCatalogUpgradeAsync(
             connection,
             cancellationToken);
+    }
+
+    private static async Task MigrateV14ToV15Async(
+        SqliteConnection connection, CancellationToken cancellationToken)
+    {
+        await using SqliteTransaction transaction =
+            (SqliteTransaction)await connection.BeginTransactionAsync(cancellationToken);
+        await using SqliteCommand command = connection.CreateCommand();
+        command.Transaction = transaction;
+        command.CommandText = """
+            ALTER TABLE pricing_overrides RENAME TO pricing_overrides_v14;
+            CREATE TABLE pricing_overrides (
+                normalized_model TEXT NOT NULL,
+                effective_from_unix_ms INTEGER NOT NULL DEFAULT -62135596800000,
+                use_default INTEGER NOT NULL DEFAULT 0 CHECK (use_default IN (0, 1)),
+                input_rate_usd_per_million TEXT NULL,
+                cached_input_rate_usd_per_million TEXT NULL,
+                cache_write_rate_usd_per_million TEXT NULL,
+                output_rate_usd_per_million TEXT NULL,
+                long_context_threshold_tokens INTEGER NULL,
+                long_context_input_multiplier TEXT NOT NULL,
+                long_context_output_multiplier TEXT NOT NULL,
+                updated_at_unix_ms INTEGER NOT NULL,
+                PRIMARY KEY (normalized_model, effective_from_unix_ms),
+                CHECK ((use_default = 0 AND input_rate_usd_per_million IS NOT NULL
+                        AND output_rate_usd_per_million IS NOT NULL)
+                    OR (use_default = 1 AND input_rate_usd_per_million IS NULL
+                        AND cached_input_rate_usd_per_million IS NULL
+                        AND cache_write_rate_usd_per_million IS NULL
+                        AND output_rate_usd_per_million IS NULL
+                        AND long_context_threshold_tokens IS NULL))
+            );
+            INSERT INTO pricing_overrides (
+                normalized_model, input_rate_usd_per_million,
+                cached_input_rate_usd_per_million, cache_write_rate_usd_per_million,
+                output_rate_usd_per_million, long_context_threshold_tokens,
+                long_context_input_multiplier, long_context_output_multiplier,
+                updated_at_unix_ms)
+            SELECT normalized_model, input_rate_usd_per_million,
+                cached_input_rate_usd_per_million, cache_write_rate_usd_per_million,
+                output_rate_usd_per_million, long_context_threshold_tokens,
+                long_context_input_multiplier, long_context_output_multiplier,
+                updated_at_unix_ms FROM pricing_overrides_v14;
+            DROP TABLE pricing_overrides_v14;
+            DELETE FROM pricing_catalog_state;
+            INSERT INTO schema_migrations (version, applied_at_unix_ms)
+            VALUES (15, $now);
+            PRAGMA user_version = 15;
+            """;
+        command.Parameters.AddWithValue("$now", DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
+        await command.ExecuteNonQueryAsync(cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
     }
 
     private static async Task<int> GetUserVersionAsync(

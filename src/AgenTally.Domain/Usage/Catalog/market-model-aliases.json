@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "catalogVersion": "market-models-2026-08-10-r2",
+  "catalogVersion": "market-models-2026-10-06-r1",
   "dataSources": [
     {
       "id": "models.dev",
@@ -14,6 +14,28 @@
         {
           "name": "catalog.json",
           "sha256": "180AF5415EB3E94724F6811249FD9C3F21CB49CB75DECFEBE39A12E3728C16B6"
+        },
+        {
+          "name": "E51805B94E624FD565CDCB3A3CB5AAD748A7725EC143C40CF16719C29931242E/models.json",
+          "sha256": "E51805B94E624FD565CDCB3A3CB5AAD748A7725EC143C40CF16719C29931242E",
+          "entryCount": 444,
+          "models": [
+            "gpt-6-astra",
+            "gpt-6-luna",
+            "gpt-6-sol",
+            "gpt-6.1-sol"
+          ]
+        },
+        {
+          "name": "4852C2C544C6B2E00EDA65AB883CA5F78CDED3AFF1FA9F8237BE5471601A747F/catalog.json",
+          "sha256": "4852C2C544C6B2E00EDA65AB883CA5F78CDED3AFF1FA9F8237BE5471601A747F",
+          "entryCount": 444,
+          "models": [
+            "gpt-6-astra",
+            "gpt-6-luna",
+            "gpt-6-sol",
+            "gpt-6.1-sol"
+          ]
         }
       ]
     },
@@ -25,6 +47,17 @@
         {
           "name": "model_prices_and_context_window.json",
           "sha256": "960279570FC4D2BDD56258A58CE30D124097CEE61FDEC6FDC483D4A057A4909B"
+        },
+        {
+          "name": "E64519399EB69AB9B23449D91F7638B6199179249B772DCD1DE2DA2E21DF1B51/model_prices_and_context_window.json",
+          "sha256": "E64519399EB69AB9B23449D91F7638B6199179249B772DCD1DE2DA2E21DF1B51",
+          "entryCount": 4478,
+          "models": [
+            "gpt-6-astra",
+            "gpt-6-luna",
+            "gpt-6-sol",
+            "gpt-6.1-sol"
+          ]
         }
       ]
     }
@@ -43,10 +76,10 @@
       "role": "matching-strategy-reference-only"
     }
   ],
-  "modelCount": 762,
-  "aliasCount": 4232,
-  "corroboratedAliasCount": 228,
-  "singleSourceAliasCount": 4004,
+  "modelCount": 766,
+  "aliasCount": 4338,
+  "corroboratedAliasCount": 240,
+  "singleSourceAliasCount": 4098,
   "omittedConflictCount": 0,
   "omittedUnmappedQualifiedCount": 1527,
   "aliases": {
@@ -109,6 +142,9 @@
     "302ai/gpt-5.4-mini": "gpt-5.4-mini",
     "302ai/gpt-5.4-nano": "gpt-5.4-nano",
     "302ai/gpt-5.4-pro": "gpt-5.4-pro",
+    "302ai/gpt-6-astra": "gpt-6-astra",
+    "302ai/gpt-6-luna": "gpt-6-luna",
+    "302ai/gpt-6-sol": "gpt-6-sol",
     "302ai/kimi-k2-thinking": "kimi-k2-thinking",
     "302ai/kimi-k2-thinking-turbo": "kimi-k2-thinking-turbo",
     "302ai/minimax-m2": "minimax-m2",
@@ -226,6 +262,9 @@
     "aihubmix/gpt-5.6-luna": "gpt-5.6-luna",
     "aihubmix/gpt-5.6-sol": "gpt-5.6-sol",
     "aihubmix/gpt-5.6-terra": "gpt-5.6-terra",
+    "aihubmix/gpt-6-astra": "gpt-6-astra",
+    "aihubmix/gpt-6-luna": "gpt-6-luna",
+    "aihubmix/gpt-6-sol": "gpt-6-sol",
     "aihubmix/grok-4.3": "grok-4.3",
     "aihubmix/grok-4.5": "grok-4.5",
     "aihubmix/grok-build-0.1": "grok-build-0.1",
@@ -544,6 +583,10 @@
     "azure_ai/gpt-5.4-pro-2026-03-05": "gpt-5.4-pro-2026-03-05",
     "azure_ai/gpt-5.5": "gpt-5.5",
     "azure_ai/gpt-5.5-2026-04-23": "gpt-5.5-2026-04-23",
+    "azure_ai/gpt-6-astra": "gpt-6-astra",
+    "azure_ai/gpt-6-luna": "gpt-6-luna",
+    "azure_ai/gpt-6-sol": "gpt-6-sol",
+    "azure_ai/gpt-6.1-sol": "gpt-6.1-sol",
     "azure_ai/gpt-oss-120b": "gpt-oss-120b",
     "azure_ai/kimi-k2.5": "kimi-k2.5",
     "azure_ai/kimi-k2.6": "kimi-k2.6",
@@ -585,6 +628,10 @@
     "azure-cognitive-services/gpt-5.6-luna": "gpt-5.6-luna",
     "azure-cognitive-services/gpt-5.6-sol": "gpt-5.6-sol",
     "azure-cognitive-services/gpt-5.6-terra": "gpt-5.6-terra",
+    "azure-cognitive-services/gpt-6-astra": "gpt-6-astra",
+    "azure-cognitive-services/gpt-6-luna": "gpt-6-luna",
+    "azure-cognitive-services/gpt-6-sol": "gpt-6-sol",
+    "azure-cognitive-services/gpt-6.1-sol": "gpt-6.1-sol",
     "azure-cognitive-services/kimi-k2.5": "kimi-k2.5",
     "azure-cognitive-services/kimi-k2.6": "kimi-k2.6",
     "azure-cognitive-services/llama-3.3-70b-instruct": "llama-3.3-70b-instruct",
@@ -629,6 +676,9 @@
     "azure/eu/gpt-5.6-luna": "gpt-5.6-luna",
     "azure/eu/gpt-5.6-sol": "gpt-5.6-sol",
     "azure/eu/gpt-5.6-terra": "gpt-5.6-terra",
+    "azure/eu/gpt-6-astra": "gpt-6-astra",
+    "azure/eu/gpt-6-luna": "gpt-6-luna",
+    "azure/eu/gpt-6-sol": "gpt-6-sol",
     "azure/eu/o1-2024-12-17": "o1-2024-12-17",
     "azure/eu/o3-mini-2025-01-31": "o3-mini-2025-01-31",
     "azure/global-standard/gpt-4o-2024-08-06": "gpt-4o-2024-08-06",
@@ -705,6 +755,10 @@
     "azure/gpt-5.6-luna": "gpt-5.6-luna",
     "azure/gpt-5.6-sol": "gpt-5.6-sol",
     "azure/gpt-5.6-terra": "gpt-5.6-terra",
+    "azure/gpt-6-astra": "gpt-6-astra",
+    "azure/gpt-6-luna": "gpt-6-luna",
+    "azure/gpt-6-sol": "gpt-6-sol",
+    "azure/gpt-6.1-sol": "gpt-6.1-sol",
     "azure/gpt-audio-2025-08-28": "gpt-audio-2025-08-28",
     "azure/gpt-audio-mini-2025-10-06": "gpt-audio-mini-2025-10-06",
     "azure/gpt-image-1": "gpt-image-1",
@@ -789,6 +843,9 @@
     "azure/us/gpt-5.6-luna": "gpt-5.6-luna",
     "azure/us/gpt-5.6-sol": "gpt-5.6-sol",
     "azure/us/gpt-5.6-terra": "gpt-5.6-terra",
+    "azure/us/gpt-6-astra": "gpt-6-astra",
+    "azure/us/gpt-6-luna": "gpt-6-luna",
+    "azure/us/gpt-6-sol": "gpt-6-sol",
     "azure/us/o1-2024-12-17": "o1-2024-12-17",
     "azure/us/o3-2025-04-16": "o3-2025-04-16",
     "azure/us/o3-mini-2025-01-31": "o3-mini-2025-01-31",
@@ -978,6 +1035,10 @@
     "chatgpt/gpt-5.3-codex": "gpt-5.3-codex",
     "chatgpt/gpt-5.4": "gpt-5.4",
     "chatgpt/gpt-5.4-pro": "gpt-5.4-pro",
+    "chatgpt/gpt-6-astra": "gpt-6-astra",
+    "chatgpt/gpt-6-luna": "gpt-6-luna",
+    "chatgpt/gpt-6-sol": "gpt-6-sol",
+    "chatgpt/gpt-6.1-sol": "gpt-6.1-sol",
     "claude-3-5-haiku-20241022": "claude-3-5-haiku-20241022",
     "claude-3-5-sonnet-20241022": "claude-3-5-sonnet-20241022",
     "claude-3-7-sonnet-20250219": "claude-3-7-sonnet-20250219",
@@ -1035,6 +1096,9 @@
     "cloudflare-ai-gateway/openai/gpt-5.6-luna": "gpt-5.6-luna",
     "cloudflare-ai-gateway/openai/gpt-5.6-sol": "gpt-5.6-sol",
     "cloudflare-ai-gateway/openai/gpt-5.6-terra": "gpt-5.6-terra",
+    "cloudflare-ai-gateway/openai/gpt-6-astra": "gpt-6-astra",
+    "cloudflare-ai-gateway/openai/gpt-6-luna": "gpt-6-luna",
+    "cloudflare-ai-gateway/openai/gpt-6-sol": "gpt-6-sol",
     "cloudflare-ai-gateway/openai/o1": "o1",
     "cloudflare-ai-gateway/openai/o3": "o3",
     "cloudflare-ai-gateway/openai/o3-mini": "o3-mini",
@@ -1123,6 +1187,9 @@
     "cortecs/gpt-5.6-luna": "gpt-5.6-luna",
     "cortecs/gpt-5.6-sol": "gpt-5.6-sol",
     "cortecs/gpt-5.6-terra": "gpt-5.6-terra",
+    "cortecs/gpt-6-luna": "gpt-6-luna",
+    "cortecs/gpt-6-sol": "gpt-6-sol",
+    "cortecs/gpt-6.1-sol": "gpt-6.1-sol",
     "cortecs/gpt-oss-120b": "gpt-oss-120b",
     "cortecs/gpt-oss-20b": "gpt-oss-20b",
     "cortecs/gpt-oss-safeguard-120b": "gpt-oss-safeguard-120b",
@@ -1187,6 +1254,10 @@
     "crossmodel/openai/gpt-5.6-luna": "gpt-5.6-luna",
     "crossmodel/openai/gpt-5.6-sol": "gpt-5.6-sol",
     "crossmodel/openai/gpt-5.6-terra": "gpt-5.6-terra",
+    "crossmodel/openai/gpt-6-astra": "gpt-6-astra",
+    "crossmodel/openai/gpt-6-luna": "gpt-6-luna",
+    "crossmodel/openai/gpt-6-sol": "gpt-6-sol",
+    "crossmodel/openai/gpt-6.1-sol": "gpt-6.1-sol",
     "crossmodel/tencent/hy3": "hy3",
     "crossmodel/tencent/hy3-preview": "hy3-preview",
     "crossmodel/xiaomi/mimo-v2.5": "mimo-v2.5",
@@ -1317,6 +1388,10 @@
     "ebcloud/deepseek-v4-pro": "deepseek-v4-pro",
     "ebcloud/glm-5.1": "glm-5.1",
     "ebcloud/kimi-k2.6": "kimi-k2.6",
+    "edenai/openai/gpt-6-astra": "gpt-6-astra",
+    "edenai/openai/gpt-6-luna": "gpt-6-luna",
+    "edenai/openai/gpt-6-sol": "gpt-6-sol",
+    "edenai/openai/gpt-6.1-sol": "gpt-6.1-sol",
     "embed-english-light-v2.0": "embed-english-light-v2.0",
     "embed-english-light-v3.0": "embed-english-light-v3.0",
     "embed-english-v2.0": "embed-english-v2.0",
@@ -1602,6 +1677,10 @@
     "github-copilot/gpt-5.6-luna": "gpt-5.6-luna",
     "github-copilot/gpt-5.6-sol": "gpt-5.6-sol",
     "github-copilot/gpt-5.6-terra": "gpt-5.6-terra",
+    "github-copilot/gpt-6-astra": "gpt-6-astra",
+    "github-copilot/gpt-6-luna": "gpt-6-luna",
+    "github-copilot/gpt-6-sol": "gpt-6-sol",
+    "github-copilot/gpt-6.1-sol": "gpt-6.1-sol",
     "github-copilot/grok-4.5": "grok-4.5",
     "github-copilot/kimi-k2.7-code": "kimi-k2.7-code",
     "github-copilot/kimi-k3": "kimi-k3",
@@ -1802,6 +1881,10 @@
     "gpt-5.6-luna": "gpt-5.6-luna",
     "gpt-5.6-sol": "gpt-5.6-sol",
     "gpt-5.6-terra": "gpt-5.6-terra",
+    "gpt-6-astra": "gpt-6-astra",
+    "gpt-6-luna": "gpt-6-luna",
+    "gpt-6-sol": "gpt-6-sol",
+    "gpt-6.1-sol": "gpt-6.1-sol",
     "gpt-audio": "gpt-audio",
     "gpt-audio-1.5": "gpt-audio-1.5",
     "gpt-audio-2025-08-28": "gpt-audio-2025-08-28",
@@ -2178,6 +2261,10 @@
     "kilo/openai/gpt-5.6-luna": "gpt-5.6-luna",
     "kilo/openai/gpt-5.6-sol": "gpt-5.6-sol",
     "kilo/openai/gpt-5.6-terra": "gpt-5.6-terra",
+    "kilo/openai/gpt-6-astra": "gpt-6-astra",
+    "kilo/openai/gpt-6-luna": "gpt-6-luna",
+    "kilo/openai/gpt-6-sol": "gpt-6-sol",
+    "kilo/openai/gpt-6.1-sol": "gpt-6.1-sol",
     "kilo/openai/gpt-oss-120b": "gpt-oss-120b",
     "kilo/openai/gpt-oss-20b": "gpt-oss-20b",
     "kilo/openai/o1": "o1",
@@ -2234,6 +2321,10 @@
     "llama-nemotron-rerank-vl-1b-v2": "llama-nemotron-rerank-vl-1b-v2",
     "llama/llama-3.3-70b-instruct": "llama-3.3-70b-instruct",
     "llamagate/llama-3.2-3b": "llama-3.2-3b",
+    "llmgateway-providers/openai/gpt-6-astra": "gpt-6-astra",
+    "llmgateway-providers/openai/gpt-6-luna": "gpt-6-luna",
+    "llmgateway-providers/openai/gpt-6-sol": "gpt-6-sol",
+    "llmgateway-providers/openai/gpt-6.1-sol": "gpt-6.1-sol",
     "llmgateway/claude-fable-5": "claude-fable-5",
     "llmgateway/claude-haiku-4-5": "claude-haiku-4-5",
     "llmgateway/claude-haiku-4-5-20251001": "claude-haiku-4-5-20251001",
@@ -2304,6 +2395,10 @@
     "llmgateway/gpt-5.6-luna": "gpt-5.6-luna",
     "llmgateway/gpt-5.6-sol": "gpt-5.6-sol",
     "llmgateway/gpt-5.6-terra": "gpt-5.6-terra",
+    "llmgateway/gpt-6-astra": "gpt-6-astra",
+    "llmgateway/gpt-6-luna": "gpt-6-luna",
+    "llmgateway/gpt-6-sol": "gpt-6-sol",
+    "llmgateway/gpt-6.1-sol": "gpt-6.1-sol",
     "llmgateway/gpt-oss-120b": "gpt-oss-120b",
     "llmgateway/gpt-oss-20b": "gpt-oss-20b",
     "llmgateway/hy3": "hy3",
@@ -2498,6 +2593,10 @@
     "merge-gateway/openai/gpt-5.6-luna": "gpt-5.6-luna",
     "merge-gateway/openai/gpt-5.6-sol": "gpt-5.6-sol",
     "merge-gateway/openai/gpt-5.6-terra": "gpt-5.6-terra",
+    "merge-gateway/openai/gpt-6-astra": "gpt-6-astra",
+    "merge-gateway/openai/gpt-6-luna": "gpt-6-luna",
+    "merge-gateway/openai/gpt-6-sol": "gpt-6-sol",
+    "merge-gateway/openai/gpt-6.1-sol": "gpt-6.1-sol",
     "merge-gateway/openai/gpt-oss-120b": "gpt-oss-120b",
     "merge-gateway/openai/gpt-oss-20b": "gpt-oss-20b",
     "merge-gateway/openai/gpt-oss-safeguard-120b": "gpt-oss-safeguard-120b",
@@ -2761,6 +2860,10 @@
     "nano-gpt/openai/gpt-5.6-luna": "gpt-5.6-luna",
     "nano-gpt/openai/gpt-5.6-sol": "gpt-5.6-sol",
     "nano-gpt/openai/gpt-5.6-terra": "gpt-5.6-terra",
+    "nano-gpt/openai/gpt-6-astra": "gpt-6-astra",
+    "nano-gpt/openai/gpt-6-luna": "gpt-6-luna",
+    "nano-gpt/openai/gpt-6-sol": "gpt-6-sol",
+    "nano-gpt/openai/gpt-6.1-sol": "gpt-6.1-sol",
     "nano-gpt/openai/gpt-oss-120b": "gpt-oss-120b",
     "nano-gpt/openai/gpt-oss-20b": "gpt-oss-20b",
     "nano-gpt/openai/o1": "o1",
@@ -2862,6 +2965,7 @@
     "neon/gpt-5": "gpt-5",
     "neon/gpt-5-mini": "gpt-5-mini",
     "neon/gpt-5-nano": "gpt-5-nano",
+    "neon/gpt-6-astra": "gpt-6-astra",
     "neon/gpt-oss-120b": "gpt-oss-120b",
     "neon/gpt-oss-20b": "gpt-oss-20b",
     "neon/inkling": "inkling",
@@ -3000,6 +3104,10 @@
     "ofox/openai/gpt-5.6-luna": "gpt-5.6-luna",
     "ofox/openai/gpt-5.6-sol": "gpt-5.6-sol",
     "ofox/openai/gpt-5.6-terra": "gpt-5.6-terra",
+    "ofox/openai/gpt-6-astra": "gpt-6-astra",
+    "ofox/openai/gpt-6-luna": "gpt-6-luna",
+    "ofox/openai/gpt-6-sol": "gpt-6-sol",
+    "ofox/openai/gpt-6.1-sol": "gpt-6.1-sol",
     "ollama-cloud/deepseek-v4-flash": "deepseek-v4-flash",
     "ollama-cloud/deepseek-v4-pro": "deepseek-v4-pro",
     "ollama-cloud/glm-5.1": "glm-5.1",
@@ -3055,6 +3163,10 @@
     "openai/gpt-5.6-luna": "gpt-5.6-luna",
     "openai/gpt-5.6-sol": "gpt-5.6-sol",
     "openai/gpt-5.6-terra": "gpt-5.6-terra",
+    "openai/gpt-6-astra": "gpt-6-astra",
+    "openai/gpt-6-luna": "gpt-6-luna",
+    "openai/gpt-6-sol": "gpt-6-sol",
+    "openai/gpt-6.1-sol": "gpt-6.1-sol",
     "openai/gpt-image-1": "gpt-image-1",
     "openai/gpt-image-1.5": "gpt-image-1.5",
     "openai/gpt-image-2": "gpt-image-2",
@@ -3082,6 +3194,7 @@
     "opencode-go/glm-5.1": "glm-5.1",
     "opencode-go/glm-5.2": "glm-5.2",
     "opencode-go/gpt-5.6-luna": "gpt-5.6-luna",
+    "opencode-go/gpt-6-luna": "gpt-6-luna",
     "opencode-go/grok-4.5": "grok-4.5",
     "opencode-go/hy3": "hy3",
     "opencode-go/kimi-k2.5": "kimi-k2.5",
@@ -3140,6 +3253,10 @@
     "opencode/gpt-5.6-luna": "gpt-5.6-luna",
     "opencode/gpt-5.6-sol": "gpt-5.6-sol",
     "opencode/gpt-5.6-terra": "gpt-5.6-terra",
+    "opencode/gpt-6-astra": "gpt-6-astra",
+    "opencode/gpt-6-luna": "gpt-6-luna",
+    "opencode/gpt-6-sol": "gpt-6-sol",
+    "opencode/gpt-6.1-sol": "gpt-6.1-sol",
     "opencode/grok-4.5": "grok-4.5",
     "opencode/grok-build-0.1": "grok-build-0.1",
     "opencode/kimi-k2-thinking": "kimi-k2-thinking",
@@ -3241,6 +3358,10 @@
     "openrouter/openai/gpt-5.6-luna": "gpt-5.6-luna",
     "openrouter/openai/gpt-5.6-sol": "gpt-5.6-sol",
     "openrouter/openai/gpt-5.6-terra": "gpt-5.6-terra",
+    "openrouter/openai/gpt-6-astra": "gpt-6-astra",
+    "openrouter/openai/gpt-6-luna": "gpt-6-luna",
+    "openrouter/openai/gpt-6-sol": "gpt-6-sol",
+    "openrouter/openai/gpt-6.1-sol": "gpt-6.1-sol",
     "openrouter/openai/gpt-oss-120b": "gpt-oss-120b",
     "openrouter/openai/gpt-oss-20b": "gpt-oss-20b",
     "openrouter/openai/o1": "o1",
@@ -3276,6 +3397,7 @@
     "openrouter/z-ai/glm-4.7-flash": "glm-4.7-flash",
     "openrouter/z-ai/glm-5": "glm-5",
     "openrouter/z-ai/glm-5.1": "glm-5.1",
+    "opper/gpt-6-astra": "gpt-6-astra",
     "orcarouter/deepseek/deepseek-chat": "deepseek-chat",
     "orcarouter/deepseek/deepseek-reasoner": "deepseek-reasoner",
     "orcarouter/deepseek/deepseek-v4-flash": "deepseek-v4-flash",
@@ -3370,6 +3492,9 @@
     "perplexity/openai/gpt-5-mini": "gpt-5-mini",
     "perplexity/openai/gpt-5.1": "gpt-5.1",
     "perplexity/openai/gpt-5.2": "gpt-5.2",
+    "perplexity/openai/gpt-6-luna": "gpt-6-luna",
+    "perplexity/openai/gpt-6-sol": "gpt-6-sol",
+    "perplexity/openai/gpt-6.1-sol": "gpt-6.1-sol",
     "perplexity/perplexity/sonar": "sonar",
     "perplexity/sonar": "sonar",
     "perplexity/sonar-pro": "sonar-pro",
@@ -3613,6 +3738,10 @@
     "requesty/gemini-3.5-flash-lite": "gemini-3.5-flash-lite",
     "requesty/gemini-3.6-flash": "gemini-3.6-flash",
     "requesty/glm-5.2": "glm-5.2",
+    "requesty/gpt-6-astra": "gpt-6-astra",
+    "requesty/gpt-6-luna": "gpt-6-luna",
+    "requesty/gpt-6-sol": "gpt-6-sol",
+    "requesty/gpt-6.1-sol": "gpt-6.1-sol",
     "requesty/grok-4.5": "grok-4.5",
     "requesty/kimi-k3": "kimi-k3",
     "rerank-english-v2.0": "rerank-english-v2.0",
@@ -4043,6 +4172,10 @@
     "vercel/openai/gpt-5.6-luna": "gpt-5.6-luna",
     "vercel/openai/gpt-5.6-sol": "gpt-5.6-sol",
     "vercel/openai/gpt-5.6-terra": "gpt-5.6-terra",
+    "vercel/openai/gpt-6-astra": "gpt-6-astra",
+    "vercel/openai/gpt-6-luna": "gpt-6-luna",
+    "vercel/openai/gpt-6-sol": "gpt-6-sol",
+    "vercel/openai/gpt-6.1-sol": "gpt-6.1-sol",
     "vercel/openai/gpt-image-1": "gpt-image-1",
     "vercel/openai/gpt-image-1.5": "gpt-image-1.5",
     "vercel/openai/gpt-image-2": "gpt-image-2",
@@ -4126,6 +4259,10 @@
     "vivgrid/gpt-5.6-luna": "gpt-5.6-luna",
     "vivgrid/gpt-5.6-sol": "gpt-5.6-sol",
     "vivgrid/gpt-5.6-terra": "gpt-5.6-terra",
+    "vivgrid/gpt-6-astra": "gpt-6-astra",
+    "vivgrid/gpt-6-luna": "gpt-6-luna",
+    "vivgrid/gpt-6-sol": "gpt-6-sol",
+    "vivgrid/gpt-6.1-sol": "gpt-6.1-sol",
     "vivgrid/kimi-k3": "kimi-k3",
     "vultr/moonshotai/kimi-k2.6": "kimi-k2.6",
     "vultr/nvidia/nemotron-cascade-2-30b-a3b": "nemotron-cascade-2-30b-a3b",
@@ -4254,6 +4391,8 @@
     "zenmux/openai/gpt-5.6-luna": "gpt-5.6-luna",
     "zenmux/openai/gpt-5.6-sol": "gpt-5.6-sol",
     "zenmux/openai/gpt-5.6-terra": "gpt-5.6-terra",
+    "zenmux/openai/gpt-6-astra": "gpt-6-astra",
+    "zenmux/openai/gpt-6-sol": "gpt-6-sol",
     "zenmux/stepfun/step-3.5-flash": "step-3.5-flash",
     "zenmux/stepfun/step-3.7-flash": "step-3.7-flash",
     "zenmux/tencent/hy3-preview": "hy3-preview",
@@ -4459,6 +4598,15 @@
       "models.dev"
     ],
     "302ai/gpt-5.4-pro": [
+      "models.dev"
+    ],
+    "302ai/gpt-6-astra": [
+      "models.dev"
+    ],
+    "302ai/gpt-6-luna": [
+      "models.dev"
+    ],
+    "302ai/gpt-6-sol": [
       "models.dev"
     ],
     "302ai/kimi-k2-thinking": [
@@ -4810,6 +4958,15 @@
       "models.dev"
     ],
     "aihubmix/gpt-5.6-terra": [
+      "models.dev"
+    ],
+    "aihubmix/gpt-6-astra": [
+      "models.dev"
+    ],
+    "aihubmix/gpt-6-luna": [
+      "models.dev"
+    ],
+    "aihubmix/gpt-6-sol": [
       "models.dev"
     ],
     "aihubmix/grok-4.3": [
@@ -5766,6 +5923,18 @@
     "azure_ai/gpt-5.5-2026-04-23": [
       "litellm"
     ],
+    "azure_ai/gpt-6-astra": [
+      "litellm"
+    ],
+    "azure_ai/gpt-6-luna": [
+      "litellm"
+    ],
+    "azure_ai/gpt-6-sol": [
+      "litellm"
+    ],
+    "azure_ai/gpt-6.1-sol": [
+      "litellm"
+    ],
     "azure_ai/gpt-oss-120b": [
       "litellm"
     ],
@@ -5887,6 +6056,18 @@
       "models.dev"
     ],
     "azure-cognitive-services/gpt-5.6-terra": [
+      "models.dev"
+    ],
+    "azure-cognitive-services/gpt-6-astra": [
+      "models.dev"
+    ],
+    "azure-cognitive-services/gpt-6-luna": [
+      "models.dev"
+    ],
+    "azure-cognitive-services/gpt-6-sol": [
+      "models.dev"
+    ],
+    "azure-cognitive-services/gpt-6.1-sol": [
       "models.dev"
     ],
     "azure-cognitive-services/kimi-k2.5": [
@@ -6019,6 +6200,15 @@
       "litellm"
     ],
     "azure/eu/gpt-5.6-terra": [
+      "litellm"
+    ],
+    "azure/eu/gpt-6-astra": [
+      "litellm"
+    ],
+    "azure/eu/gpt-6-luna": [
+      "litellm"
+    ],
+    "azure/eu/gpt-6-sol": [
       "litellm"
     ],
     "azure/eu/o1-2024-12-17": [
@@ -6272,6 +6462,22 @@
       "models.dev"
     ],
     "azure/gpt-5.6-terra": [
+      "litellm",
+      "models.dev"
+    ],
+    "azure/gpt-6-astra": [
+      "litellm",
+      "models.dev"
+    ],
+    "azure/gpt-6-luna": [
+      "litellm",
+      "models.dev"
+    ],
+    "azure/gpt-6-sol": [
+      "litellm",
+      "models.dev"
+    ],
+    "azure/gpt-6.1-sol": [
       "litellm",
       "models.dev"
     ],
@@ -6532,6 +6738,15 @@
       "litellm"
     ],
     "azure/us/gpt-5.6-terra": [
+      "litellm"
+    ],
+    "azure/us/gpt-6-astra": [
+      "litellm"
+    ],
+    "azure/us/gpt-6-luna": [
+      "litellm"
+    ],
+    "azure/us/gpt-6-sol": [
       "litellm"
     ],
     "azure/us/o1-2024-12-17": [
@@ -7104,6 +7319,18 @@
     "chatgpt/gpt-5.4-pro": [
       "litellm"
     ],
+    "chatgpt/gpt-6-astra": [
+      "litellm"
+    ],
+    "chatgpt/gpt-6-luna": [
+      "litellm"
+    ],
+    "chatgpt/gpt-6-sol": [
+      "litellm"
+    ],
+    "chatgpt/gpt-6.1-sol": [
+      "litellm"
+    ],
     "claude-3-5-haiku-20241022": [
       "models.dev"
     ],
@@ -7292,6 +7519,15 @@
       "models.dev"
     ],
     "cloudflare-ai-gateway/openai/gpt-5.6-terra": [
+      "models.dev"
+    ],
+    "cloudflare-ai-gateway/openai/gpt-6-astra": [
+      "models.dev"
+    ],
+    "cloudflare-ai-gateway/openai/gpt-6-luna": [
+      "models.dev"
+    ],
+    "cloudflare-ai-gateway/openai/gpt-6-sol": [
       "models.dev"
     ],
     "cloudflare-ai-gateway/openai/o1": [
@@ -7562,6 +7798,15 @@
     "cortecs/gpt-5.6-terra": [
       "models.dev"
     ],
+    "cortecs/gpt-6-luna": [
+      "models.dev"
+    ],
+    "cortecs/gpt-6-sol": [
+      "models.dev"
+    ],
+    "cortecs/gpt-6.1-sol": [
+      "models.dev"
+    ],
     "cortecs/gpt-oss-120b": [
       "models.dev"
     ],
@@ -7752,6 +7997,18 @@
       "models.dev"
     ],
     "crossmodel/openai/gpt-5.6-terra": [
+      "models.dev"
+    ],
+    "crossmodel/openai/gpt-6-astra": [
+      "models.dev"
+    ],
+    "crossmodel/openai/gpt-6-luna": [
+      "models.dev"
+    ],
+    "crossmodel/openai/gpt-6-sol": [
+      "models.dev"
+    ],
+    "crossmodel/openai/gpt-6.1-sol": [
       "models.dev"
     ],
     "crossmodel/tencent/hy3": [
@@ -8156,6 +8413,18 @@
       "models.dev"
     ],
     "ebcloud/kimi-k2.6": [
+      "models.dev"
+    ],
+    "edenai/openai/gpt-6-astra": [
+      "models.dev"
+    ],
+    "edenai/openai/gpt-6-luna": [
+      "models.dev"
+    ],
+    "edenai/openai/gpt-6-sol": [
+      "models.dev"
+    ],
+    "edenai/openai/gpt-6.1-sol": [
       "models.dev"
     ],
     "embed-english-light-v2.0": [
@@ -9039,6 +9308,18 @@
     "github-copilot/gpt-5.6-terra": [
       "models.dev"
     ],
+    "github-copilot/gpt-6-astra": [
+      "models.dev"
+    ],
+    "github-copilot/gpt-6-luna": [
+      "models.dev"
+    ],
+    "github-copilot/gpt-6-sol": [
+      "models.dev"
+    ],
+    "github-copilot/gpt-6.1-sol": [
+      "models.dev"
+    ],
     "github-copilot/grok-4.5": [
       "models.dev"
     ],
@@ -9673,6 +9954,22 @@
       "models.dev"
     ],
     "gpt-5.6-terra": [
+      "litellm",
+      "models.dev"
+    ],
+    "gpt-6-astra": [
+      "litellm",
+      "models.dev"
+    ],
+    "gpt-6-luna": [
+      "litellm",
+      "models.dev"
+    ],
+    "gpt-6-sol": [
+      "litellm",
+      "models.dev"
+    ],
+    "gpt-6.1-sol": [
       "litellm",
       "models.dev"
     ],
@@ -10813,6 +11110,18 @@
     "kilo/openai/gpt-5.6-terra": [
       "models.dev"
     ],
+    "kilo/openai/gpt-6-astra": [
+      "models.dev"
+    ],
+    "kilo/openai/gpt-6-luna": [
+      "models.dev"
+    ],
+    "kilo/openai/gpt-6-sol": [
+      "models.dev"
+    ],
+    "kilo/openai/gpt-6.1-sol": [
+      "models.dev"
+    ],
     "kilo/openai/gpt-oss-120b": [
       "models.dev"
     ],
@@ -10980,6 +11289,18 @@
     ],
     "llamagate/llama-3.2-3b": [
       "litellm"
+    ],
+    "llmgateway-providers/openai/gpt-6-astra": [
+      "models.dev"
+    ],
+    "llmgateway-providers/openai/gpt-6-luna": [
+      "models.dev"
+    ],
+    "llmgateway-providers/openai/gpt-6-sol": [
+      "models.dev"
+    ],
+    "llmgateway-providers/openai/gpt-6.1-sol": [
+      "models.dev"
     ],
     "llmgateway/claude-fable-5": [
       "models.dev"
@@ -11189,6 +11510,18 @@
       "models.dev"
     ],
     "llmgateway/gpt-5.6-terra": [
+      "models.dev"
+    ],
+    "llmgateway/gpt-6-astra": [
+      "models.dev"
+    ],
+    "llmgateway/gpt-6-luna": [
+      "models.dev"
+    ],
+    "llmgateway/gpt-6-sol": [
+      "models.dev"
+    ],
+    "llmgateway/gpt-6.1-sol": [
       "models.dev"
     ],
     "llmgateway/gpt-oss-120b": [
@@ -11771,6 +12104,18 @@
       "models.dev"
     ],
     "merge-gateway/openai/gpt-5.6-terra": [
+      "models.dev"
+    ],
+    "merge-gateway/openai/gpt-6-astra": [
+      "models.dev"
+    ],
+    "merge-gateway/openai/gpt-6-luna": [
+      "models.dev"
+    ],
+    "merge-gateway/openai/gpt-6-sol": [
+      "models.dev"
+    ],
+    "merge-gateway/openai/gpt-6.1-sol": [
       "models.dev"
     ],
     "merge-gateway/openai/gpt-oss-120b": [
@@ -12582,6 +12927,18 @@
     "nano-gpt/openai/gpt-5.6-terra": [
       "models.dev"
     ],
+    "nano-gpt/openai/gpt-6-astra": [
+      "models.dev"
+    ],
+    "nano-gpt/openai/gpt-6-luna": [
+      "models.dev"
+    ],
+    "nano-gpt/openai/gpt-6-sol": [
+      "models.dev"
+    ],
+    "nano-gpt/openai/gpt-6.1-sol": [
+      "models.dev"
+    ],
     "nano-gpt/openai/gpt-oss-120b": [
       "models.dev"
     ],
@@ -12883,6 +13240,9 @@
       "models.dev"
     ],
     "neon/gpt-5-nano": [
+      "models.dev"
+    ],
+    "neon/gpt-6-astra": [
       "models.dev"
     ],
     "neon/gpt-oss-120b": [
@@ -13307,6 +13667,18 @@
     "ofox/openai/gpt-5.6-terra": [
       "models.dev"
     ],
+    "ofox/openai/gpt-6-astra": [
+      "models.dev"
+    ],
+    "ofox/openai/gpt-6-luna": [
+      "models.dev"
+    ],
+    "ofox/openai/gpt-6-sol": [
+      "models.dev"
+    ],
+    "ofox/openai/gpt-6.1-sol": [
+      "models.dev"
+    ],
     "ollama-cloud/deepseek-v4-flash": [
       "models.dev"
     ],
@@ -13472,6 +13844,18 @@
     "openai/gpt-5.6-terra": [
       "models.dev"
     ],
+    "openai/gpt-6-astra": [
+      "models.dev"
+    ],
+    "openai/gpt-6-luna": [
+      "models.dev"
+    ],
+    "openai/gpt-6-sol": [
+      "models.dev"
+    ],
+    "openai/gpt-6.1-sol": [
+      "models.dev"
+    ],
     "openai/gpt-image-1": [
       "models.dev"
     ],
@@ -13551,6 +13935,9 @@
       "models.dev"
     ],
     "opencode-go/gpt-5.6-luna": [
+      "models.dev"
+    ],
+    "opencode-go/gpt-6-luna": [
       "models.dev"
     ],
     "opencode-go/grok-4.5": [
@@ -13725,6 +14112,18 @@
       "models.dev"
     ],
     "opencode/gpt-5.6-terra": [
+      "models.dev"
+    ],
+    "opencode/gpt-6-astra": [
+      "models.dev"
+    ],
+    "opencode/gpt-6-luna": [
+      "models.dev"
+    ],
+    "opencode/gpt-6-sol": [
+      "models.dev"
+    ],
+    "opencode/gpt-6.1-sol": [
       "models.dev"
     ],
     "opencode/grok-4.5": [
@@ -14057,6 +14456,22 @@
     "openrouter/openai/gpt-5.6-terra": [
       "models.dev"
     ],
+    "openrouter/openai/gpt-6-astra": [
+      "litellm",
+      "models.dev"
+    ],
+    "openrouter/openai/gpt-6-luna": [
+      "litellm",
+      "models.dev"
+    ],
+    "openrouter/openai/gpt-6-sol": [
+      "litellm",
+      "models.dev"
+    ],
+    "openrouter/openai/gpt-6.1-sol": [
+      "litellm",
+      "models.dev"
+    ],
     "openrouter/openai/gpt-oss-120b": [
       "litellm",
       "models.dev"
@@ -14167,6 +14582,9 @@
     ],
     "openrouter/z-ai/glm-5.1": [
       "litellm"
+    ],
+    "opper/gpt-6-astra": [
+      "models.dev"
     ],
     "orcarouter/deepseek/deepseek-chat": [
       "models.dev"
@@ -14451,6 +14869,15 @@
       "litellm"
     ],
     "perplexity/openai/gpt-5.2": [
+      "litellm"
+    ],
+    "perplexity/openai/gpt-6-luna": [
+      "litellm"
+    ],
+    "perplexity/openai/gpt-6-sol": [
+      "litellm"
+    ],
+    "perplexity/openai/gpt-6.1-sol": [
       "litellm"
     ],
     "perplexity/perplexity/sonar": [
@@ -15183,6 +15610,18 @@
       "models.dev"
     ],
     "requesty/glm-5.2": [
+      "models.dev"
+    ],
+    "requesty/gpt-6-astra": [
+      "models.dev"
+    ],
+    "requesty/gpt-6-luna": [
+      "models.dev"
+    ],
+    "requesty/gpt-6-sol": [
+      "models.dev"
+    ],
+    "requesty/gpt-6.1-sol": [
       "models.dev"
     ],
     "requesty/grok-4.5": [
@@ -16475,6 +16914,18 @@
     "vercel/openai/gpt-5.6-terra": [
       "models.dev"
     ],
+    "vercel/openai/gpt-6-astra": [
+      "models.dev"
+    ],
+    "vercel/openai/gpt-6-luna": [
+      "models.dev"
+    ],
+    "vercel/openai/gpt-6-sol": [
+      "models.dev"
+    ],
+    "vercel/openai/gpt-6.1-sol": [
+      "models.dev"
+    ],
     "vercel/openai/gpt-image-1": [
       "models.dev"
     ],
@@ -16722,6 +17173,18 @@
       "models.dev"
     ],
     "vivgrid/gpt-5.6-terra": [
+      "models.dev"
+    ],
+    "vivgrid/gpt-6-astra": [
+      "models.dev"
+    ],
+    "vivgrid/gpt-6-luna": [
+      "models.dev"
+    ],
+    "vivgrid/gpt-6-sol": [
+      "models.dev"
+    ],
+    "vivgrid/gpt-6.1-sol": [
       "models.dev"
     ],
     "vivgrid/kimi-k3": [
@@ -17122,6 +17585,12 @@
       "models.dev"
     ],
     "zenmux/openai/gpt-5.6-terra": [
+      "models.dev"
+    ],
+    "zenmux/openai/gpt-6-astra": [
+      "models.dev"
+    ],
+    "zenmux/openai/gpt-6-sol": [
       "models.dev"
     ],
     "zenmux/stepfun/step-3.5-flash": [

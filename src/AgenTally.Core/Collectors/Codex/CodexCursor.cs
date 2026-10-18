@@ -10,6 +10,7 @@ public sealed record CodexCursor(
     CodexParseState State)
 {
     internal const int MaxStateStringCharacters = 1024;
+    internal const int MaxStructuredUserMessages = 64;
     private const int MaxJsonEscapedCharactersPerUtf16CodeUnit = 6;
     private const int MaxTurnIdHashCharacters = 64;
     private const int MaxSerializedStateStringCharacters =
@@ -26,6 +27,7 @@ public sealed record CodexCursor(
         MaxTurnIdHashCharacters + // AgentPathHash
         MaxTurnIdHashCharacters + // AgentLeafHash
         240 + // CurrentPromptPreview
+        (MaxStructuredUserMessages * MaxTurnIdHashCharacters) +
         (64 * 128) + // PendingToolNames
         MaxStateStringCharacters + // ReplayTarget.SessionId
         MaxStateStringCharacters + // ReplayTarget.ParentSessionId
@@ -146,6 +148,7 @@ public sealed record CodexCursor(
             !ValidTurnIdHash(State.AgentLeafHash) ||
             !ValidPromptPreview(State.CurrentPromptPreview) ||
             State.CurrentUserMessageCount < 0 ||
+            !ValidStructuredUserMessages(State) ||
             !ValidPendingTools(State.PendingToolNames) ||
             !ValidReplayTarget(State.ReplayTarget) ||
             (State.IsReplayTargetContextPending &&
@@ -275,6 +278,19 @@ public sealed record CodexCursor(
         value is null ||
         (value.Length is > 0 and <= 240 &&
          !value.Any(char.IsControl));
+
+    private static bool ValidStructuredUserMessages(CodexParseState state) =>
+        state.CurrentStructuredUserMessageHashes is null ||
+        (state.CurrentTurnIdHash is not null &&
+         state.CurrentStructuredUserMessageHashes.Length is > 0 and
+             <= MaxStructuredUserMessages &&
+         state.CurrentStructuredUserMessageHashes.Length <=
+             state.CurrentUserMessageCount &&
+         state.CurrentStructuredUserMessageHashes.All(static value =>
+             value is not null && ValidTurnIdHash(value)) &&
+         state.CurrentStructuredUserMessageHashes.Distinct(
+             StringComparer.Ordinal).Count() ==
+             state.CurrentStructuredUserMessageHashes.Length);
 
     private static bool ValidPendingTools(string[]? values) =>
         values is null ||

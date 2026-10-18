@@ -107,7 +107,7 @@ public sealed class ModelIdentityCanonicalizerTests
     [TestMethod]
     public void Canonicalize_UsesGeneratedExactCatalogWithoutDisplayingLabPrefix()
     {
-        Assert.AreEqual("market-models-2026-08-10-r2",
+        Assert.AreEqual("market-models-2026-10-06-r1",
             ModelIdentityCanonicalizer.CatalogVersion);
         Assert.AreEqual(2, ModelIdentityCanonicalizer.CatalogDataSourceCount);
         Assert.AreEqual(2, ModelIdentityCanonicalizer.CatalogReferenceProjectCount);
@@ -137,5 +137,26 @@ public sealed class ModelIdentityCanonicalizerTests
             "unlisted-lab/deployment-blue",
             ModelIdentityCanonicalizer.Canonicalize(
                 "unlisted-lab/deployment-blue"));
+    }
+
+    [TestMethod]
+    [DataRow("gpt-6.1-sol")]
+    [DataRow("gpt-6-astra")]
+    [DataRow("gpt-6-sol")]
+    [DataRow("gpt-6-luna")]
+    public void Canonicalize_CurrentCodexModelsKeepDistinctExactIdentities(
+        string model)
+    {
+        Assert.AreEqual(model, ModelIdentityCanonicalizer.Canonicalize(model));
+        Assert.AreEqual(model,
+            ModelIdentityCanonicalizer.Canonicalize($" OPENAI/{model.ToUpperInvariant()} "));
+        Assert.AreEqual(model,
+            ModelIdentityCanonicalizer.Canonicalize($"openrouter/openai/{model}"));
+        Assert.AreEqual(model,
+            ModelIdentityCanonicalizer.Canonicalize($"codex/{model}", "codex"));
+        Assert.AreEqual($"private/{model}",
+            ModelIdentityCanonicalizer.Canonicalize($"private/{model}"));
+        Assert.AreEqual($"{model}-preview",
+            ModelIdentityCanonicalizer.Canonicalize($"{model}-preview"));
     }
 }

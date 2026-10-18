@@ -42,6 +42,9 @@ public sealed class SettingsViewModel : PageViewModel, IDisposable
     private readonly IReleasePageLauncher _releasePageLauncher;
     private readonly IDataManagementStateStore _dataManagementState;
     private readonly IStartupRegistrationStore _startupRegistration;
+    private readonly IClaudeCodeSourceSettings _claudeCodeSourceSettings;
+    private readonly IClaudeCodeDirectoryPicker _claudeCodeDirectoryPicker;
+    private readonly ICoreRuntimeController _coreRuntimeController;
     private readonly TimeZoneInfo _localTimeZone;
     private readonly CancellationTokenSource _versionCheckLifetime = new();
     private readonly List<PriceSettingPresentation> _allPriceModels = [];
@@ -58,6 +61,8 @@ public sealed class SettingsViewModel : PageViewModel, IDisposable
     private string _cachedInputRateText = string.Empty;
     private string _cacheWriteRateText = string.Empty;
     private string _outputRateText = string.Empty;
+    private DateTime? _priceEffectiveDate;
+    private bool _isPriceHistoryExpanded;
     private string _longContextThresholdText = string.Empty;
     private string _longContextInputMultiplierText = "1";
     private string _longContextOutputMultiplierText = "1";
@@ -78,6 +83,12 @@ public sealed class SettingsViewModel : PageViewModel, IDisposable
     private bool _isStartupEnabled;
     private bool _canChangeStartupRegistration;
     private string? _startupRegistrationMessage;
+    private ObservableCollection<string> _claudeCodeAdditionalRoots = [];
+    private string[] _savedClaudeCodeAdditionalRoots = [];
+    private string? _selectedClaudeCodeAdditionalRoot;
+    private string? _claudeCodeSourceStatusText;
+    private bool _claudeCodeSourceStatusIsError;
+    private bool _isClaudeCodeSourceOperationRunning;
     private int _disposed;
 
     public SettingsViewModel(
@@ -124,7 +135,10 @@ public sealed class SettingsViewModel : PageViewModel, IDisposable
         IReleasePageLauncher? releasePageLauncher = null,
         IDataManagementStateStore? dataManagementState = null,
         IStartupRegistrationStore? startupRegistration = null,
-        TimeZoneInfo? localTimeZone = null)
+        TimeZoneInfo? localTimeZone = null,
+        IClaudeCodeSourceSettings? claudeCodeSourceSettings = null,
+        IClaudeCodeDirectoryPicker? claudeCodeDirectoryPicker = null,
+        ICoreRuntimeController? coreRuntimeController = null)
         : base("设置", dispatcher)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(databasePath);
@@ -143,6 +157,12 @@ public sealed class SettingsViewModel : PageViewModel, IDisposable
             new UnavailableDataManagementStateStore();
         _startupRegistration = startupRegistration ??
             new UnavailableStartupRegistrationStore();
+        _claudeCodeSourceSettings = claudeCodeSourceSettings ??
+            new UnavailableClaudeCodeSourceSettings();
+        _claudeCodeDirectoryPicker = claudeCodeDirectoryPicker ??
+            new UnavailableClaudeCodeDirectoryPicker();
+        _coreRuntimeController = coreRuntimeController ??
+            new StandaloneCoreRuntimeController();
         _localTimeZone = localTimeZone ?? TimeZoneInfo.Local;
         int? storedRefreshInterval =
             _preferencesStore.ReadRefreshIntervalSeconds();
@@ -160,6 +180,7 @@ public sealed class SettingsViewModel : PageViewModel, IDisposable
             _ => "当前诊断模式不可用"
         };
         ApplyStartupRegistrationStatus(_startupRegistration.Read());
+        LoadClaudeCodeAdditionalRoots();
         NetworkAccessDescription = channel switch
         {
             AgenTallyChannel.Stable =>
@@ -189,6 +210,18 @@ public sealed class SettingsViewModel : PageViewModel, IDisposable
         OpenReleasePageCommand = new RelayCommand(
             OpenReleasePage,
             () => CanOpenReleasePage);
+        AddClaudeCodeSourceCommand = new RelayCommand(
+            AddClaudeCodeSource,
+            () => CanEditClaudeCodeSources &&
+                ClaudeCodeAdditionalRoots.Count <
+                    ClaudeCodeSourceConfigurationStore.MaxAdditionalRoots);
+        RemoveClaudeCodeSourceCommand = new RelayCommand(
+            RemoveClaudeCodeSource,
+            () => CanEditClaudeCodeSources &&
+                SelectedClaudeCodeAdditionalRoot is not null);
+        SaveClaudeCodeSourcesCommand = new AsyncRelayCommand(
+            SaveClaudeCodeSourcesAsync,
+            () => CanEditClaudeCodeSources && HasUnsavedClaudeCodeSources);
     }
 
     public IReadOnlyList<int> RefreshIntervalOptions => SupportedIntervals;
@@ -301,6 +334,67 @@ public sealed class SettingsViewModel : PageViewModel, IDisposable
         !string.IsNullOrWhiteSpace(StartupRegistrationMessage);
 
     public string DatabasePath { get; }
+
+    public ObservableCollection<string> ClaudeCodeAdditionalRoots
+    {
+        get => _claudeCodeAdditionalRoots;
+        private set => SetProperty(ref _claudeCodeAdditionalRoots, value);
+    }
+
+    public string? SelectedClaudeCodeAdditionalRoot
+    {
+        get => _selectedClaudeCodeAdditionalRoot;
+        set
+        {
+            if (SetProperty(ref _selectedClaudeCodeAdditionalRoot, value))
+            {
+                RemoveClaudeCodeSourceCommand.RaiseCanExecuteChanged();
+            }
+        }
+    }
+
+    public bool CanEditClaudeCodeSources =>
+        _claudeCodeSourceSettings.IsAvailable &&
+        !IsClaudeCodeSourceOperationRunning;
+
+    public bool HasUnsavedClaudeCodeSources =>
+        !_savedClaudeCodeAdditionalRoots.SequenceEqual(
+            ClaudeCodeAdditionalRoots,
+            StringComparer.OrdinalIgnoreCase);
+
+    public string? ClaudeCodeSourceStatusText
+    {
+        get => _claudeCodeSourceStatusText;
+        private set
+        {
+            if (SetProperty(ref _claudeCodeSourceStatusText, value))
+            {
+                OnPropertyChanged(nameof(HasClaudeCodeSourceStatus));
+            }
+        }
+    }
+
+    public bool HasClaudeCodeSourceStatus =>
+        !string.IsNullOrWhiteSpace(ClaudeCodeSourceStatusText);
+
+    public bool ClaudeCodeSourceStatusIsError
+    {
+        get => _claudeCodeSourceStatusIsError;
+        private set => SetProperty(ref _claudeCodeSourceStatusIsError, value);
+    }
+
+    public bool IsClaudeCodeSourceOperationRunning
+    {
+        get => _isClaudeCodeSourceOperationRunning;
+        private set
+        {
+            if (SetProperty(ref _isClaudeCodeSourceOperationRunning, value))
+            {
+                OnPropertyChanged(nameof(CanEditClaudeCodeSources));
+                NotifyClaudeCodeSourceCommandState();
+            }
+        }
+    }
 
     public string ApplicationVersion =>
         typeof(SettingsViewModel).Assembly.GetName().Version?.ToString(3) ?? "—";
@@ -676,6 +770,12 @@ public sealed class SettingsViewModel : PageViewModel, IDisposable
 
     public RelayCommand OpenReleasePageCommand { get; }
 
+    public RelayCommand AddClaudeCodeSourceCommand { get; }
+
+    public RelayCommand RemoveClaudeCodeSourceCommand { get; }
+
+    public AsyncRelayCommand SaveClaudeCodeSourcesCommand { get; }
+
     public void ShowSettingsHome()
     {
         SelectedSection = SettingsSection.Home;
@@ -777,6 +877,163 @@ public sealed class SettingsViewModel : PageViewModel, IDisposable
         }
 
         _versionCheckLifetime.Dispose();
+    }
+
+    private void LoadClaudeCodeAdditionalRoots()
+    {
+        if (!_claudeCodeSourceSettings.IsAvailable)
+        {
+            ClaudeCodeAdditionalRoots = [];
+            _savedClaudeCodeAdditionalRoots = [];
+            return;
+        }
+
+        try
+        {
+            string[] roots = _claudeCodeSourceSettings
+                .ReadAdditionalRoots()
+                .OrderBy(static value => value, StringComparer.OrdinalIgnoreCase)
+                .ToArray();
+            ClaudeCodeAdditionalRoots = new ObservableCollection<string>(roots);
+            _savedClaudeCodeAdditionalRoots = roots;
+        }
+        catch (Exception exception)
+            when (exception is IOException
+                or UnauthorizedAccessException
+                or ArgumentException
+                or NotSupportedException)
+        {
+            ClaudeCodeAdditionalRoots = [];
+            _savedClaudeCodeAdditionalRoots = [];
+            ClaudeCodeSourceStatusIsError = true;
+            ClaudeCodeSourceStatusText =
+                "Claude Code 自定义目录配置无法验证；可重新选择并保存。";
+        }
+    }
+
+    private void AddClaudeCodeSource()
+    {
+        if (!CanEditClaudeCodeSources)
+        {
+            return;
+        }
+
+        string? selected = _claudeCodeDirectoryPicker.PickDirectory();
+        if (string.IsNullOrWhiteSpace(selected))
+        {
+            return;
+        }
+
+        try
+        {
+            string normalized = Path.GetFullPath(selected);
+            if (!Directory.Exists(normalized))
+            {
+                throw new DirectoryNotFoundException();
+            }
+
+            if (ClaudeCodeAdditionalRoots.Contains(
+                    normalized,
+                    StringComparer.OrdinalIgnoreCase))
+            {
+                ClaudeCodeSourceStatusIsError = false;
+                ClaudeCodeSourceStatusText = "该目录已经在自定义来源中。";
+                return;
+            }
+
+            ClaudeCodeAdditionalRoots.Add(normalized);
+            string[] ordered = ClaudeCodeAdditionalRoots
+                .OrderBy(static value => value, StringComparer.OrdinalIgnoreCase)
+                .ToArray();
+            ClaudeCodeAdditionalRoots = new ObservableCollection<string>(ordered);
+            SelectedClaudeCodeAdditionalRoot = normalized;
+            ClaudeCodeSourceStatusText = null;
+            ClaudeCodeSourceStatusIsError = false;
+            NotifyClaudeCodeSourceState();
+        }
+        catch (Exception exception)
+            when (exception is IOException
+                or UnauthorizedAccessException
+                or ArgumentException
+                or NotSupportedException)
+        {
+            ClaudeCodeSourceStatusIsError = true;
+            ClaudeCodeSourceStatusText =
+                "所选目录不存在、不可访问或路径格式无效。";
+        }
+    }
+
+    private void RemoveClaudeCodeSource()
+    {
+        if (!CanEditClaudeCodeSources ||
+            SelectedClaudeCodeAdditionalRoot is not { } selected)
+        {
+            return;
+        }
+
+        _ = ClaudeCodeAdditionalRoots.Remove(selected);
+        SelectedClaudeCodeAdditionalRoot = null;
+        ClaudeCodeSourceStatusText = null;
+        ClaudeCodeSourceStatusIsError = false;
+        NotifyClaudeCodeSourceState();
+    }
+
+    private async Task SaveClaudeCodeSourcesAsync()
+    {
+        if (!CanEditClaudeCodeSources || !HasUnsavedClaudeCodeSources)
+        {
+            return;
+        }
+
+        IsClaudeCodeSourceOperationRunning = true;
+        ClaudeCodeSourceStatusIsError = false;
+        ClaudeCodeSourceStatusText = "正在保存并重新扫描本地来源…";
+        try
+        {
+            string[] roots = ClaudeCodeAdditionalRoots.ToArray();
+            _claudeCodeSourceSettings.WriteAdditionalRoots(roots);
+            _savedClaudeCodeAdditionalRoots = roots;
+            NotifyClaudeCodeSourceState();
+            CoreRuntimeUiStatus status =
+                await _coreRuntimeController.RebuildCodexAsync(
+                    _versionCheckLifetime.Token);
+            ClaudeCodeSourceStatusIsError = status.IsError;
+            ClaudeCodeSourceStatusText = status.IsError
+                ? $"目录已保存，但后台重新扫描未完成：{status.Message}"
+                : "已保存；Claude Code 来源已重新扫描。";
+        }
+        catch (OperationCanceledException)
+            when (_versionCheckLifetime.IsCancellationRequested)
+        {
+        }
+        catch (Exception exception)
+            when (exception is IOException
+                or UnauthorizedAccessException
+                or ArgumentException
+                or InvalidOperationException
+                or NotSupportedException)
+        {
+            ClaudeCodeSourceStatusIsError = true;
+            ClaudeCodeSourceStatusText =
+                "无法保存或重新加载 Claude Code 自定义目录。";
+        }
+        finally
+        {
+            IsClaudeCodeSourceOperationRunning = false;
+        }
+    }
+
+    private void NotifyClaudeCodeSourceState()
+    {
+        OnPropertyChanged(nameof(HasUnsavedClaudeCodeSources));
+        NotifyClaudeCodeSourceCommandState();
+    }
+
+    private void NotifyClaudeCodeSourceCommandState()
+    {
+        AddClaudeCodeSourceCommand.RaiseCanExecuteChanged();
+        RemoveClaudeCodeSourceCommand.RaiseCanExecuteChanged();
+        SaveClaudeCodeSourcesCommand.RaiseCanExecuteChanged();
     }
 
     private async Task CheckForUpdatesAsync()
@@ -1054,6 +1311,61 @@ public sealed class SettingsViewModel : PageViewModel, IDisposable
         SelectedSection = section;
     }
 
+    public DateTime? PriceEffectiveDate
+    {
+        get => _priceEffectiveDate;
+        set
+        {
+            if (SetProperty(ref _priceEffectiveDate, value?.Date) && !_isLoadingPriceEditor)
+            {
+                PriceValidationMessage = null;
+                PriceOperationMessage = null;
+                NotifyPriceEditorState();
+            }
+        }
+    }
+
+    public bool IsPriceHistoryExpanded
+    {
+        get => _isPriceHistoryExpanded;
+        set => SetProperty(ref _isPriceHistoryExpanded, value);
+    }
+
+    private DateTime TodayPriceDate => TimeZoneInfo.ConvertTime(
+        DateTimeOffset.UtcNow, _localTimeZone).Date;
+
+    private bool TryGetPriceStart(out DateTimeOffset from)
+    {
+        from = default;
+        if (PriceEffectiveDate is not { } selected)
+        {
+            PriceValidationMessage = "请选择价格生效日期。";
+            return false;
+        }
+        DateTime local = DateTime.SpecifyKind(selected.Date, DateTimeKind.Unspecified);
+        if (_localTimeZone.IsInvalidTime(local) || _localTimeZone.IsAmbiguousTime(local))
+        {
+            PriceValidationMessage = "所选日期的零点无法在当前时区唯一确定，请选择其他日期。";
+            return false;
+        }
+        try
+        {
+            DateTime utc = TimeZoneInfo.ConvertTimeToUtc(local, _localTimeZone);
+            if (TimeZoneInfo.ConvertTimeFromUtc(utc, _localTimeZone) != local)
+            {
+                PriceValidationMessage = "价格生效日期超出支持范围。";
+                return false;
+            }
+            from = new DateTimeOffset(utc);
+            return true;
+        }
+        catch (ArgumentException)
+        {
+            PriceValidationMessage = "价格生效日期超出支持范围。";
+            return false;
+        }
+    }
+
     private void DiscardPriceChanges()
     {
         LoadEditor(SelectedPriceModel?.EffectiveRate);
@@ -1072,13 +1384,13 @@ public sealed class SettingsViewModel : PageViewModel, IDisposable
         }
 
         ModelPriceRate? rate = TryBuildRate(selected.NormalizedModel);
-        if (rate is null)
+        if (rate is null || !TryGetPriceStart(out DateTimeOffset from))
         {
             return;
         }
 
         await ExecutePriceCommandAsync(
-            PriceCommandRequest.SetOverride(rate),
+            PriceCommandRequest.SetOverride(rate, from),
             selected.NormalizedModel);
     }
 
@@ -1087,15 +1399,17 @@ public sealed class SettingsViewModel : PageViewModel, IDisposable
         PriceSettingPresentation? selected = SelectedPriceModel;
         if (selected is null ||
             !selected.HasCustomPrice ||
+            !TryGetPriceStart(out DateTimeOffset from) ||
             !_restoreConfirmation.ConfirmModelRestore(
                 selected.NormalizedModel,
-                selected.HasBuiltInDefault))
+                selected.HasBuiltInDefault,
+                PriceEffectiveDate!.Value.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)))
         {
             return;
         }
 
         await ExecutePriceCommandAsync(
-            PriceCommandRequest.RestoreDefault(selected.NormalizedModel),
+            PriceCommandRequest.RestoreDefault(selected.NormalizedModel, from),
             selected.NormalizedModel);
     }
 
@@ -1108,7 +1422,8 @@ public sealed class SettingsViewModel : PageViewModel, IDisposable
         }
 
         await ExecutePriceCommandAsync(
-            PriceCommandRequest.RestoreAllDefaults(),
+            PriceCommandRequest.RestoreAllDefaults(DateTimeOffset.FromUnixTimeMilliseconds(
+                DateTimeOffset.UtcNow.ToUnixTimeMilliseconds())),
             SelectedPriceModel?.NormalizedModel);
     }
 
@@ -1218,7 +1533,7 @@ public sealed class SettingsViewModel : PageViewModel, IDisposable
     {
         _allPriceModels.Clear();
         _allPriceModels.AddRange(rows
-            .Select(static row => new PriceSettingPresentation(row))
+            .Select(row => new PriceSettingPresentation(row, _localTimeZone))
             .OrderBy(static row => row.SortRank)
             .ThenByDescending(static row => row.ObservedRecords)
             .ThenBy(
@@ -1373,6 +1688,9 @@ public sealed class SettingsViewModel : PageViewModel, IDisposable
         _isLoadingPriceEditor = true;
         try
         {
+            DateTimeOffset? latestStart = SelectedPriceModel?.Row.CustomHistory?.LastOrDefault()?.EffectiveFromUtc;
+            PriceEffectiveDate = latestStart is { } scheduled && scheduled > DateTimeOffset.UtcNow
+                ? TimeZoneInfo.ConvertTime(scheduled, _localTimeZone).Date : TodayPriceDate;
             InputRateText = Format(rate?.InputUsdPerMillion);
             CachedInputRateText = Format(rate?.CachedInputUsdPerMillion);
             CacheWriteRateText = Format(rate?.CacheWriteUsdPerMillion);
@@ -1479,7 +1797,8 @@ public sealed class SettingsViewModel : PageViewModel, IDisposable
         OutputRateText,
         LongContextThresholdText,
         LongContextInputMultiplierText,
-        LongContextOutputMultiplierText);
+        LongContextOutputMultiplierText,
+        PriceEffectiveDate);
 
     private static bool SameModel(
         PriceSettingPresentation? left,
@@ -1551,7 +1870,8 @@ public sealed class SettingsViewModel : PageViewModel, IDisposable
         string OutputRate,
         string LongContextThreshold,
         string LongContextInputMultiplier,
-        string LongContextOutputMultiplier)
+        string LongContextOutputMultiplier,
+        DateTime? EffectiveDate)
     {
         public static PriceEditorSnapshot Empty { get; } = new(
             string.Empty,
@@ -1560,11 +1880,12 @@ public sealed class SettingsViewModel : PageViewModel, IDisposable
             string.Empty,
             string.Empty,
             "1",
-            "1");
+            "1",
+            null);
     }
 }
 
-public sealed record PriceSettingPresentation(PriceSettingRow Row)
+public sealed record PriceSettingPresentation(PriceSettingRow Row, TimeZoneInfo? LocalTimeZone = null)
 {
     public string NormalizedModel => Row.NormalizedModel;
 
@@ -1573,6 +1894,84 @@ public sealed record PriceSettingPresentation(PriceSettingRow Row)
     public bool HasBuiltInDefault => Row.BuiltInRate is not null;
 
     public bool HasCustomPrice => Row.CustomRate is not null;
+
+    public IReadOnlyList<PriceHistoryPresentation> PriceHistory
+    {
+        get
+        {
+            var result = new List<PriceHistoryPresentation>();
+            foreach (ResolvedPriceRule rule in Row.BuiltInHistory ?? [])
+            {
+                result.Add(new PriceHistoryPresentation(rule.EffectiveFromUtc,
+                    Interval(rule.EffectiveFromUtc, rule.EffectiveUntilUtc) + " · 默认价格",
+                    Rates(rule.Rate) + HistorySchedule(rule) + HistoryDatePrecision(rule)));
+            }
+            IReadOnlyList<PriceOverridePeriod> custom = Row.CustomHistory ?? [];
+            for (int index = 0; index < custom.Count; index++)
+            {
+                PriceOverridePeriod period = custom[index];
+                result.Add(new PriceHistoryPresentation(period.EffectiveFromUtc,
+                    Interval(period.EffectiveFromUtc, index + 1 < custom.Count
+                        ? custom[index + 1].EffectiveFromUtc : null) +
+                    (period.Rate is null ? " · 恢复默认" : " · 自定义价格"),
+                    period.Rate is null ? "使用该调用日期有效的默认价格。" : Rates(period.Rate)));
+            }
+            return result.OrderByDescending(static period => period.FromUtc ?? DateTimeOffset.MinValue).ToArray();
+        }
+    }
+
+    private string Interval(DateTimeOffset? from, DateTimeOffset? until) =>
+        (from is null || from == DateTimeOffset.MinValue ? "此前" : Local(from.Value) + " 起") +
+        (until is { } end ? "，至 " + Local(end) + "（不含）" : string.Empty);
+
+    private static string HistorySchedule(ResolvedPriceRule rule)
+    {
+        if (rule.PeakOffPeak is not { } schedule) return string.Empty;
+        if (schedule.ExplicitPeakRates is not { } peak)
+            return $"；低峰价，高峰 ×{schedule.PeakMultiplier:G29}";
+        var standard = new ModelPriceRate(rule.MatchedModel, peak.InputUsdPerMillion!.Value,
+            peak.CachedInputUsdPerMillion, peak.CacheWriteUsdPerMillion,
+            peak.OutputUsdPerMillion!.Value);
+        return "；UTC 16:30–次日 00:30 使用以上低峰价，其余时段：" + Rates(standard);
+    }
+
+    private static string HistoryDatePrecision(ResolvedPriceRule rule)
+    {
+        string?[] bases = [rule.EffectiveFromBasis, rule.EffectiveUntilBasis];
+        if (bases.Contains("official-publication-date-at-utc-midnight"))
+            return "；官方未注明启用时刻，采用公告日 UTC 00:00。";
+        return bases.Contains("official-date-at-utc-midnight")
+            ? "；官方仅公布日期，采用该日 UTC 00:00。" : string.Empty;
+    }
+
+    private string Local(DateTimeOffset instant) => TimeZoneInfo.ConvertTime(instant,
+        LocalTimeZone ?? TimeZoneInfo.Local).ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+
+    private static string Rates(ModelPriceRate rate)
+    {
+        static string FormatRate(decimal? value) => value?.ToString("G29", CultureInfo.InvariantCulture) ?? "—";
+        return $"输入 {FormatRate(rate.InputUsdPerMillion)} · 缓存 {FormatRate(rate.CachedInputUsdPerMillion)} · " +
+               $"写入 {FormatRate(rate.CacheWriteUsdPerMillion)} · 输出 {FormatRate(rate.OutputUsdPerMillion)}" +
+               (rate.LongContextThresholdTokens is { } threshold
+                   ? $"；超过 {threshold:N0} Token：输入 ×{rate.LongContextInputMultiplier:G29}，输出 ×{rate.LongContextOutputMultiplier:G29}"
+                   : string.Empty);
+    }
+
+    public bool HasTimePricing => Row.BuiltInTimeSchedule is not null;
+
+    public string TimePricingText => Row.BuiltInTimeSchedule is not { } schedule
+        ? string.Empty
+        : HasCustomPrice
+            ? "当前自定义价格固定使用；恢复默认后按调用时间自动选择峰谷价。"
+        : schedule.IsHistoricalNightDiscount
+            ? "历史错峰规则：UTC 16:30–次日 00:30 为低峰；下方为低峰价，其余时段按官方逐项标准价。"
+        : !schedule.WeekdaysOnly
+            ? $"按调用时间自动计价；下方为低峰价，高峰价为其 {schedule.PeakMultiplier:G29} 倍。" +
+              "此历史规则每天北京时间 09:00–12:00、14:00–18:00 为高峰。保存自定义后使用固定价格。"
+            : $"按调用时间自动计价；下方为低峰价，高峰价为其 {schedule.PeakMultiplier:G29} 倍。" +
+              "北京时间周一至周五 09:00–12:00、14:00–18:00 为高峰，周末及节假日为低峰。" +
+              $"节假日表覆盖 {string.Join("、", schedule.CalendarYears)} 年；" +
+              "未覆盖年份的高峰候选时段暂不估价。保存自定义后使用固定价格。";
 
     public bool HasObservedRecords => Row.ObservedRecords > 0;
 
@@ -1586,14 +1985,18 @@ public sealed record PriceSettingPresentation(PriceSettingRow Row)
             ? 1
             : 2;
 
-    public string SourceText => Row.Source switch
+    public string SourceText =>
+        (Row.CustomHistory?.LastOrDefault()?.EffectiveFromUtc > DateTimeOffset.UtcNow ? "待生效 · " : string.Empty) +
+        (Row.Source switch
     {
-        PriceSettingSource.BuiltInDefault => "默认价格",
+        PriceSettingSource.BuiltInDefault => HasTimePricing ? "默认峰谷价" : "默认价格",
         PriceSettingSource.CustomOverride => "自定义价格",
         _ => "未计价"
-    };
+    });
 
     public string ObservedRecordsText => Row.ObservedRecords > 0
         ? $"{Row.ObservedRecords:N0} 条"
         : "暂无记录";
 }
+
+public sealed record PriceHistoryPresentation(DateTimeOffset? FromUtc, string Title, string Detail);

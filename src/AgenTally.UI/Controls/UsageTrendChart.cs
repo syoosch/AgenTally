@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
@@ -122,9 +123,16 @@ public sealed class UsageTrendChart : FrameworkElement
     private Rect _renderedHoverCardBounds;
     private readonly Popup _hoverPopup;
     private readonly HoverCardSurface _hoverPopupSurface;
+    private readonly Func<Point?> _readPointerPosition;
+    private bool _tracksPointer;
 
-    public UsageTrendChart()
+    public UsageTrendChart() : this(null)
     {
+    }
+
+    internal UsageTrendChart(Func<Point?>? readPointerPosition)
+    {
+        _readPointerPosition = readPointerPosition ?? ReadPointerPosition;
         _hoverPopupSurface = new HoverCardSurface(this)
         {
             Width = HoverCardWidth,
@@ -371,6 +379,11 @@ public sealed class UsageTrendChart : FrameworkElement
                 totalScale.Maximum);
         }
 
+        if (_tracksPointer)
+        {
+            RefreshPointerHover(invalidateVisual: false);
+        }
+
         UsageTrendPoint? hoveredPoint = _hoveredBucketStartUtc is DateTimeOffset hovered
             ? points.FirstOrDefault(point => point.BucketStartUtc == hovered)
             : null;
@@ -402,6 +415,7 @@ public sealed class UsageTrendChart : FrameworkElement
     private void ResetHoverState()
     {
         Cursor = null;
+        _tracksPointer = false;
         _hoveredBucketStartUtc = null;
         _renderedHoverCardBounds = Rect.Empty;
         CloseHoverPopup();
@@ -469,7 +483,8 @@ public sealed class UsageTrendChart : FrameworkElement
     protected override void OnMouseMove(MouseEventArgs eventArgs)
     {
         base.OnMouseMove(eventArgs);
-        UpdateHover(eventArgs.GetPosition(this));
+        _tracksPointer = true;
+        RefreshPointerHover(invalidateVisual: true);
     }
 
     protected override void OnMouseLeave(MouseEventArgs eventArgs)
@@ -478,13 +493,55 @@ public sealed class UsageTrendChart : FrameworkElement
         ClearHover();
     }
 
-    internal bool UpdateHover(Point position)
+    private void RefreshPointerHover(bool invalidateVisual)
+    {
+        // WPF GetPosition uses its last processed input report. During a fast
+        // sweep that report can lag behind the cursor; sample again when drawing
+        // so the guide and card share the current position, even after a refresh.
+        if (_readPointerPosition() is Point position)
+        {
+            UpdateHover(position, invalidateVisual);
+        }
+        else
+        {
+            ClearHover(invalidateVisual);
+        }
+    }
+
+    private Point? ReadPointerPosition()
+    {
+        if (PresentationSource.FromVisual(this) is null ||
+            !GetCursorPosition(out NativePoint position))
+        {
+            return null;
+        }
+
+        // PointFromScreen applies the current window DPI and visual transforms.
+        return PointFromScreen(new Point(position.X, position.Y));
+    }
+
+    [DllImport("user32.dll", EntryPoint = "GetCursorPos", ExactSpelling = true)]
+    [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool GetCursorPosition(out NativePoint position);
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct NativePoint
+    {
+        public int X;
+        public int Y;
+    }
+
+    internal bool UpdateHover(Point position) =>
+        UpdateHover(position, invalidateVisual: true);
+
+    private bool UpdateHover(Point position, bool invalidateVisual)
     {
         if (_renderedPoints.Count == 0 ||
             _renderedPlot.Width <= 0 ||
             !_renderedPlot.Contains(position))
         {
-            ClearHover();
+            ClearHover(invalidateVisual);
             return false;
         }
 
@@ -493,15 +550,15 @@ public sealed class UsageTrendChart : FrameworkElement
             0,
             1);
         UsageTrendPoint nearest = GetNearestPoint(ratio);
-        Cursor = Cursors.None;
+        Cursor = Cursors.Arrow;
         bool bucketChanged = _hoveredBucketStartUtc != nearest.BucketStartUtc;
         _hoveredBucketStartUtc = nearest.BucketStartUtc;
-        if (AllowHoverCardOutsidePlot)
+        if (AllowHoverCardOutsidePlot && invalidateVisual)
         {
             UpdateOverflowHoverPopup(nearest);
         }
 
-        if (bucketChanged)
+        if (bucketChanged && invalidateVisual)
         {
             InvalidateVisual();
         }
@@ -509,22 +566,20 @@ public sealed class UsageTrendChart : FrameworkElement
         return true;
     }
 
-    internal void ClearHover()
-    {
-        Cursor = null;
-        CloseHoverPopup();
-        if (_hoveredBucketStartUtc is null)
-        {
-            return;
-        }
+    internal void ClearHover() => ClearHover(invalidateVisual: true);
 
-        _hoveredBucketStartUtc = null;
-        _renderedHoverCardBounds = Rect.Empty;
-        InvalidateVisual();
+    private void ClearHover(bool invalidateVisual)
+    {
+        bool hadHover = _hoveredBucketStartUtc is not null;
+        ResetHoverState();
+        if (hadHover && invalidateVisual)
+        {
+            InvalidateVisual();
+        }
     }
 
     private void OnUnloaded(object sender, RoutedEventArgs eventArgs) =>
-        CloseHoverPopup();
+        ClearHover();
 
     private void CloseHoverPopup()
     {

@@ -37,6 +37,13 @@ public sealed class PriceCommandHandler
                 PriceCommandMessageCodes.InvalidRequest);
         }
 
+        if (request.EffectiveFromUtc is not { } from || from.Offset != TimeSpan.Zero ||
+            from.Ticks % TimeSpan.TicksPerMillisecond != 0)
+        {
+            return Response(request, PriceCommandResultCode.InvalidRequest,
+                PriceCommandMessageCodes.InvalidRequest);
+        }
+
         using IDisposable? lease =
             await _writeGate.TryEnterPricingAsync(cancellationToken);
         if (lease is null)
@@ -102,6 +109,7 @@ public sealed class PriceCommandHandler
         ModelPriceRate rate = request.Rate.ToRate(request.NormalizedModel);
         int priced = await _ledger.SetCustomPriceAsync(
             rate,
+            request.EffectiveFromUtc!.Value,
             cancellationToken);
         return Response(
             request,
@@ -125,6 +133,7 @@ public sealed class PriceCommandHandler
 
         int priced = await _ledger.RestoreDefaultAsync(
             request.NormalizedModel,
+            request.EffectiveFromUtc!.Value,
             cancellationToken);
         return Response(
             request,
@@ -145,7 +154,8 @@ public sealed class PriceCommandHandler
                 PriceCommandMessageCodes.InvalidRequest);
         }
 
-        int priced = await _ledger.RestoreAllDefaultsAsync(cancellationToken);
+        int priced = await _ledger.RestoreAllDefaultsAsync(
+            request.EffectiveFromUtc!.Value, cancellationToken);
         return Response(
             request,
             PriceCommandResultCode.Success,

@@ -155,6 +155,7 @@ $requiredPaths = @(
     '.agentally-public',
     '.agentally-root',
     '.github/workflows/ci.yml',
+    '.github/pull_request_template.md',
     'AgenTally.sln',
     'CHANGELOG.md',
     'CONTRIBUTING.md',
@@ -162,10 +163,22 @@ $requiredPaths = @(
     'docs/PACKAGING.md',
     'global.json',
     'LICENSE',
+    'PRIVACY.md',
+    'PRIVACY.zh-CN.md',
     'README.md',
+    'README.zh-CN.md',
     'SECURITY.md',
+    'SUPPORT.md',
+    'SUPPORT.zh-CN.md',
     'THIRD_PARTY_NOTICES.md',
+    'docs/USER_GUIDE.md',
+    'docs/USER_GUIDE.zh-CN.md',
+    '.github/ISSUE_TEMPLATE/bug_report.yml',
+    '.github/ISSUE_TEMPLATE/config.yml',
+    '.github/ISSUE_TEMPLATE/feature_request.yml',
     'scripts/Test-AgenTallyPublicBoundary.ps1',
+    'scripts/Test-AgenTallyPublicDocs.ps1',
+    'scripts/Test-AgenTallyStableReleaseArtifact.ps1',
     'src/AgenTally.Core/AgenTally.Core.csproj',
     'src/AgenTally.Domain/AgenTally.Domain.csproj',
     'src/AgenTally.Storage/AgenTally.Storage.csproj',
@@ -188,15 +201,26 @@ $allowedRootFiles = @(
     'CONTRIBUTING.md',
     'Directory.Build.props',
     'LICENSE',
+    'PRIVACY.md',
+    'PRIVACY.zh-CN.md',
     'README.md',
+    'README.zh-CN.md',
     'SECURITY.md',
+    'SUPPORT.md',
+    'SUPPORT.zh-CN.md',
     'THIRD_PARTY_NOTICES.md',
     'global.json'
 )
 $allowedExactPaths = @(
+    '.github/ISSUE_TEMPLATE/bug_report.yml',
+    '.github/ISSUE_TEMPLATE/config.yml',
+    '.github/ISSUE_TEMPLATE/feature_request.yml',
+    '.github/pull_request_template.md',
     '.github/workflows/ci.yml',
     'assets/icon/AgenTally.ico',
     'docs/PACKAGING.md',
+    'docs/USER_GUIDE.md',
+    'docs/USER_GUIDE.zh-CN.md',
     'packaging/stable/AgenTally.InstallIdentity.json',
     'packaging/stable/AgenTally.iss',
     'packaging/stable/Invoke-AgenTallyStableMaintenance.ps1',
@@ -206,6 +230,8 @@ $allowedExactPaths = @(
     'scripts/Test-AgenTallyFocused.ps1',
     'scripts/Test-AgenTallyPrepackageSecurity.ps1',
     'scripts/Test-AgenTallyPublicBoundary.ps1',
+    'scripts/Test-AgenTallyPublicDocs.ps1',
+    'scripts/Test-AgenTallyStableReleaseArtifact.ps1',
     'scripts/Update-AgenTallyModelCatalog.ps1',
     'scripts/Update-AgenTallyPriceCatalog.ps1'
 )
@@ -351,6 +377,9 @@ foreach ($expectedReference in $expectedTestReferences) {
         throw "The public test project is missing its approved reference: $expectedReference"
     }
 }
+
+$documentationCheck = Join-Path $root 'scripts\Test-AgenTallyPublicDocs.ps1'
+& $documentationCheck -Root $root
 
 Write-Host (
     "AgenTally public boundary passed for $($relativeFiles.Count) files.") `

@@ -18,7 +18,9 @@ public enum PricingMissingCategory
     CacheWriteTokens = 1 << 4,
     CacheWriteRate = 1 << 5,
     OutputTokens = 1 << 6,
-    LongContextInputTokens = 1 << 7
+    LongContextInputTokens = 1 << 7,
+    PriceTimeSchedule = 1 << 8,
+    PriceEffectivePeriod = 1 << 9
 }
 
 public enum PricingCoverageStatus

@@ -36,6 +36,12 @@ generated market catalog.
 Candidate version. When omitted, the script proposes the next UTC-date rN
 revision after the currently shipped catalog.
 
+.PARAMETER AddModels
+Adds exact aliases only for these bare canonical IDs. Every existing alias,
+target and provenance is retained. New input hashes are recorded as scoped
+artifacts alongside the original snapshots. Missing IDs and target conflicts
+fail closed; this mode never removes or retargets an alias.
+
 .PARAMETER AllowRemovals
 Allows reviewed alias removals during -Apply. It does not bypass conflicts,
 retargeting approval, baseline validation or catalog-version validation.
@@ -67,6 +73,7 @@ param(
     [string] $CurrentCatalogPath,
     [string] $ReviewedAliasesPath,
     [string] $CatalogVersion,
+    [string[]] $AddModels = @(),
     [switch] $AllowRemovals,
     [switch] $AllowRetargeting,
     [switch] $Apply
@@ -702,6 +709,74 @@ $snapshot = [ordered] @{
     aliasSources = $resolvedAliasSources
 }
 
+if ($AddModels.Count -gt 0) {
+    if ($null -eq $currentCatalog) {
+        throw 'AddModels requires an existing catalog to preserve.'
+    }
+    $selectedModels = @($AddModels | ForEach-Object {
+        $model = Normalize-Identifier $_
+        if ([string]::IsNullOrWhiteSpace($model) -or $model.Contains('/') -or
+            -not $resolvedAliases.Contains($model) -or
+            [string] $resolvedAliases[$model] -cne $model) {
+            throw "AddModels requires an exact upstream bare canonical ID: $_"
+        }
+        $model
+    } | Sort-Object -Unique)
+    $mergedAliases = [ordered] @{}
+    $mergedSources = [ordered] @{}
+    foreach ($alias in ($currentCatalog.aliases.Keys | Sort-Object)) {
+        $mergedAliases[$alias] = [string] $currentCatalog.aliases[$alias]
+        $mergedSources[$alias] = @(Get-AliasSources $currentCatalog $alias)
+    }
+    foreach ($alias in ($resolvedAliases.Keys | Sort-Object)) {
+        $canonical = [string] $resolvedAliases[$alias]
+        if ($canonical -cnotin $selectedModels) { continue }
+        if ($mergedAliases.Contains($alias)) {
+            if ([string] $mergedAliases[$alias] -cne $canonical) {
+                throw "AddModels cannot retarget an existing alias: $alias"
+            }
+            continue
+        }
+        $mergedAliases[$alias] = $canonical
+        $mergedSources[$alias] = @($resolvedAliasSources[$alias])
+    }
+    $resolvedAliases = [ordered] @{}
+    $resolvedAliasSources = [ordered] @{}
+    foreach ($alias in ($mergedAliases.Keys | Sort-Object)) {
+        $resolvedAliases[$alias] = $mergedAliases[$alias]
+        $resolvedAliasSources[$alias] = $mergedSources[$alias]
+    }
+    # Clone the baseline so diffing still sees its original provenance. Retain
+    # old hashes for old aliases instead of claiming they came from new inputs.
+    $snapshot = $currentCatalog | ConvertTo-Json -Depth 12 |
+        ConvertFrom-Json -AsHashtable
+    foreach ($source in $snapshot.dataSources) {
+        $incoming = $dataSources | Where-Object { $_.id -ceq $source.id }
+        foreach ($artifact in $incoming.artifacts) {
+            if (@($source.artifacts | Where-Object {
+                $_.sha256 -eq $artifact.sha256
+            }).Count -gt 0) { continue }
+            $source.artifacts += [ordered] @{
+                name = "$($artifact.sha256)/$($artifact.name)"
+                sha256 = $artifact.sha256
+                entryCount = $incoming.entryCount
+                models = $selectedModels
+            }
+        }
+    }
+    $resolvedCanonicalModels = Get-CanonicalModels $resolvedAliases
+    $corroboratedAliasCount = @($resolvedAliasSources.Values |
+        Where-Object { $_.Count -gt 1 }).Count
+    $snapshot.catalogVersion = $CatalogVersion
+    $snapshot.modelCount = $resolvedCanonicalModels.Count
+    $snapshot.aliasCount = $resolvedAliases.Count
+    $snapshot.corroboratedAliasCount = $corroboratedAliasCount
+    $snapshot.singleSourceAliasCount =
+        $resolvedAliases.Count - $corroboratedAliasCount
+    $snapshot.aliases = $resolvedAliases
+    $snapshot.aliasSources = $resolvedAliasSources
+}
+
 $currentAliases = if ($null -eq $currentCatalog) {
     [ordered] @{}
 }
@@ -911,6 +986,7 @@ $report.Add('# AgenTally model identity catalog candidate')
 $report.Add('')
 $report.Add("- Previous catalog version: ``$(if ($null -eq $currentCatalog) { '<none>' } else { [string] $currentCatalog.catalogVersion })``")
 $report.Add("- Catalog version: ``$CatalogVersion``")
+$report.Add("- Add-only model scope: $(if ($AddModels.Count -gt 0) { $selectedModels -join ', ' } else { '<full refresh>' })")
 $report.Add("- Has changes: ``$($hasChanges.ToString().ToLowerInvariant())``")
 $report.Add("- Has identity changes: ``$($hasIdentityChanges.ToString().ToLowerInvariant())``")
 $report.Add("- Has breaking changes: ``$($hasBreakingChanges.ToString().ToLowerInvariant())``")

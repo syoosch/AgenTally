@@ -26,8 +26,7 @@ internal static class UpstreamPriceCatalogLoader
         var sourceIds = document.DataSources
             .Select(static source => source.Id)
             .ToFrozenSet(StringComparer.Ordinal);
-        var rules = new Dictionary<string, ResolvedPriceRule>(
-            StringComparer.Ordinal);
+        var rules = new List<ResolvedPriceRule>();
         var ruleCounts = document.DataSources.ToDictionary(
             static source => source.Id,
             static _ => 0,
@@ -57,13 +56,23 @@ internal static class UpstreamPriceCatalogLoader
                     sourceRule.LongContextThresholdTokens,
                     sourceRule.LongContextInputMultiplier,
                     sourceRule.LongContextOutputMultiplier);
+                DateTimeOffset? from = PriceRuleTimeline.ParseBoundary(sourceRule.EffectiveFromUtc);
+                DateTimeOffset? until = PriceRuleTimeline.ParseBoundary(sourceRule.EffectiveUntilUtc);
+                if ((from.HasValue || until.HasValue) &&
+                    (document.SchemaVersion < 2 || !Uri.TryCreate(sourceRule.EffectiveDateSource,
+                        UriKind.Absolute, out Uri? evidence) || evidence.Scheme != Uri.UriSchemeHttps))
+                {
+                    throw new InvalidDataException("Dated upstream prices require schema v2 and date evidence.");
+                }
                 rules.Add(
-                    model,
                     new ResolvedPriceRule(
                         document.CatalogVersion,
                         sourceRule.RuleId,
                         model,
-                        rate));
+                        rate,
+                        EffectiveFromUtc: from,
+                        EffectiveUntilUtc: until,
+                        EffectiveDateSource: sourceRule.EffectiveDateSource));
             }
         }
 
@@ -78,12 +87,12 @@ internal static class UpstreamPriceCatalogLoader
 
         return new UpstreamPriceCatalogData(
             document.CatalogVersion,
-            rules.ToFrozenDictionary(StringComparer.Ordinal));
+            PriceRuleTimeline.Build(rules));
     }
 
     private static void ValidateDocument(UpstreamPriceCatalogDocument document)
     {
-        if (document.SchemaVersion != 1 ||
+        if (document.SchemaVersion is not (1 or 2) ||
             string.IsNullOrWhiteSpace(document.CatalogVersion) ||
             !string.Equals(document.Currency, "USD", StringComparison.Ordinal) ||
             !string.Equals(
@@ -180,9 +189,12 @@ internal static class UpstreamPriceCatalogLoader
         decimal OutputUsdPerMillion,
         long? LongContextThresholdTokens = null,
         decimal LongContextInputMultiplier = 1m,
-        decimal LongContextOutputMultiplier = 1m);
+        decimal LongContextOutputMultiplier = 1m,
+        string? EffectiveFromUtc = null,
+        string? EffectiveUntilUtc = null,
+        string? EffectiveDateSource = null);
 }
 
 internal sealed record UpstreamPriceCatalogData(
     string Version,
-    FrozenDictionary<string, ResolvedPriceRule> Rules);
+    FrozenDictionary<string, IReadOnlyList<ResolvedPriceRule>> Rules);

@@ -6,6 +6,9 @@ public interface IPriceRestoreConfirmation
 {
     bool ConfirmModelRestore(string normalizedModel, bool hasBuiltInDefault);
 
+    bool ConfirmModelRestore(string normalizedModel, bool hasBuiltInDefault, string effectiveDate) =>
+        ConfirmModelRestore(normalizedModel, hasBuiltInDefault);
+
     bool ConfirmAllRestore(int customPriceCount);
 }
 
@@ -14,13 +17,15 @@ public sealed class MessageBoxPriceRestoreConfirmation :
 {
     public bool ConfirmModelRestore(
         string normalizedModel,
-        bool hasBuiltInDefault)
+        bool hasBuiltInDefault) => ConfirmModelRestore(normalizedModel, hasBuiltInDefault, "今天");
+
+    public bool ConfirmModelRestore(string normalizedModel, bool hasBuiltInDefault, string effectiveDate)
     {
         string effect = hasBuiltInDefault
-            ? "将删除自定义价格，后续未计价记录改用当前版本默认价格。"
-            : "该模型没有内置默认价格；删除后，后续记录将保持未计价。";
+            ? "从该日期起使用默认价格，并取消之后计划的自定义价格。"
+            : "该模型没有内置默认价格；从该日期起的记录将保持未计价。";
         return MessageBox.Show(
-                   $"确定恢复“{normalizedModel}”吗？\n\n{effect}\n已计价历史不会改变。",
+                   $"确定从 {effectiveDate} 恢复“{normalizedModel}”吗？\n\n{effect}\n此前费率与已计价历史保留。",
                    "恢复模型默认价格",
                    MessageBoxButton.YesNo,
                    MessageBoxImage.Question,
@@ -29,8 +34,8 @@ public sealed class MessageBoxPriceRestoreConfirmation :
 
     public bool ConfirmAllRestore(int customPriceCount) =>
         MessageBox.Show(
-            $"确定恢复全部默认价格吗？\n\n将删除 {customPriceCount} 个自定义价格。" +
-            "未知模型会重新变为未计价；已计价历史不会改变。",
+            $"确定恢复全部默认价格吗？\n\n{customPriceCount} 个模型从现在起使用默认价格，" +
+            "取消之后计划的自定义价格。未知模型将保持未计价；此前费率与已计价历史保留。",
             "恢复全部默认价格",
             MessageBoxButton.YesNo,
             MessageBoxImage.Warning,

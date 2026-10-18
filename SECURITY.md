@@ -11,18 +11,14 @@ Security fixes are provided for the latest published release line.
 
 ## Reporting a vulnerability
 
-If GitHub private vulnerability reporting is enabled for this repository, use
-that channel:
+Use GitHub's
+[private vulnerability reporting](https://github.com/syoosch/AgenTally/security/advisories/new).
+Include affected versions, impact, reproduction conditions, and a minimal proof
+of concept that contains no real user data.
 
-1. Open the repository's **Security** tab.
-2. Choose **Advisories** and **Report a vulnerability**.
-3. Include affected versions, impact, reproduction conditions, and a minimal
-   proof of concept that contains no real user data.
-
-If private vulnerability reporting is unavailable, open a minimal public issue
-requesting a private contact channel. Do not include exploit details, secrets,
-real Agent records, databases, prompts, responses, file paths, or screenshots
-containing private information in that issue.
+Do not open a public issue containing exploit details, secrets, real Agent
+records, databases, prompts, responses, file paths, or screenshots containing
+private information.
 
 Reports are handled on a best-effort basis; no fixed response-time commitment
 is currently offered. Please allow time to reproduce, correct, and validate a

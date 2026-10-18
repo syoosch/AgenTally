@@ -8,6 +8,14 @@ public sealed class IncrementalJsonlReader
     private const int BufferBytes = 64 * 1024;
     private const int MaxBatchPayloadBytes = 8 * 1024 * 1024;
 
+    private readonly IJsonlOversizedLineProjector? _oversizedLineProjector;
+
+    public IncrementalJsonlReader(
+        IJsonlOversizedLineProjector? oversizedLineProjector = null)
+    {
+        _oversizedLineProjector = oversizedLineProjector;
+    }
+
     public async Task<JsonlReadBatch> ReadBatchAsync(
         string path,
         JsonlCursor cursor,
@@ -136,14 +144,21 @@ public sealed class IncrementalJsonlReader
                     lineNumber++;
                     processedLines++;
 
-                    if (discardingOversizedLine)
+                    byte[]? utf8 = discardingOversizedLine
+                        ? _oversizedLineProjector?.TryProject(
+                            stream,
+                            lineStartOffset,
+                            consumedOffset - lineStartOffset - 1,
+                            cancellationToken)
+                        : lineBuffer.ToArray();
+                    if (utf8 is null)
                     {
                         diagnostic ??= CompleteLineTooLongDiagnostic(lineStartOffset);
                     }
                     else
                     {
                         if (lines.Count > 0 &&
-                            batchPayloadBytes + lineBuffer.Length > MaxBatchPayloadBytes)
+                            batchPayloadBytes + utf8.Length > MaxBatchPayloadBytes)
                         {
                             var boundedCursor = new JsonlCursor(
                                 lineStartOffset,
@@ -165,7 +180,6 @@ public sealed class IncrementalJsonlReader
                                 cancellationToken);
                         }
 
-                        byte[] utf8 = lineBuffer.ToArray();
                         lines.Add(new JsonlLine(lineNumber, lineStartOffset, utf8));
                         batchPayloadBytes += utf8.Length;
                     }

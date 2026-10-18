@@ -39,6 +39,9 @@ public sealed class AgenTallyRuntimeProfileTests
         AssertPathWithin(developmentRoot, profile.LogRoot);
         AssertPathWithin(developmentRoot, profile.TempRoot);
         AssertPathWithin(developmentRoot, profile.DatabasePath);
+        AssertPathWithin(
+            developmentRoot,
+            profile.ClaudeCodeSourceConfigurationPath);
         AssertPathWithin(developmentRoot, profile.StatusPath);
         AssertPathWithin(developmentRoot, profile.ShutdownRequestPath);
         AssertPathWithin(developmentRoot, profile.CoreExecutablePath);
@@ -75,6 +78,54 @@ public sealed class AgenTallyRuntimeProfileTests
             "Development");
         Assert.IsFalse(profile.SourceLeaseName.Contains(directory.Path, StringComparison.OrdinalIgnoreCase));
         Assert.IsFalse(profile.DatabaseLeaseName.Contains(directory.Path, StringComparison.OrdinalIgnoreCase));
+    }
+
+    [TestMethod]
+    public void ClaudeCodeSourceConfiguration_StoresOnlyExplicitDistinctRoots()
+    {
+        using var directory = new TestTempDirectory();
+        string repository = directory.File("repository");
+        Directory.CreateDirectory(repository);
+        CreateRepositoryMarkers(repository);
+        AgenTallyRuntimeProfile profile = AgenTallyRuntimeProfile.CreateDevelopment(
+            repository,
+            directory.File("codex-home"));
+        var store = new ClaudeCodeSourceConfigurationStore(profile);
+        string first = directory.File("claude-custom-a");
+        string second = directory.File("claude-custom-b");
+
+        Assert.IsEmpty(store.ReadAdditionalRoots());
+        store.WriteAdditionalRoots([second, first, first.ToUpperInvariant()]);
+
+        CollectionAssert.AreEqual(
+            new[] { Path.GetFullPath(first), Path.GetFullPath(second) },
+            store.ReadAdditionalRoots().ToArray());
+        string document = File.ReadAllText(
+            profile.ClaudeCodeSourceConfigurationPath);
+        Assert.DoesNotContain(".claude-deepseek", document);
+        Assert.DoesNotContain("DeepSeek", document);
+    }
+
+    [TestMethod]
+    public void ClaudeCodeSourceConfiguration_RejectsUnboundedRootCount()
+    {
+        using var directory = new TestTempDirectory();
+        string repository = directory.File("repository");
+        Directory.CreateDirectory(repository);
+        CreateRepositoryMarkers(repository);
+        AgenTallyRuntimeProfile profile = AgenTallyRuntimeProfile.CreateDevelopment(
+            repository,
+            directory.File("codex-home"));
+        var store = new ClaudeCodeSourceConfigurationStore(profile);
+        string[] roots = Enumerable.Range(
+                0,
+                ClaudeCodeSourceConfigurationStore.MaxAdditionalRoots + 1)
+            .Select(index => directory.File($"root-{index}"))
+            .ToArray();
+
+        _ = Assert.Throws<InvalidDataException>(() =>
+            store.WriteAdditionalRoots(roots));
+        Assert.IsFalse(File.Exists(profile.ClaudeCodeSourceConfigurationPath));
     }
 
     [TestMethod]
@@ -116,7 +167,7 @@ public sealed class AgenTallyRuntimeProfileTests
             profile.VersionCheckLifecycleEventName,
             "Stable");
         Assert.IsFalse(
-            profile.DatabasePath.Contains(
+            Path.GetRelativePath(localAppData, profile.DatabasePath).Contains(
                 Path.Combine("artifacts", "development"),
                 StringComparison.OrdinalIgnoreCase));
     }
@@ -299,9 +350,12 @@ public sealed class AgenTallyRuntimeProfileTests
             Path.GetFullPath(repository),
             AgenTallyRuntimeProfile.FindRepositoryRoot(nested));
 
-        using var missing = new TestTempDirectory();
+        // Test temp may itself live below the real Development repository.
+        // Inspect a nonexistent drive-root child, without writing outside temp.
+        string missing = Path.Combine(Path.GetPathRoot(directory.Path)!,
+            "agentally-missing-" + Guid.NewGuid().ToString("N"));
         Assert.ThrowsExactly<InvalidOperationException>(() =>
-            AgenTallyRuntimeProfile.FindRepositoryRoot(missing.Path));
+            AgenTallyRuntimeProfile.FindRepositoryRoot(missing));
     }
 
     [TestMethod]

@@ -35,6 +35,10 @@ jobs:
           cache: true
           cache-dependency-path: '**/packages.lock.json'
 
+      - name: Validate public documentation
+        shell: pwsh
+        run: .\scripts\Test-AgenTallyPublicDocs.ps1
+
       - name: Enforce public repository boundary
         shell: pwsh
         run: .\scripts\Test-AgenTallyPublicBoundary.ps1

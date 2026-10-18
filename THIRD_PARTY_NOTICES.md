@@ -1,6 +1,40 @@
 # Third-Party References and Bundled Data
 
-Except for the generated identity and token-price snapshot data derived from models.dev and LiteLLM as explicitly described below, AgenTally does not bundle, launch, or depend on the referenced projects at runtime. Their public implementations were consulted during independent development of read-only Agent collectors, exact model matching and validation methods.
+Except for the generated identity/token-price data derived from models.dev and LiteLLM and the bundled ZstdSharp.Port decoder described below, AgenTally does not bundle, launch, or depend on the referenced projects at runtime. Public Agent implementations were consulted during independent development of read-only collectors, exact model matching and validation methods.
+
+## DeepSeek Harness and ZstdSharp.Port
+
+- Harness contract and frame-container reference: https://github.com/deepseek-ai/deepseek-harness/tree/687f282e8625c6b8d11ff58211a90524be2e4317
+- Consulted files: `packages/core/session/src/types.ts`, `packages/llm/llm/src/types.ts`, `packages/llm/llm/src/message.ts`, `packages/session/session-persistence-jsonl/src/{format,zstd}.ts`, and the subagent/goal durable-event definitions.
+- Harness license: https://github.com/deepseek-ai/deepseek-harness/blob/687f282e8625c6b8d11ff58211a90524be2e4317/LICENSE
+- AgenTally implements its own bounded metadata collector; its frame-boundary scanner follows the documented Zstandard container. It does not bundle or run the Harness runtime, SDK or plugins.
+- Bundled decoder: `ZstdSharp.Port` 0.8.8, https://www.nuget.org/packages/ZstdSharp.Port/0.8.8
+- Decoder source: https://github.com/oleg-st/ZstdSharp/tree/2cd0c019693bc786a5fe5c3be94e107b24e7267e
+- Decoder license: https://github.com/oleg-st/ZstdSharp/blob/2cd0c019693bc786a5fe5c3be94e107b24e7267e/LICENSE
+
+MIT License
+
+Copyright (c) 2026 DeepSeek
+
+Copyright (c) 2021 Oleg Stepanischev
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 
 ## TokenTracker
 

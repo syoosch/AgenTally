@@ -47,6 +47,7 @@ Before submitting a pull request, run the applicable checks. For a release or
 cross-cutting change, run the complete gate:
 
 ```powershell
+.\scripts\Test-AgenTallyPublicDocs.ps1
 .\scripts\Test-AgenTallyPublicBoundary.ps1
 .\scripts\Test-AgenTallyPrepackageSecurity.ps1
 dotnet test --project tests/AgenTally.Tests/AgenTally.Tests.csproj --configuration Release --no-restore
@@ -63,6 +64,24 @@ dotnet build AgenTally.sln --configuration Release --no-restore --no-incremental
 - Keep generated files under ignored output directories.
 - If a source format cannot be proved reliably, fail closed and report the
   field as unavailable rather than guessing.
+
+## Documentation and translations
+
+English is the editorial source for public user documentation. Product facts
+still come from implemented behavior and the internal product authority;
+public documentation must not invent or broaden product behavior.
+
+The following user-document pairs must change together whenever their shared
+meaning changes:
+
+- `README.md` and `README.zh-CN.md`.
+- `SUPPORT.md` and `SUPPORT.zh-CN.md`.
+- `docs/USER_GUIDE.md` and `docs/USER_GUIDE.zh-CN.md`.
+- `PRIVACY.md` and `PRIVACY.zh-CN.md`.
+
+Keep reciprocal language links intact. `CHANGELOG.md`, `SECURITY.md`, this
+contribution guide, and the pull request template remain English-only to avoid
+multiple competing governance or release-history authorities.
 
 ## Pull requests
 

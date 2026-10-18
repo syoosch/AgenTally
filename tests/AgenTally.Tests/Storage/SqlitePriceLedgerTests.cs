@@ -17,6 +17,93 @@ namespace AgenTally.Tests.Storage;
 public sealed class SqlitePriceLedgerTests
 {
     [TestMethod]
+    [DataRow("gpt-6.1-sol", "0.00262")]
+    [DataRow("gpt-6-astra", "0.0132")]
+    [DataRow("gpt-6-sol", "0.00264")]
+    [DataRow("gpt-6-luna", "0.000132")]
+    public async Task Initialize_CodexCatalogUpgradeFirstPricesHistoryAndKeepsFrozenRates(
+        string model, string expectedAmount)
+    {
+        using var directory = new TestTempDirectory();
+        (SqliteConnectionFactory connections, SqliteUsageWriter writer) =
+            await CreateAsync(directory);
+        await writer.CommitAsync(Batch(Event(
+            "event-upgrade-frozen", "dedup-upgrade-frozen", "gpt-5.6-sol",
+            tokens: DeepSeekTokens())), CancellationToken.None);
+        await writer.CommitAsync(Batch(Event(
+            "event-upgrade-new", "dedup-upgrade-new", model,
+            sourceRevision: 2, tokens: DeepSeekTokens())), CancellationToken.None);
+        string rawModel = $"openrouter/openai/{model}";
+        await using (SqliteConnection connection =
+            await connections.OpenWriterAsync(CancellationToken.None))
+        {
+            await using SqliteCommand simulateOldVersion = connection.CreateCommand();
+            simulateOldVersion.CommandText = """
+                UPDATE usage_events
+                SET price_catalog_version = 'frozen-prior-codex',
+                    price_rule_id = 'openai/gpt-5.6-sol',
+                    input_rate_usd_per_million = '5',
+                    cached_input_rate_usd_per_million = '0.5',
+                    cache_write_rate_usd_per_million = '6.25',
+                    output_rate_usd_per_million = '30',
+                    estimated_cost_usd = '0.0071'
+                WHERE event_id = 'event-upgrade-frozen';
+                UPDATE usage_events
+                SET raw_model = $raw_model, normalized_model = $raw_model,
+                    pricing_status = 0, price_catalog_version = NULL,
+                    price_rule_id = NULL, estimated_cost_usd = NULL,
+                    input_rate_usd_per_million = NULL,
+                    cached_input_rate_usd_per_million = NULL,
+                    cache_write_rate_usd_per_million = NULL,
+                    output_rate_usd_per_million = NULL,
+                    price_context_multiplier = NULL,
+                    output_price_context_multiplier = NULL
+                WHERE event_id = 'event-upgrade-new';
+                UPDATE model_identity_catalog_state
+                SET catalog_version = 'market-models-2026-08-10-r2';
+                UPDATE pricing_catalog_state
+                SET catalog_version = 'prior-offline-codex';
+                """;
+            simulateOldVersion.Parameters.AddWithValue("$raw_model", rawModel);
+            await simulateOldVersion.ExecuteNonQueryAsync(CancellationToken.None);
+        }
+        StoredPrice frozen = await ReadPriceAsync(connections, "dedup-upgrade-frozen");
+        await writer.InitializeAsync(CancellationToken.None);
+        StoredPrice priced = await ReadPriceAsync(connections, "dedup-upgrade-new");
+        Assert.AreEqual(EventPricingStatus.Complete, priced.Status);
+        Assert.AreEqual(decimal.Parse(expectedAmount, CultureInfo.InvariantCulture),
+            priced.Amount);
+        Assert.AreEqual($"openai/{model}", priced.RuleId);
+        Assert.AreEqual(OfflinePriceCatalog.CurrentVersion, priced.CatalogVersion);
+        Assert.AreEqual(frozen,
+            await ReadPriceAsync(connections, "dedup-upgrade-frozen"));
+        await using (SqliteConnection verify =
+            await connections.OpenReaderAsync(CancellationToken.None))
+        {
+            await using SqliteCommand identity = verify.CreateCommand();
+            identity.CommandText = """
+                SELECT raw_model, normalized_model,
+                    (SELECT input_rate_usd_per_million FROM usage_events
+                     WHERE event_id = 'event-upgrade-frozen'),
+                    (SELECT COUNT(*) FROM usage_events)
+                FROM usage_events WHERE event_id = 'event-upgrade-new';
+                """;
+            await using SqliteDataReader reader =
+                await identity.ExecuteReaderAsync(CancellationToken.None);
+            Assert.IsTrue(await reader.ReadAsync(CancellationToken.None));
+            Assert.AreEqual(rawModel, reader.GetString(0));
+            Assert.AreEqual(model, reader.GetString(1));
+            Assert.AreEqual("5", reader.GetString(2));
+            Assert.AreEqual(2L, reader.GetInt64(3));
+        }
+        await writer.InitializeAsync(CancellationToken.None);
+        Assert.AreEqual(priced,
+            await ReadPriceAsync(connections, "dedup-upgrade-new"));
+        Assert.AreEqual(frozen,
+            await ReadPriceAsync(connections, "dedup-upgrade-frozen"));
+    }
+
+    [TestMethod]
     public async Task Commit_BindsBuiltInRateSnapshotAndNeverRepricesIt()
     {
         using var directory = new TestTempDirectory();
@@ -76,10 +163,109 @@ public sealed class SqlitePriceLedgerTests
             await ReadPriceAsync(connections, "dedup-deepseek-pro");
         Assert.AreEqual(EventPricingStatus.Complete, flashPrice.Status);
         Assert.AreEqual(0.00014056m, flashPrice.Amount);
-        Assert.AreEqual("deepseek/deepseek-v4-flash", flashPrice.RuleId);
+        Assert.AreEqual("deepseek/deepseek-v4-flash-cache-cut", flashPrice.RuleId);
         Assert.AreEqual(EventPricingStatus.Complete, proPrice.Status);
         Assert.AreEqual(0.000435725m, proPrice.Amount);
-        Assert.AreEqual("deepseek/deepseek-v4-pro", proPrice.RuleId);
+        Assert.AreEqual("deepseek/deepseek-v4-pro-cache-cut", proPrice.RuleId);
+    }
+
+    [TestMethod]
+    public async Task Initialize_DeepSeekUpgradeUsesStoredCallTimeAndKeepsFrozenAndCustomPrices()
+    {
+        using var directory = new TestTempDirectory();
+        (SqliteConnectionFactory connections, SqliteUsageWriter writer) =
+            await CreateAsync(directory);
+        foreach (string model in new[] { "deepseek-flash", "deepseek-v4-pro" })
+        {
+            var peak = new DateTimeOffset(2026, 10, 19, 1, 0, 0, TimeSpan.Zero);
+            await writer.CommitAsync(Batch(Event($"{model}-frozen", $"{model}-frozen",
+                model, tokens: DeepSeekTokens(), occurredAtUtc: peak.AddDays(-1))), CancellationToken.None);
+            await writer.CommitAsync(Batch(Event($"{model}-peak", $"{model}-peak",
+                model, 2, DeepSeekTokens(), peak)), CancellationToken.None);
+            await writer.CommitAsync(Batch(Event($"{model}-off", $"{model}-off",
+                model, 3, DeepSeekTokens(), peak.AddHours(3))), CancellationToken.None);
+            await using (SqliteConnection connection =
+                await connections.OpenWriterAsync(CancellationToken.None))
+            {
+                await using SqliteCommand prior = connection.CreateCommand();
+                prior.CommandText = """
+                    UPDATE usage_events SET
+                        price_catalog_version = 'prior-deepseek-catalog',
+                        price_rule_id = 'prior-frozen-rule',
+                        input_rate_usd_per_million = '0.435',
+                        cached_input_rate_usd_per_million = '0.003625',
+                        cache_write_rate_usd_per_million = '0.435',
+                        output_rate_usd_per_million = '0.87',
+                        estimated_cost_usd = '0.000435725'
+                    WHERE dedup_key = $frozen;
+                    UPDATE usage_events SET
+                        pricing_status = 0, price_catalog_version = NULL,
+                        price_rule_id = NULL, estimated_cost_usd = NULL,
+                        input_rate_usd_per_million = NULL,
+                        cached_input_rate_usd_per_million = NULL,
+                        cache_write_rate_usd_per_million = NULL,
+                        output_rate_usd_per_million = NULL,
+                        price_context_multiplier = NULL,
+                        output_price_context_multiplier = NULL
+                    WHERE dedup_key IN ($peak, $off);
+                    UPDATE pricing_catalog_state SET catalog_version = 'prior-deepseek';
+                    """;
+                prior.Parameters.AddWithValue("$frozen", $"{model}-frozen");
+                prior.Parameters.AddWithValue("$peak", $"{model}-peak");
+                prior.Parameters.AddWithValue("$off", $"{model}-off");
+                await prior.ExecuteNonQueryAsync(CancellationToken.None);
+            }
+
+            StoredPrice frozen = await ReadPriceAsync(connections, $"{model}-frozen");
+            await writer.InitializeAsync(CancellationToken.None);
+            StoredPrice peakPrice = await ReadPriceAsync(connections, $"{model}-peak");
+            StoredPrice offPrice = await ReadPriceAsync(connections, $"{model}-off");
+            decimal offAmount = model == "deepseek-flash" ? 0.0001806m : 0.0007304m;
+            Assert.AreEqual(offAmount * 2, peakPrice.Amount);
+            Assert.AreEqual(offAmount, offPrice.Amount);
+            Assert.AreEqual($"deepseek/{model}/peak", peakPrice.RuleId);
+            Assert.AreEqual($"deepseek/{model}/off-peak", offPrice.RuleId);
+            Assert.AreEqual(frozen, await ReadPriceAsync(connections, $"{model}-frozen"));
+
+            await writer.CommitAsync(Batch(Event($"{model}-unknown-year", $"{model}-unknown-year",
+                model, 4, DeepSeekTokens(),
+                new DateTimeOffset(2027, 1, 4, 1, 0, 0, TimeSpan.Zero))), CancellationToken.None);
+            Assert.AreEqual(EventPricingStatus.Unpriced,
+                (await ReadPriceAsync(connections, $"{model}-unknown-year")).Status);
+            var queries = new SqliteUsageQueryService(connections);
+            UsageOverview overview = await queries.GetOverviewAsync(
+                new UsageFilter(peak, peak.AddYears(1), normalizedModel: model),
+                CancellationToken.None);
+            Assert.IsTrue(overview.Pricing!.MissingCategories.HasFlag(
+                PricingMissingCategory.PriceTimeSchedule));
+            PriceSettingRow setting = (await queries.GetPriceSettingsAsync(CancellationToken.None))
+                .Single(row => row.NormalizedModel == model);
+            Assert.IsNotNull(setting.BuiltInTimeSchedule);
+            Assert.AreEqual(PriceSettingSource.BuiltInDefault, setting.Source);
+
+            var ledger = new SqlitePriceLedger(connections);
+            Assert.AreEqual(1, await ledger.SetCustomPriceAsync(
+                new ModelPriceRate(model, 9m, 9m, 0m, 9m), CancellationToken.None));
+            StoredPrice custom = await ReadPriceAsync(connections, $"{model}-unknown-year");
+            Assert.AreEqual("user-v1", custom.CatalogVersion);
+            Assert.AreEqual(0.0099m, custom.Amount);
+            await writer.CommitAsync(Batch(Event($"{model}-custom", $"{model}-custom",
+                model, 5, DeepSeekTokens(), peak)), CancellationToken.None);
+            Assert.AreEqual(custom.Amount,
+                (await ReadPriceAsync(connections, $"{model}-custom")).Amount);
+            Assert.AreEqual(0, await ledger.RestoreDefaultAsync(model, CancellationToken.None));
+            await writer.CommitAsync(Batch(Event($"{model}-restored", $"{model}-restored",
+                model, 6, DeepSeekTokens(), peak)), CancellationToken.None);
+            StoredPrice restored = await ReadPriceAsync(connections, $"{model}-restored");
+            Assert.AreEqual(peakPrice.Amount, restored.Amount);
+            Assert.AreEqual(peakPrice.RuleId, restored.RuleId);
+
+            await writer.InitializeAsync(CancellationToken.None);
+            Assert.AreEqual(frozen, await ReadPriceAsync(connections, $"{model}-frozen"));
+            Assert.AreEqual(peakPrice, await ReadPriceAsync(connections, $"{model}-peak"));
+            Assert.AreEqual(offPrice, await ReadPriceAsync(connections, $"{model}-off"));
+            Assert.AreEqual(custom, await ReadPriceAsync(connections, $"{model}-unknown-year"));
+        }
     }
 
     [TestMethod]
@@ -544,6 +730,145 @@ public sealed class SqlitePriceLedgerTests
             (await ReadPriceAsync(connections, "dedup-new-private")).Status);
     }
 
+    [TestMethod]
+    public async Task EffectivePrices_UpgradeMigrationRetainsRatesAndTransfersAllPeriodsForLateImports()
+    {
+        using var directory = new TestTempDirectory();
+        (SqliteConnectionFactory connections, SqliteUsageWriter writer) = await CreateAsync(directory);
+        await writer.CommitAsync(Batch(Event("frozen", "frozen", "gpt-5.3-codex",
+            tokens: DeepSeekTokens())), CancellationToken.None);
+        StoredPrice frozen = await ReadPriceAsync(connections, "frozen");
+        await using (SqliteConnection connection = await connections.OpenWriterAsync(CancellationToken.None))
+        {
+            await using SqliteCommand v14 = connection.CreateCommand();
+            v14.CommandText = """
+                DROP TABLE pricing_overrides;
+                CREATE TABLE pricing_overrides (
+                    normalized_model TEXT NOT NULL PRIMARY KEY,
+                    input_rate_usd_per_million TEXT NOT NULL,
+                    cached_input_rate_usd_per_million TEXT NULL,
+                    cache_write_rate_usd_per_million TEXT NULL,
+                    output_rate_usd_per_million TEXT NOT NULL,
+                    long_context_threshold_tokens INTEGER NULL,
+                    long_context_input_multiplier TEXT NOT NULL,
+                    long_context_output_multiplier TEXT NOT NULL,
+                    updated_at_unix_ms INTEGER NOT NULL);
+                INSERT INTO pricing_overrides VALUES (
+                    'gpt-5.3-codex', '2', '0.2', '0', '8', NULL, '1', '1', 1784156400000);
+                DELETE FROM schema_migrations WHERE version=15;
+                PRAGMA user_version=14;
+                """;
+            await v14.ExecuteNonQueryAsync(CancellationToken.None);
+        }
+        await writer.InitializeAsync(CancellationToken.None);
+        var ledger = new SqlitePriceLedger(connections);
+        PriceOverridePeriod migrated = Assert.ContainsSingle(await ledger.GetOverridePeriodsAsync(CancellationToken.None));
+        Assert.AreEqual(DateTimeOffset.MinValue, migrated.EffectiveFromUtc);
+        Assert.AreEqual(2m, migrated.Rate?.InputUsdPerMillion);
+        var change = new DateTimeOffset(2026, 8, 1, 16, 0, 0, TimeSpan.Zero);
+        await ledger.SetCustomPriceAsync(new ModelPriceRate("gpt-5.3-codex", 4m, 0.4m, 0m, 16m),
+            change, CancellationToken.None);
+        await ledger.RestoreDefaultAsync("gpt-5.3-codex", change.AddDays(1), CancellationToken.None);
+        IReadOnlyList<PriceOverridePeriod> periods = await ledger.GetOverridePeriodsAsync(CancellationToken.None);
+        Assert.HasCount(3, periods);
+        Assert.IsNull(periods[^1].Rate);
+        Assert.AreEqual(frozen, await ReadPriceAsync(connections, "frozen"));
+        var queries = new SqliteUsageQueryService(connections);
+        PriceSettingRow setting = Assert.ContainsSingle(await queries.GetPriceSettingsAsync(CancellationToken.None));
+        Assert.AreEqual(PriceSettingSource.BuiltInDefault, setting.Source);
+        Assert.HasCount(3, setting.CustomHistory!);
+
+        using var stagedDirectory = new TestTempDirectory();
+        (SqliteConnectionFactory stagedConnections, SqliteUsageWriter stagedWriter) = await CreateAsync(stagedDirectory);
+        await new SqlitePriceLedger(stagedConnections).ReplaceOverridePeriodsAsync(periods, CancellationToken.None);
+        (DateTimeOffset Time, decimal Amount)[] cases =
+        [
+            (change.AddMilliseconds(-1), 0.00244m),
+            (change, 0.00488m),
+            (change.AddDays(1), 0.002835m)
+        ];
+        foreach ((SqliteConnectionFactory db, SqliteUsageWriter target) in new[]
+                 { (connections, writer), (stagedConnections, stagedWriter) })
+        {
+            for (int index = 0; index < cases.Length; index++)
+            {
+                string id = $"late-{index}";
+                await target.CommitAsync(Batch(Event(id, id, "gpt-5.3-codex", index + 2,
+                    DeepSeekTokens(), cases[index].Time)), CancellationToken.None);
+                Assert.AreEqual(cases[index].Amount, (await ReadPriceAsync(db, id)).Amount);
+            }
+            await target.InitializeAsync(CancellationToken.None);
+            Assert.AreEqual(0.00244m, (await ReadPriceAsync(db, "late-0")).Amount);
+        }
+        Assert.AreEqual(frozen, await ReadPriceAsync(connections, "frozen"));
+    }
+
+    [TestMethod]
+    public async Task OfficialHistory_BackfillAndLateImportsUseOccurrenceTimeWithoutRepricingSnapshots()
+    {
+        using var directory = new TestTempDirectory();
+        var connections = new SqliteConnectionFactory(new StorageOptions(directory.File("official-history.db")));
+        var previous = new OfflinePriceCatalog("previous-flat-price",
+            [new("previous-flat-price", "previous-sol", "gpt-5.6-sol",
+                new ModelPriceRate("gpt-5.6-sol", 4m, 0.4m, 5m, 20m))]);
+        var oldWriter = new SqliteUsageWriter(connections, previous);
+        await oldWriter.InitializeAsync(CancellationToken.None);
+        var cut = new DateTimeOffset(2026, 8, 21, 0, 0, 0, TimeSpan.Zero);
+        await oldWriter.CommitAsync(Batch(Event("frozen", "frozen", "gpt-5.6-sol",
+            tokens: DeepSeekTokens(), occurredAtUtc: cut.AddDays(-10))), CancellationToken.None);
+        StoredPrice frozen = await ReadPriceAsync(connections, "frozen");
+        var waiting = new SqliteUsageWriter(connections, new OfflinePriceCatalog("missing", []));
+        await waiting.InitializeAsync(CancellationToken.None);
+        await waiting.CommitAsync(Batch(Event("old", "old", "gpt-5.6-sol", 2,
+            DeepSeekTokens(), cut.AddMilliseconds(-1))), CancellationToken.None);
+        await waiting.CommitAsync(Batch(Event("new", "new", "gpt-5.6-sol", 3,
+            DeepSeekTokens(), cut)), CancellationToken.None);
+        var upgraded = new SqliteUsageWriter(connections);
+        await upgraded.InitializeAsync(CancellationToken.None);
+        Assert.AreEqual(0.0071m, (await ReadPriceAsync(connections, "old")).Amount);
+        Assert.AreEqual(0.00528m, (await ReadPriceAsync(connections, "new")).Amount);
+        await upgraded.CommitAsync(Batch(Event("late", "late", "gpt-5.6-sol", 4,
+            DeepSeekTokens(), DateTimeOffset.UnixEpoch)), CancellationToken.None);
+        Assert.AreEqual(0.0071m, (await ReadPriceAsync(connections, "late")).Amount);
+        Assert.AreEqual(frozen, await ReadPriceAsync(connections, "frozen"));
+    }
+
+    [TestMethod]
+    public async Task EffectivePrices_BackfillUsesOldAndNewCatalogPeriodsAndFreezesExistingRows()
+    {
+        using var directory = new TestTempDirectory();
+        var connections = new SqliteConnectionFactory(new StorageOptions(directory.File("dated-catalog.db")));
+        var writer = new SqliteUsageWriter(connections, new OfflinePriceCatalog("unpriced", []));
+        await writer.InitializeAsync(CancellationToken.None);
+        var change = new DateTimeOffset(2026, 10, 1, 16, 0, 0, TimeSpan.Zero);
+        await writer.CommitAsync(Batch(Event("old", "old", "dated-model", tokens: DeepSeekTokens(),
+            occurredAtUtc: change.AddMilliseconds(-1))), CancellationToken.None);
+        await writer.CommitAsync(Batch(Event("new", "new", "dated-model", 2, DeepSeekTokens(), change)), CancellationToken.None);
+        var catalog = new OfflinePriceCatalog("dated-catalog-v1",
+        [
+            new("dated-catalog-v1", "old-price", "dated-model",
+                new ModelPriceRate("dated-model", 1m, 0m, 0m, 10m), EffectiveUntilUtc: change),
+            new("dated-catalog-v1", "new-price", "dated-model",
+                new ModelPriceRate("dated-model", 2m, 0m, 0m, 20m), EffectiveFromUtc: change)
+        ]);
+        var datedWriter = new SqliteUsageWriter(connections, catalog);
+        await datedWriter.InitializeAsync(CancellationToken.None);
+        StoredPrice old = await ReadPriceAsync(connections, "old");
+        StoredPrice current = await ReadPriceAsync(connections, "new");
+        Assert.AreEqual(0.0018m, old.Amount);
+        Assert.AreEqual("old-price", old.RuleId);
+        Assert.AreEqual(0.0036m, current.Amount);
+        Assert.AreEqual("new-price", current.RuleId);
+        await datedWriter.CommitAsync(Batch(Event("late-old", "late-old", "dated-model", 3,
+            DeepSeekTokens(), change.AddDays(-2))), CancellationToken.None);
+        Assert.AreEqual(old.Amount, (await ReadPriceAsync(connections, "late-old")).Amount);
+        await new SqlitePriceLedger(connections, catalog).SetCustomPriceAsync(
+            new ModelPriceRate("dated-model", 9m, 9m, 0m, 9m), change, CancellationToken.None);
+        await datedWriter.InitializeAsync(CancellationToken.None);
+        Assert.AreEqual(old, await ReadPriceAsync(connections, "old"));
+        Assert.AreEqual(current, await ReadPriceAsync(connections, "new"));
+    }
+
     private static async Task<(SqliteConnectionFactory, SqliteUsageWriter)>
         CreateAsync(TestTempDirectory directory)
     {
@@ -576,7 +901,8 @@ public sealed class SqlitePriceLedgerTests
         string dedupKey,
         string model,
         long sourceRevision = 1,
-        TokenUsage? tokens = null)
+        TokenUsage? tokens = null,
+        DateTimeOffset? occurredAtUtc = null)
     {
         DateTimeOffset timestamp =
             new(2026, 7, 16, 0, 0, 0, TimeSpan.Zero);
@@ -587,7 +913,7 @@ public sealed class SqlitePriceLedgerTests
             eventId,
             dedupKey,
             SourceKind.Jsonl,
-            timestamp,
+            occurredAtUtc ?? timestamp,
             timestamp,
             new ModelIdentity
             {
@@ -626,7 +952,13 @@ public sealed class SqlitePriceLedgerTests
                 estimated_cost_usd,
                 pricing_missing_categories,
                 price_catalog_version,
-                price_rule_id
+                price_rule_id,
+                input_rate_usd_per_million,
+                cached_input_rate_usd_per_million,
+                cache_write_rate_usd_per_million,
+                output_rate_usd_per_million,
+                price_context_multiplier,
+                output_price_context_multiplier
             FROM usage_events
             WHERE dedup_key = $dedup_key;
             """;
@@ -644,7 +976,13 @@ public sealed class SqlitePriceLedgerTests
                     CultureInfo.InvariantCulture),
             (PricingMissingCategory)reader.GetInt32(2),
             reader.IsDBNull(3) ? null : reader.GetString(3),
-            reader.IsDBNull(4) ? null : reader.GetString(4));
+            reader.IsDBNull(4) ? null : reader.GetString(4),
+            reader.IsDBNull(5) ? null : reader.GetString(5),
+            reader.IsDBNull(6) ? null : reader.GetString(6),
+            reader.IsDBNull(7) ? null : reader.GetString(7),
+            reader.IsDBNull(8) ? null : reader.GetString(8),
+            reader.IsDBNull(9) ? null : reader.GetString(9),
+            reader.IsDBNull(10) ? null : reader.GetString(10));
     }
 
     private static UsageFilter AllDay() => new(
@@ -683,5 +1021,11 @@ public sealed class SqlitePriceLedgerTests
         decimal? Amount,
         PricingMissingCategory MissingCategories,
         string? CatalogVersion,
-        string? RuleId);
+        string? RuleId,
+        string? InputRate,
+        string? CachedInputRate,
+        string? CacheWriteRate,
+        string? OutputRate,
+        string? InputMultiplier,
+        string? OutputMultiplier);
 }

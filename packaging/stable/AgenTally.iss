@@ -148,6 +148,8 @@ begin
   Parameters := '-NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass ' +
     '-File "' + ScriptPath + '" -Mode ' + Mode +
     ' -InstallRoot ' + AddQuotes(NormalizedInstallRoot);
+  if (Mode = 'InspectInstall') or (Mode = 'PrepareInstall') then
+    Parameters := Parameters + ' -IncomingVersion ' + AddQuotes('{#MyAppVersion}');
   if StatePath <> '' then
     Parameters := Parameters + ' -StatePath ' + AddQuotes(StatePath);
   if ResultPath <> '' then
@@ -265,7 +267,7 @@ begin
           StatePath, ResultPath, WizardIsTaskSelected('desktopicon'), False) then
       begin
         Result := MaintenanceFailureMessage(
-          '无法验证 AgenTally 的安装目录、已有安装身份或快捷方式。',
+          '无法验证 AgenTally 的安装目录、已有版本或快捷方式；不允许用旧版本覆盖新版本。',
           ResultPath);
         exit;
       end;
@@ -316,7 +318,7 @@ begin
     begin
       InstallInspectionCompleted := False;
       Result := MaintenanceFailureMessage(
-        '无法安全关闭已有的 AgenTally。安装尚未开始复制程序文件，请先完全退出后重试。',
+        'AgenTally 安装预检或安全退出失败。安装尚未开始复制程序文件；若已安装更新版本，请使用相同或更新的安装包。',
         ResultPath);
     end;
   except

@@ -51,6 +51,34 @@ public sealed class PriceCommandTests
     }
 
     [TestMethod]
+    public async Task Handler_CarriesExplicitUtcStartAndRejectsMissingOrNonUtcDates()
+    {
+        var ledger = new FakePriceLedger();
+        using var gate = new CoreDatabaseWriteGate();
+        var handler = new PriceCommandHandler(ledger, gate);
+        var from = new DateTimeOffset(2026, 10, 1, 16, 0, 0, TimeSpan.Zero);
+        PriceCommandRequest[] requests =
+        [
+            PriceCommandRequest.SetOverride(Rate("dated-model"), from),
+            PriceCommandRequest.RestoreDefault("dated-model", from),
+            PriceCommandRequest.RestoreAllDefaults(from)
+        ];
+        foreach (PriceCommandRequest request in requests)
+        {
+            Assert.AreEqual(PriceCommandResultCode.Success,
+                (await handler.HandleAsync(request, CancellationToken.None)).Result);
+            Assert.AreEqual(from, ledger.LastEffectiveFromUtc);
+        }
+        foreach (DateTimeOffset? invalid in new DateTimeOffset?[]
+                 { null, from.ToOffset(TimeSpan.FromHours(8)), from.AddTicks(1) })
+        {
+            Assert.AreEqual(PriceCommandResultCode.InvalidRequest,
+                (await handler.HandleAsync(requests[0] with { EffectiveFromUtc = invalid },
+                    CancellationToken.None)).Result);
+        }
+    }
+
+    [TestMethod]
     public async Task Handler_ReturnsBusyWithoutCallingLedgerWhenCollectionOwnsGate()
     {
         var ledger = new FakePriceLedger();
@@ -255,6 +283,8 @@ public sealed class PriceCommandTests
 
         public int RestoreAllCalls { get; private set; }
 
+        public DateTimeOffset? LastEffectiveFromUtc { get; private set; }
+
         public TaskCompletionSource SetStarted { get; } = new(
             TaskCreationOptions.RunContinuationsAsynchronously);
 
@@ -298,6 +328,27 @@ public sealed class PriceCommandTests
         {
             RestoreAllCalls++;
             return Task.FromResult(RestoreAllResult);
+        }
+
+        public Task<int> SetCustomPriceAsync(ModelPriceRate rate, DateTimeOffset effectiveFromUtc,
+            CancellationToken cancellationToken)
+        {
+            LastEffectiveFromUtc = effectiveFromUtc;
+            return SetCustomPriceAsync(rate, cancellationToken);
+        }
+
+        public Task<int> RestoreDefaultAsync(string model, DateTimeOffset effectiveFromUtc,
+            CancellationToken cancellationToken)
+        {
+            LastEffectiveFromUtc = effectiveFromUtc;
+            return RestoreDefaultAsync(model, cancellationToken);
+        }
+
+        public Task<int> RestoreAllDefaultsAsync(DateTimeOffset effectiveFromUtc,
+            CancellationToken cancellationToken)
+        {
+            LastEffectiveFromUtc = effectiveFromUtc;
+            return RestoreAllDefaultsAsync(cancellationToken);
         }
     }
 }

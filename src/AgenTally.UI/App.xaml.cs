@@ -273,13 +273,16 @@ public partial class App : Application
         IUiPreferencesStore? preferencesStore = null,
         IDataManagementStateStore? dataManagementState = null,
         IDataBackupInteraction? dataBackupInteraction = null,
-        IStartupRegistrationStore? startupRegistrationStore = null)
+        IStartupRegistrationStore? startupRegistrationStore = null,
+        IClaudeCodeSourceSettings? claudeCodeSourceSettings = null,
+        IClaudeCodeDirectoryPicker? claudeCodeDirectoryPicker = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(databasePath);
         ArgumentNullException.ThrowIfNull(dispatcher);
 
         var storage = new StorageOptions(databasePath);
         var connections = new SqliteConnectionFactory(storage);
+        runtimeController ??= new StandaloneCoreRuntimeController();
         preferencesStore ??= runtimeProfile is null
             ? new UnavailableUiPreferencesStore()
             : new JsonUiPreferencesStore(runtimeProfile);
@@ -318,7 +321,16 @@ public partial class App : Application
             startupRegistrationStore ?? (runtimeProfile is null
                 ? new UnavailableStartupRegistrationStore()
                 : StartupRegistrationProductionComposition.Create(
-                    runtimeProfile)));
+                    runtimeProfile)),
+            claudeCodeSourceSettings: claudeCodeSourceSettings ??
+                (runtimeProfile is null
+                    ? new UnavailableClaudeCodeSourceSettings()
+                    : new ProfileClaudeCodeSourceSettings(runtimeProfile)),
+            claudeCodeDirectoryPicker: claudeCodeDirectoryPicker ??
+                (runtimeProfile is null
+                    ? new UnavailableClaudeCodeDirectoryPicker()
+                    : new WindowsClaudeCodeDirectoryPicker()),
+            coreRuntimeController: runtimeController);
         var mainViewModel = new MainViewModel(
             dashboard,
             analysis,

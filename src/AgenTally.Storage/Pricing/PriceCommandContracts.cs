@@ -58,9 +58,11 @@ public sealed record PriceCommandRequest(
     string RequestId,
     PriceCommandKind Command,
     string? NormalizedModel,
-    PriceRatePayload? Rate)
+    PriceRatePayload? Rate,
+    DateTimeOffset? EffectiveFromUtc = null)
 {
-    public static PriceCommandRequest SetOverride(ModelPriceRate rate)
+    public static PriceCommandRequest SetOverride(ModelPriceRate rate,
+        DateTimeOffset? effectiveFromUtc = null)
     {
         ArgumentNullException.ThrowIfNull(rate);
         return new PriceCommandRequest(
@@ -68,23 +70,27 @@ public sealed record PriceCommandRequest(
             Guid.NewGuid().ToString("D"),
             PriceCommandKind.SetPriceOverride,
             rate.NormalizedModel,
-            PriceRatePayload.FromRate(rate));
+            PriceRatePayload.FromRate(rate),
+            effectiveFromUtc ?? DateTimeOffset.MinValue);
     }
 
-    public static PriceCommandRequest RestoreDefault(string normalizedModel) =>
+    public static PriceCommandRequest RestoreDefault(string normalizedModel,
+        DateTimeOffset? effectiveFromUtc = null) =>
         new(
             PriceCommandProtocol.CurrentVersion,
             Guid.NewGuid().ToString("D"),
             PriceCommandKind.RestorePriceDefault,
             normalizedModel,
-            null);
+            null,
+            effectiveFromUtc ?? DateTimeOffset.MinValue);
 
-    public static PriceCommandRequest RestoreAllDefaults() => new(
+    public static PriceCommandRequest RestoreAllDefaults(DateTimeOffset? effectiveFromUtc = null) => new(
         PriceCommandProtocol.CurrentVersion,
         Guid.NewGuid().ToString("D"),
         PriceCommandKind.RestoreAllPriceDefaults,
         null,
-        null);
+        null,
+        effectiveFromUtc ?? DateTimeOffset.MinValue);
 }
 
 public sealed record PriceCommandResponse(
@@ -109,7 +115,7 @@ public static class PriceCommandMessageCodes
 
 public static class PriceCommandProtocol
 {
-    public const int CurrentVersion = 1;
+    public const int CurrentVersion = 2;
     public const int MaxFrameBytes = 16 * 1024;
 
     private static readonly JsonSerializerOptions SerializerOptions = CreateOptions();
