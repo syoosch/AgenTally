@@ -18,6 +18,8 @@ namespace AgenTally.Tests.Core;
 [DoNotParallelize]
 public sealed class CoreRuntimeHostTests
 {
+    // Explicit synthetic Codex roots also disable real desktop-source discovery.
+
     [TestMethod]
     public async Task RunAsync_OwnershipFailureDoesNotCreateDatabaseOrStatus()
     {
@@ -30,7 +32,7 @@ public sealed class CoreRuntimeHostTests
             profile,
             trayFactory: trayFactory);
 
-        int exitCode = await host.RunAsync(["--once"]);
+        int exitCode = await host.RunAsync(["--once", "--codex-home", profile.CodexHome]);
 
         Assert.AreEqual(CoreExitCodes.AlreadyRunning, exitCode);
         Assert.IsFalse(File.Exists(profile.DatabasePath));
@@ -48,7 +50,7 @@ public sealed class CoreRuntimeHostTests
             profile,
             trayFactory: trayFactory);
 
-        Task<int> running = host.RunAsync([]);
+        Task<int> running = host.RunAsync(["--codex-home", profile.CodexHome]);
         CoreRuntimeStatus runningStatus = await WaitForStatusAsync(
             profile,
             CoreRuntimePhase.Running);
@@ -89,7 +91,7 @@ public sealed class CoreRuntimeHostTests
         {
             int exitCode = await CreateManagedHost(
                 profile,
-                trayFactory: trayFactory).RunAsync(mode);
+                trayFactory: trayFactory).RunAsync([.. mode, "--codex-home", profile.CodexHome]);
             Assert.AreEqual(
                 CoreExitCodes.Success,
                 exitCode,
@@ -109,7 +111,7 @@ public sealed class CoreRuntimeHostTests
 
         int exitCode = await CreateManagedHost(
             profile,
-            trayFactory: trayFactory).RunAsync([]);
+            trayFactory: trayFactory).RunAsync(["--codex-home", profile.CodexHome]);
         CoreRuntimeStatus? status = await new CoreRuntimeStatusStore(profile)
             .ReadAsync(CancellationToken.None);
 
@@ -130,7 +132,7 @@ public sealed class CoreRuntimeHostTests
         Task uiShutdown = uiShutdownSignal.WaitAsync(
             uiShutdownCancellation.Token);
         var host = CreateManagedHost(profile);
-        Task<int> running = host.RunAsync([]);
+        Task<int> running = host.RunAsync(["--codex-home", profile.CodexHome]);
 
         try
         {
@@ -177,7 +179,7 @@ public sealed class CoreRuntimeHostTests
         AgenTallyRuntimeProfile profile = CreateProfile(directory);
         var host = CreateManagedHost(profile);
 
-        Task<int> running = host.RunAsync([]);
+        Task<int> running = host.RunAsync(["--codex-home", profile.CodexHome]);
         await WaitForStatusAsync(profile, CoreRuntimePhase.Running);
         byte[] payload = JsonSerializer.SerializeToUtf8Bytes(new
         {
@@ -207,7 +209,7 @@ public sealed class CoreRuntimeHostTests
         using var directory = new TestTempDirectory();
         AgenTallyRuntimeProfile profile = CreateProfile(directory);
         var host = CreateManagedHost(profile);
-        Task<int> running = host.RunAsync([]);
+        Task<int> running = host.RunAsync(["--codex-home", profile.CodexHome]);
 
         try
         {
@@ -337,7 +339,7 @@ public sealed class CoreRuntimeHostTests
             profile,
             firstOutput,
             storage);
-        Task<int> firstRun = firstHost.RunAsync([]);
+        Task<int> firstRun = firstHost.RunAsync(["--codex-home", profile.CodexHome]);
         await WaitForStatusAsync(profile, CoreRuntimePhase.Running);
         Assert.IsTrue(ApplicationShutdownSignal.TryRequest(profile));
         int firstExit = await firstRun.WaitAsync(TimeSpan.FromSeconds(10));
@@ -375,7 +377,7 @@ public sealed class CoreRuntimeHostTests
             profile,
             secondOutput,
             storage);
-        Task<int> secondRun = secondHost.RunAsync([]);
+        Task<int> secondRun = secondHost.RunAsync(["--codex-home", profile.CodexHome]);
         await WaitForStatusAsync(profile, CoreRuntimePhase.Running);
         Assert.IsTrue(ApplicationShutdownSignal.TryRequest(profile));
         int secondExit = await secondRun.WaitAsync(TimeSpan.FromSeconds(10));
@@ -454,7 +456,7 @@ public sealed class CoreRuntimeHostTests
 
         using var output = new StringWriter();
         var host = CreateManagedHost(profile, output, storage);
-        Task<int> running = host.RunAsync([]);
+        Task<int> running = host.RunAsync(["--codex-home", profile.CodexHome]);
         await WaitForStatusAsync(profile, CoreRuntimePhase.Running);
         Assert.IsTrue(ApplicationShutdownSignal.TryRequest(profile));
         int exitCode = await running.WaitAsync(TimeSpan.FromSeconds(10));
@@ -531,7 +533,7 @@ public sealed class CoreRuntimeHostTests
         int failedExit = await CreateManagedHost(
             profile,
             failedOutput,
-            storage).RunAsync([]);
+            storage).RunAsync(["--codex-home", profile.CodexHome]);
         CoreRuntimeStatus? failedStatus = await new CoreRuntimeStatusStore(profile)
             .ReadAsync(CancellationToken.None);
         UsageTokenState afterFailure =
@@ -543,7 +545,7 @@ public sealed class CoreRuntimeHostTests
             profile,
             retryOutput,
             storage);
-        Task<int> retryRun = retryHost.RunAsync([]);
+        Task<int> retryRun = retryHost.RunAsync(["--codex-home", profile.CodexHome]);
         await WaitForStatusAsync(profile, CoreRuntimePhase.Running);
         Assert.IsTrue(ApplicationShutdownSignal.TryRequest(profile));
         int retryExit = await retryRun.WaitAsync(TimeSpan.FromSeconds(10));
@@ -560,6 +562,92 @@ public sealed class CoreRuntimeHostTests
         Assert.AreEqual(CoreExitCodes.Success, retryExit);
         Assert.Contains("主数据库保持不变", failedOutput.ToString());
         Assert.Contains("正在恢复增量采集", retryOutput.ToString());
+    }
+
+    [TestMethod]
+    public async Task RunAsync_CompactionUpgradePreservesHistoryPricesAndRestart()
+    {
+        using var directory = new TestTempDirectory();
+        AgenTallyRuntimeProfile profile = CreateProfile(directory);
+        string rollout = Path.Combine(profile.CodexHome, "sessions", "rollout-compaction.jsonl");
+        string orphan = Path.Combine(profile.CodexHome, "sessions", "rollout-deleted.jsonl");
+        await File.WriteAllLinesAsync(rollout, CodexCompactedLineTests.Fixture);
+        await File.WriteAllLinesAsync(orphan, CodexCompactedLineTests.Fixture.Select(line =>
+            line.Replace("compact-fixture", "deleted-fixture", StringComparison.Ordinal)));
+        var storage = new StorageOptions(profile.DatabasePath);
+        Assert.AreEqual(0, await CreateManagedHost(profile).RunAsync(["--once", "--codex-home", profile.CodexHome]));
+        var connections = new SqliteConnectionFactory(storage);
+        UsageTokenState before = await ReadUsageTokenStateAsync(connections);
+        Assert.AreEqual(2L, before.Rows);
+        File.Delete(orphan); // Synthetic database-only history must survive maintenance.
+        await using (SqliteConnection connection = await connections.OpenWriterAsync(CancellationToken.None))
+        {
+            await using SqliteCommand command = connection.CreateCommand();
+            command.CommandText = """
+                UPDATE source_cursors SET parser_version = 'codex-canonical-v13';
+                UPDATE source_instances SET accepted_parser_version = NULL;
+                UPDATE usage_events SET estimated_cost_usd = '123.456', input_rate_usd_per_million = '987.654';
+                """;
+            await command.ExecuteNonQueryAsync();
+        }
+
+        string compacted = CodexCompactedLineTests.Compacted(8 * 1024 * 1024 + 1);
+        await File.AppendAllTextAsync(rollout, compacted[..^1] + ",}\n");
+        Assert.AreEqual(CoreExitCodes.ParserRescanRequired, await CreateManagedHost(profile).RunAsync(["--codex-home", profile.CodexHome]));
+        Assert.AreEqual(before, await ReadUsageTokenStateAsync(connections));
+        await AssertFrozenPricesAsync();
+
+        await File.WriteAllTextAsync(rollout, string.Join('\n', CodexCompactedLineTests.Fixture) + "\n" + compacted + "\n");
+        using var output = new StringWriter();
+        // In-process host restarts share the test process start time. Use host
+        // cancellation here; the final run verifies the real shutdown marker.
+        using var stop = new CancellationTokenSource();
+        Task<int> running = CreateManagedHost(profile, output).RunAsync(
+            ["--codex-home", profile.CodexHome], stop.Token);
+        await WaitForStatusAsync(profile, CoreRuntimePhase.Running);
+        stop.Cancel();
+        Assert.AreEqual(0, await running.WaitAsync(TimeSpan.FromSeconds(10)));
+        Assert.AreEqual(before, await ReadUsageTokenStateAsync(connections));
+        await AssertFrozenPricesAsync();
+        Assert.Contains("正在恢复增量采集", output.ToString());
+        await using (SqliteConnection connection = await connections.OpenReaderAsync(CancellationToken.None))
+        {
+            await using SqliteCommand command = connection.CreateCommand();
+            command.CommandText = "SELECT COUNT(*) FROM source_instances WHERE agent_id = 'codex' AND accepted_parser_version = $version AND requires_rescan = 0";
+            command.Parameters.AddWithValue("$version", CodexRolloutParser.CurrentParserVersion);
+            Assert.AreEqual(1L, await command.ExecuteScalarAsync());
+        }
+
+        using var restartOutput = new StringWriter();
+        Task<int> restarted = CreateManagedHost(profile, restartOutput).RunAsync(["--codex-home", profile.CodexHome]);
+        await WaitForStatusAsync(profile, CoreRuntimePhase.Running);
+        var appended = System.Text.Json.Nodes.JsonNode.Parse(CodexCompactedLineTests.Fixture[2])!;
+        appended["timestamp"] = "2026-07-16T01:00:04Z";
+        appended["usage_id"] = "appended-call";
+        var total = appended["payload"]!["info"]!["total_token_usage"]!.AsObject();
+        foreach (string key in total.Select(pair => pair.Key).ToArray())
+        {
+            total[key] = total[key]!.GetValue<long>() * 2;
+        }
+        await File.AppendAllTextAsync(rollout, appended.ToJsonString() + "\n");
+        DateTimeOffset deadline = DateTimeOffset.UtcNow.AddSeconds(10);
+        while ((await ReadUsageTokenStateAsync(connections)).Rows < 3 && DateTimeOffset.UtcNow < deadline)
+        {
+            await Task.Delay(50);
+        }
+        Assert.IsTrue(ApplicationShutdownSignal.TryRequest(profile));
+        Assert.AreEqual(0, await restarted.WaitAsync(TimeSpan.FromSeconds(10)));
+        Assert.AreEqual(3L, (await ReadUsageTokenStateAsync(connections)).Rows);
+        Assert.DoesNotContain("正在安全更新", restartOutput.ToString());
+        await AssertFrozenPricesAsync();
+
+        async Task AssertFrozenPricesAsync()
+        {
+            await using SqliteConnection connection = await connections.OpenReaderAsync(CancellationToken.None);
+            await using SqliteCommand command = connection.CreateCommand();
+            command.CommandText = "SELECT COUNT(*) FROM usage_events WHERE estimated_cost_usd = '123.456' AND input_rate_usd_per_million = '987.654'";
+            Assert.AreEqual(2L, await command.ExecuteScalarAsync());
+        }
     }
 
     private static AgenTallyRuntimeProfile CreateProfile(

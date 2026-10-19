@@ -7,8 +7,19 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## [Unreleased]
 
-Target version: **0.2.0**. This release is being prepared and has not been
+Target version: **0.2.1**. This release is being prepared and has not been
 published.
+
+### Fixed
+
+- Upgrade rescans now accept complete, bounded Codex compaction snapshots
+  larger than the normal log-line limit without counting repeated context as
+  new usage. Malformed, unsupported, incomplete, and over-bound records remain
+  rejected, while existing statistics and frozen prices are preserved.
+- Background status retains the specific failed statistics-update message
+  after Core exits, so the cause remains visible and explicitly retryable.
+
+## [0.2.0] - 2026-10-19
 
 ### Added
 
@@ -87,5 +98,6 @@ published.
 - Public-boundary, dependency-vulnerability, sensitive-content, local-input,
   and installer-ownership checks in the release workflow.
 
-[Unreleased]: https://github.com/syoosch/AgenTally/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/syoosch/AgenTally/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/syoosch/AgenTally/releases/tag/v0.2.0
 [0.1.0]: https://github.com/syoosch/AgenTally/releases/tag/v0.1.0

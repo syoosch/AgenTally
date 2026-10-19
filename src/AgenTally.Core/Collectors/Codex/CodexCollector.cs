@@ -39,7 +39,7 @@ public sealed class CodexCollector :
         _codexHome = CodexSourceIdentity.NormalizePath(codexHome);
         _timeProvider = timeProvider ?? TimeProvider.System;
         _resolver = resolver ?? new CodexSourceResolver();
-        _reader = reader ?? new IncrementalJsonlReader();
+        _reader = reader ?? new IncrementalJsonlReader(new CodexCompactedLineProjector());
         _parser = parser ?? new CodexRolloutParser();
         if (sessionNames is null)
         {

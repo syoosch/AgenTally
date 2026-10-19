@@ -14,7 +14,7 @@ AgenTally 使用 Inno Setup 生成一个面向 Windows x64、当前用户安装�
 - 已退出源码构建或其他无法验证身份的 AgenTally 进程。
 
 ```powershell
-.\scripts\Publish-AgenTallyStablePackage.ps1 -Version 0.2.0
+.\scripts\Publish-AgenTallyStablePackage.ps1 -Version 0.2.1
 ```
 
 构建首先执行公开仓库边界、锁定依赖、NuGet 漏洞、敏感内容和联网边界检查，
@@ -22,9 +22,9 @@ AgenTally 使用 Inno Setup 生成一个面向 Windows x64、当前用户安装�
 `artifacts/stable-package/`：
 
 ```text
-AgenTally-0.2.0-win-x64-setup.exe
-AgenTally-0.2.0-win-x64-setup.sha256
-AgenTally-0.2.0-win-x64-setup.json
+AgenTally-0.2.1-win-x64-setup.exe
+AgenTally-0.2.1-win-x64-setup.sha256
+AgenTally-0.2.1-win-x64-setup.json
 ```
 
 构建安装包本身不会安装、启动或注册 AgenTally。发布者未签名时，SHA-256
@@ -37,9 +37,9 @@ AgenTally-0.2.0-win-x64-setup.json
 
 ```powershell
 $expectedCommit = (git rev-parse HEAD).Trim()
-.\scripts\Publish-AgenTallyStablePackage.ps1 -Version 0.2.0
+.\scripts\Publish-AgenTallyStablePackage.ps1 -Version 0.2.1
 .\scripts\Test-AgenTallyStableReleaseArtifact.ps1 `
-    -Version 0.2.0 `
+    -Version 0.2.1 `
     -ExpectedCommit $expectedCommit
 ```
 

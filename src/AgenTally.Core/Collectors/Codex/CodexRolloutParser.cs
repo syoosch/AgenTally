@@ -35,7 +35,7 @@ public sealed record CodexParseResult(
 // https://github.com/douglasmonsky/codex-usage-tracker/tree/b3765c27f6c3bf6068e1935ea33d0e9decf1e2f6
 public sealed partial class CodexRolloutParser
 {
-    public const string CurrentParserVersion = "codex-canonical-v13";
+    public const string CurrentParserVersion = "codex-canonical-v14";
 
     private const string InvalidJsonCode = "codex.invalid_json";
     private const string InvalidJsonMessage = "Codex log line is not valid JSON.";

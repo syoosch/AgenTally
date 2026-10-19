@@ -121,6 +121,32 @@ public sealed class CoreRuntimeControllerTests
     }
 
     [TestMethod]
+    public async Task ReadStatusAsync_PreservesExitedParserFailureWithoutImplicitRetry()
+    {
+        using var directory = new TestTempDirectory();
+        AgenTallyRuntimeProfile profile = CreateProfile(directory);
+        var processes = new FakeCoreProcessRuntime();
+        await WriteStatusAsync(profile, 73, 456, CoreRuntimePhase.NeedsParserRescan,
+            CoreRuntimeErrorCode.ParserRescanRequired);
+        var controller = CreateController(profile, processes);
+        CoreRuntimeUiStatus result = await controller.ReadStatusAsync(CancellationToken.None);
+        Assert.AreEqual(CoreRuntimeUiState.ParserRebuildRequired, result.State);
+        Assert.Contains("统计数据更新未完成", result.Message);
+        Assert.IsTrue(result.CanRetry);
+        Assert.AreEqual(0, processes.StartCalls);
+
+        // A reused PID or old application cannot authenticate the terminal cause.
+        processes.SetAccessible(73, 999, profile.CoreExecutablePath);
+        Assert.AreEqual(CoreRuntimeUiState.Failed,
+            (await controller.ReadStatusAsync(CancellationToken.None)).State);
+        await WriteStatusAsync(profile, 74, 456, CoreRuntimePhase.NeedsParserRescan,
+            CoreRuntimeErrorCode.ParserRescanRequired, applicationVersion: "0.9.0-dev");
+        Assert.AreEqual(CoreRuntimeUiState.Failed,
+            (await controller.ReadStatusAsync(CancellationToken.None)).State);
+        Assert.AreEqual(0, processes.StartCalls);
+    }
+
+    [TestMethod]
     public async Task EnsureAsync_MapsTerminalParserFailureWithoutRelaunchingLiveCore()
     {
         using var directory = new TestTempDirectory();

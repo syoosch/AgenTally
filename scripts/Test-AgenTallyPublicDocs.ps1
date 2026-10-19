@@ -65,12 +65,46 @@ function Get-RootedTarget {
     return $fullPath
 }
 
+function Get-DocumentationFiles {
+    param([Parameter(Mandatory)] [string] $BasePath)
+
+    # Match the public boundary's source-file scope. A built worktree also
+    # contains ignored runtime/tooling output, whose third-party Markdown is
+    # not part of the public snapshot. New untracked source docs remain checked.
+    if (Test-Path -LiteralPath (Join-Path $BasePath '.git') -PathType Container) {
+        $paths = @(& git -c "safe.directory=$BasePath" -C $BasePath `
+            -c core.quotePath=false ls-files --cached --others --exclude-standard)
+        if ($LASTEXITCODE -ne 0) {
+            throw 'Could not enumerate public documentation paths.'
+        }
+
+        foreach ($relativePath in $paths) {
+            $path = [System.IO.Path]::GetFullPath((Join-Path $BasePath $relativePath))
+            if (-not $path.StartsWith(
+                    $BasePath + [System.IO.Path]::DirectorySeparatorChar,
+                    [System.StringComparison]::OrdinalIgnoreCase)) {
+                throw "Documentation file escaped the root: $relativePath"
+            }
+            if (-not (Test-Path -LiteralPath $path)) { continue }
+            if (-not (Test-Path -LiteralPath $path -PathType Leaf)) {
+                throw "Public documentation path is not a regular file: $relativePath"
+            }
+            Get-Item -LiteralPath $path -Force
+        }
+        return
+    }
+
+    # Export candidates and overlays have no Git directory and contain only
+    # their explicitly supplied file tree; validate every file there.
+    Get-ChildItem -LiteralPath $BasePath -Recurse -File -Force
+}
+
 function Get-FileSet {
     param([Parameter(Mandatory)] [string] $BasePath)
 
     $set = [System.Collections.Generic.HashSet[string]]::new(
         [System.StringComparer]::Ordinal)
-    foreach ($file in Get-ChildItem -LiteralPath $BasePath -Recurse -File -Force) {
+    foreach ($file in Get-DocumentationFiles -BasePath $BasePath) {
         [void]$set.Add((Get-RelativePath -BasePath $BasePath -FullName $file.FullName))
     }
 
@@ -170,8 +204,9 @@ if ($null -ne $fallbackPath) {
     }
 }
 
-$markdownFiles = @(Get-ChildItem -LiteralPath $rootPath -Recurse -File -Force `
-    -Filter '*.md')
+$markdownFiles = @(Get-DocumentationFiles -BasePath $rootPath | Where-Object {
+    $_.Extension -ieq '.md'
+})
 $inlineLinkPattern = @'
 !?\[[^\]]*\]\((?<target><[^>]+>|[^\s)]+)(?:\s+["'][^"']*["'])?\)
 '@.Trim()

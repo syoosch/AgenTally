@@ -363,7 +363,7 @@ public sealed class CoreRuntimeController : ICoreRuntimeController
         CancellationToken cancellationToken)
     {
         StatusEvaluation evaluation = await EvaluateStatusAsync(cancellationToken);
-        if (evaluation.ShouldLaunch)
+        if (evaluation.ShouldLaunch && !evaluation.Status.IsError)
         {
             return Status(
                 CoreRuntimeUiState.Failed,
